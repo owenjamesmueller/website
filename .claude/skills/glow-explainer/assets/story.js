@@ -23,6 +23,9 @@
   const back = (el) => { el.dataset.overlapOk = ''; el.dataset.scenery = ''; return el; };
   const node = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); parent && parent.appendChild(n); return n; };
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  // colour fade (never snap a colour: a 1-frame switch reads as a stutter)
+  const hex = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+  const mixc = (a, b, p) => { const A = hex(a), B = hex(b); return 'rgb(' + A.map((v, i) => Math.round(v + (B[i] - v) * clamp01(p))).join(',') + ')'; };
   const MONO = "font-family=\"Space Mono,monospace\" font-weight=\"700\"";
 
   function classroom({ parent, board = '' } = {}) {
@@ -40,7 +43,7 @@
       const cp = node('clipPath', { id }, ch); const r = node('rect', { x: 180, y: y - 70, width: 0, height: 100 }, cp);
       const tx = node('text', { x: 190, y, 'font-family': 'Space Mono,monospace', 'font-weight': 700, 'font-size': size, fill: color, 'clip-path': `url(#${id})`, 'font-style': 'italic' }, ch); tx.textContent = text;
       on((t) => r.setAttribute('width', 720 * clamp01((t - t0) / dur)));
-      sfx('real/typing', t0, 0.15, dur);
+      sfx('real/chalk-line', t0, 0.25, dur);
       return el;
     };
     if (board) el.write(board, -1, 0.01);
@@ -101,26 +104,26 @@
         rows.push([g, t0 + i * every]);
       }
       on((t) => {
-        let shown = 0; rows.forEach(([g, tt]) => { const v = t >= tt; g.setAttribute('opacity', v ? 1 : 0); if (v) shown++; });
-        L.setAttribute('transform', `translate(0 ${-Math.max(0, shown - maxL) * lh})`);
+        let shown = 0; rows.forEach(([g, tt]) => { const p = clamp01((t - tt) / 0.14), e = EASE.out(p); g.setAttribute('opacity', p.toFixed(3)); g.setAttribute('transform', `translate(${((1 - e) * -24).toFixed(1)} 0)`); shown += e; });
+        L.setAttribute('transform', `translate(0 ${(-Math.max(0, shown - maxL) * lh).toFixed(1)})`);
       });
       return el;
     };
-    el.crack = (t0) => { const c = el.querySelector('.crackp'); on((t) => c.setAttribute('opacity', t >= t0 ? 0.85 : 0)); sfx('real/glass-crack', t0, 0.4, 1); return el; };
-    el.video = (t0, t1) => { const v = el.querySelector('.vid'), b = el.querySelector('.vbar'); on((t) => { v.setAttribute('opacity', t >= t0 && t < t1 ? 1 : 0); b.setAttribute('width', (w * 0.5 * clamp01((t - t0) / (t1 - t0))).toFixed(0)); }); return el; };
-    el.crash = (t0, t1 = 1e9) => { const c = el.querySelector('.crash'); on((t) => c.setAttribute('opacity', t >= t0 && t < t1 ? (t - t0 < 0.3 ? (Math.floor((t - t0) * 20) % 2 ? 0.4 : 1) : 1) : 0)); sfx('real/glitch', t0, 0.45, 0.8); return el; };
+    el.crack = (t0) => { const c = el.querySelector('.crackp'); on((t) => c.setAttribute('opacity', (0.85 * clamp01((t - t0) / 0.08)).toFixed(3))); sfx('real/glass-crack', t0, 0.22, 0.8); return el; };
+    el.video = (t0, t1) => { const v = el.querySelector('.vid'), b = el.querySelector('.vbar'); on((t) => { v.setAttribute('opacity', (clamp01((t - t0) / 0.15) * clamp01((t1 - t) / 0.15)).toFixed(3)); b.setAttribute('width', (w * 0.5 * clamp01((t - t0) / (t1 - t0))).toFixed(0)); }); return el; };
+    el.crash = (t0, t1 = 1e9) => { const c = el.querySelector('.crash'); on((t) => c.setAttribute('opacity', (clamp01((t - t0) / 0.12) * clamp01((t1 - t) / 0.12)).toFixed(3))); sfx('real/key-press', t0, 0.4, 0.4); return el; };
     el.ok = (t0, text = 'IT WORKS') => { const o = el.querySelector('.okp'); el.querySelector('.okt').textContent = text; on((t) => o.setAttribute('opacity', clamp01((t - t0) / 0.2))); sfx('real/win-notify', t0, 0.4, 1.2); return el; };
     return el;
   }
   function nightHouse(x, floorY, { parent, size = 1 } = {}) {
     const el = back(place(sv(520 * size, 520 * size, `<g transform="scale(${size})"><path d="M30 230 L260 40 L490 230" fill="#13151b" stroke="#e6e6e6" stroke-width="8" stroke-linejoin="round"/><rect x="60" y="230" width="400" height="290" fill="#13151b" stroke="#e6e6e6" stroke-width="8"/><rect x="220" y="370" width="90" height="150" rx="6" fill="#0d0e12" stroke="#bdbdbd" stroke-width="6"/><rect x="100" y="290" width="90" height="80" rx="4" fill="#20232c" stroke="#bdbdbd" stroke-width="5"/><rect class="lit" x="340" y="280" width="100" height="90" rx="4" fill="#20232c" stroke="#e6e6e6" stroke-width="5"/><path d="M390 280 V370 M340 325 H440" stroke="#0d0e12" stroke-width="5"/><rect x="380" y="80" width="40" height="90" fill="#13151b" stroke="#e6e6e6" stroke-width="6"/></g>`, 'gx-house'), x, floorY, { parent, anchor: 'bottom', z: 2, glow: false }));
-    el.lamp = (t0, color = '#9fd3ff') => { const w = el.querySelector('.lit'); on((t) => w.setAttribute('fill', t >= t0 ? (Math.sin(t * 9) > -0.6 ? color : '#6f9cc4') : '#20232c')); return el; };
+    el.lamp = (t0, color = '#9fd3ff') => { const w = el.querySelector('.lit'); on((t) => w.setAttribute('fill', mixc('#20232c', color, (t - t0) / 0.25))); return el; };
     return el;
   }
   function tvGlow(x, floorY, { parent } = {}) {
     const el = place(sv(360, 300, `<rect x="10" y="10" width="340" height="200" rx="14" fill="#0b0d12" stroke="#e6e6e6" stroke-width="7"/><rect class="scr" x="26" y="26" width="308" height="168" rx="6" fill="#4f46e5"/><path d="M180 210 V250 M110 250 H250" stroke="#bdbdbd" stroke-width="8" stroke-linecap="round"/><rect x="40" y="250" width="280" height="50" rx="6" fill="#16181f" stroke="#9a9a9a" stroke-width="5"/>`, 'gx-tv'), x, floorY, { parent, anchor: 'bottom', z: 4, glow: false });
     const s = el.querySelector('.scr'), C = ['#4f46e5', '#e11d48', '#16a34a', '#f59e0b', '#06b6d4'];
-    on((t) => s.setAttribute('fill', C[Math.floor(t * 5 + Math.sin(t * 3) * 2 + 10) % C.length]));
+    on((t) => { const u = t * 1.2 + Math.sin(t * 0.7), i = Math.floor(u), f = u - i; s.setAttribute('fill', mixc(C[i % C.length], C[(i + 1) % C.length], EASE.inOut(f))); });
     return el;
   }
   function bakery(x, floorY, { parent, sign = 'MOM’S BAKERY', size = 1 } = {}) {
@@ -129,7 +132,7 @@
       <rect class="bw" x="70" y="320" width="300" height="230" rx="8" fill="#1a1d25" stroke="#e6e6e6" stroke-width="6"/>
       <path d="M100 520 q40 -60 80 0 z M200 520 q50 -80 100 0 z" fill="#d9a35b"/><rect x="290" y="470" width="60" height="50" rx="8" fill="#f2c6d0"/><path d="M290 470 q30 -24 60 0" fill="#fff"/>
       <rect x="420" y="380" width="150" height="320" rx="8" fill="#0d0e12" stroke="#bdbdbd" stroke-width="6"/><circle cx="445" cy="540" r="7" fill="#f5c542"/></g>`, 'gx-bakery'), x, floorY, { parent, anchor: 'bottom', z: 2, glow: false }));
-    el.lights = (t0) => { const w = el.querySelector('.bw'); on((t) => w.setAttribute('fill', t >= t0 ? '#3a2f14' : '#1a1d25')); el.dataset.glowColor = '245,197,66'; el.dataset.glow = ''; tw(el, t0, 0.4, { glow: [0, 0.8] }); return el; };
+    el.lights = (t0) => { const w = el.querySelector('.bw'); on((t) => w.setAttribute('fill', mixc('#1a1d25', '#3a2f14', (t - t0) / 0.3))); el.dataset.glowColor = '245,197,66'; el.dataset.glow = ''; tw(el, t0, 0.4, { glow: [0, 0.8] }); return el; };
     return el;
   }
   function shopRow(floorY, n, { parent, w = 200, y0 = 0, scale = 1, x0 } = {}) {
@@ -137,7 +140,7 @@
     for (let i = 0; i < n; i++) { const X = i * w; s += `<rect x="${X + 8}" y="40" width="${w - 16}" height="250" fill="#13151b" stroke="#d0d0d0" stroke-width="5"/><path d="M${X + 4} 70 H${X + w - 4} L${X + w - 14} 110 H${X + 14} Z" fill="${i % 2 ? '#e6e6e6' : '#9a9a9a'}"/><rect class="sw" x="${X + 26}" y="140" width="${w * 0.45}" height="100" rx="5" fill="#20232c" stroke="#bdbdbd" stroke-width="4"/><rect x="${X + w * 0.62}" y="150" width="${w * 0.26}" height="140" rx="4" fill="#0d0e12" stroke="#9a9a9a" stroke-width="4"/>`; }
     const el = back(place(sv(W * scale, 290 * scale, `<g transform="scale(${scale})">${s}</g>`, 'gx-shoprow'), x0 ?? 540, floorY + y0, { parent, anchor: 'bottom', z: 2, glow: false }));
     const ws = [...el.querySelectorAll('.sw')];
-    el.light = (i, t0) => { on((t) => ws[i].setAttribute('fill', t >= t0 ? '#f5c542' : '#20232c')); return el; };
+    el.light = (i, t0) => { on((t) => ws[i].setAttribute('fill', mixc('#20232c', '#f5c542', (t - t0) / 0.22))); return el; };
     el.n = n;
     return el;
   }
@@ -160,7 +163,7 @@
       const a = node('text', { x: 142, y: yy + 44, 'font-family': 'Space Mono,monospace', 'font-weight': 700, 'font-size': 24, fill: '#fff' }, g); a.textContent = text;
       const b = node('text', { x: 142, y: yy + 76, 'font-family': 'Space Mono,monospace', 'font-size': 20, fill: '#9aa4b8' }, g); b.textContent = 'just now';
       on((t) => { const k = clamp01((t - t0) / 0.25); g.setAttribute('opacity', k); g.setAttribute('transform', `translate(${((1 - EASE.out(k)) * 60).toFixed(1)} 0)`); });
-      sfx('real/msg-pop', t0, 0.35, 0.5);
+      sfx('real/notify-bubble', t0, 0.3, 0.6);
       return el;
     };
     return el;

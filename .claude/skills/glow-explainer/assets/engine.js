@@ -135,7 +135,8 @@
   // a quick camera punch-in at the start of every sentence (fast-paced reels feel)
   function punches(el = '#stage', amount = 0.035, dur = 0.22) {
     const W = window.WORDS || [];
-    W.forEach((w, i) => { if (i === 0 || /[.!?]$/.test(W[i - 1].word)) tw(el, w.start - 0.02, dur, { scale: [1 + amount, 1] }, 'out'); });
+    // ramp IN over ~5 frames, then settle: an instant 1-frame zoom reads as a stutter (check_motion.py flags it)
+    W.forEach((w, i) => { if (i === 0 || /[.!?]$/.test(W[i - 1].word)) { tw(el, w.start - 0.1, 0.08, { scale: [1, 1 + amount] }, 'inOut'); tw(el, w.start - 0.02, dur + 0.1, { scale: [1 + amount, 1] }, 'inOut'); } });
   }
   function cue(phrase, offset = 0, from = 0) { const m = findPhrase(phrase, from); return m ? m[0].start + offset : NaN; }
   function cueEnd(phrase, offset = 0, from = 0) { const m = findPhrase(phrase, from); return m ? m[1].end + offset : NaN; }
@@ -143,16 +144,19 @@
   function rand(seed) { const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); }
 
   // ---- per-frame evaluation ------------------------------------------
+  // a start value of null = "from wherever it is now" (exits after a push-in must not snap back: that's a stutter)
   function valueAt(list, prop, t) {
-    let started = null, first = null;
-    for (const k of list) {
+    let started = null, first = null, idx = -1;
+    for (let i = 0; i < list.length; i++) {
+      const k = list[i];
       if (!(prop in k.props)) continue;
       if (!first) first = k;
-      if (t >= k.t0) started = k;
+      if (t >= k.t0) { started = k; idx = i; }
     }
     if (!first) return DEFAULTS[prop];
-    if (!started) return first.props[prop][0];
-    const [a, b] = started.props[prop];
+    if (!started) return first.props[prop][0] ?? DEFAULTS[prop];
+    let [a, b] = started.props[prop];
+    if (a == null) a = valueAt(list.slice(0, idx), prop, started.t0);
     const p = started.ease(clamp((t - started.t0) / (started.t1 - started.t0), 0, 1));
     return a + (b - a) * p;
   }

@@ -49,8 +49,8 @@ const BLOOM = bloom > 0
       // Reels safe zone (conservative blend of published guides): text must stay inside this box;
       // the right 150 px below y=960 is covered by like/comment/share buttons.
       const SAFE = { top: 270, bottom: 1500, left: 65, right: 1015, rightColX: 930, rightColY: 960 };
-      const UI = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-icon:not(.gx-icon-coin):not(.gx-icon-sparkle),.gx-bar,.gx-chart,.gx-figure,.gx-caption,.gx-sign,.gx-title,.gx-tree,.gx-bucket,.gx-desk,.gx-sprout,.gx-mono-sign,.gx-mono-bubble,.gx-quote,.gx-mono-head,.gx-prop,.gx-stick';
-      const TEXT = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-bar,.gx-caption,.gx-sign,.gx-title,.gx-mono-sign,.gx-mono-bubble,.gx-quote,.gx-mono-head';
+      const UI = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-icon:not(.gx-icon-coin):not(.gx-icon-sparkle),.gx-bar,.gx-chart,.gx-figure,.gx-caption,.gx-sign,.gx-title,.gx-tree,.gx-bucket,.gx-desk,.gx-sprout,.gx-mono-sign,.gx-mono-bubble,.gx-quote,.gx-mono-head,.gx-prop,.gx-stick,.gx-sub';
+      const TEXT = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-bar,.gx-caption,.gx-sign,.gx-title,.gx-mono-sign,.gx-mono-bubble,.gx-quote,.gx-mono-head,.gx-sub';
       const vis = (el) => { let o = 1; for (let e = el; e && e.nodeType === 1; e = e.parentElement) o *= +getComputedStyle(e).opacity; return o; };
       const name = (el) => (el.className.baseVal ?? el.className).split(' ').find((c) => c.startsWith('gx-') && c !== 'gx-svg') + ':' + (el.textContent || '').trim().slice(0, 22);
       const box = (el) => { const r = el.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom }; };
@@ -59,7 +59,9 @@ const BLOOM = bloom > 0
         window.__seek(t);
         // sets mid-transition (moving, scaled or blurred) are skipped: overlap during a whip/zoom is intended
         const moving = (e) => { const g = e.closest('.gx-set'); if (!g) return false; const tr = g.style.transform || '', f = g.style.filter || '';
-          return /blur\((?!0px)/.test(f) || (tr && !/^translate\(0px, 0px\) rotate\(0deg\) scale\(1\)$/.test(tr)); };
+          // only real transitions are skipped (blur, a slide, a big zoom); slow push-ins (scale 0.9-1.2) are still checked
+          const m = tr.match(/translate\(([-0-9.e]+)px, ([-0-9.e]+)px\).*scale\(([-0-9.e]+)\)/);
+          return /blur\((?!0px)/.test(f) || (m && (Math.abs(+m[1]) > 2 || Math.abs(+m[2]) > 2 || +m[3] < 0.9 || +m[3] > 1.2)); };
         const els = [...document.querySelectorAll(UI)].filter((e) => !e.closest('[data-overlap-ok]') && vis(e) > 0.6 && !e.parentElement.closest(UI) && !moving(e));
         const B = els.map(box);
         for (let i = 0; i < els.length; i++) {
@@ -141,6 +143,8 @@ const BLOOM = bloom > 0
     await new Promise((r) => spawn('ffmpeg', ff, { stdio: ['ignore', 'ignore', 'inherit'] }).on('close', r));
     fs.rmSync(tmp, { recursive: true, force: true });
     console.log(`wrote ${out} with ${segs.length} workers in ${((Date.now() - t0) / 1000).toFixed(0)}s`);
+    // stutter check on the finished video (frozen frames inside motion, unexplained jumps)
+    require('child_process').spawnSync('python3', ['-I', path.join(__dirname, 'check_motion.py'), out, '--fps', String(fps)], { stdio: 'inherit' });
     return;
   }
   const n = Math.ceil((to - from) * fps * mb);

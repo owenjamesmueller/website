@@ -4,11 +4,13 @@
  */
 window.GX_PACE = 0.8;
 const VO = window.DURATION;
-window.DURATION = VO + 2.0;
+window.DURATION = VO + 3.2;                                    // lesson card + comment question
 const END = window.DURATION;
 const C = (p, o = 0, from = 0) => cue(p, o, from);
 const cam = document.getElementById('cam'); drift(cam, 4);
 punches('#stage', 0.035, 0.22);
+window.GX_WHOOSH = 0.12;                                       // transitions get a soft air whoosh, not a trailer swoosh
+subtitles();                                                   // word-by-word captions in their own band (scene shrinks 8%)
 const FL = 1300, GOLD = '#f5c542';
 const S0 = (el) => show(el, -1, null, 0.01);
 const LEO = { hood: true, accent: GOLD };                       // the hero always wears the gold stripe
@@ -52,12 +54,21 @@ const S2 = stageSet(); sceneSwap(S1, S2, C('years') - 0.45, 'zoom');
 }
 
 /* ============ S3 — "Leo failed math three times." ============ */
-const S3 = stageSet(); sceneSwap(S2, S3, C('failed') - 0.5, 'zoom', -1);
+/* ============ SR — re-hook: "Here's how it happened." (rewind) ============ */
+const SR = stageSet(); sceneSwap(S2, SR, C('heres') - 0.15, 'zoom', -1);
+{
+  const ck = icon('clock', 540, 900, { size: 300, parent: SR }); S0(ck);
+  tw(ck, C('heres') - 0.15, C('failed') - C('heres'), { rotate: [0, -720] }, 'inOut');
+  const yr = stat('Rewind', '12 years', 540, 1210, { size: 80, parent: SR, tone: 'gold' }); S0(yr);
+  count(yr.querySelector('.gx-stat-val'), C('heres'), C('happened') - C('heres') + 0.3, 12, 0, (v) => Math.round(v) ? Math.round(v) + ' years' : 'Age 16');
+  const h = titleCard('Here\u2019s how it<br>*happened.*', { parent: SR, y: 440, size: 84 }); pop(h, C('heres'));
+}
+const S3 = stageSet(); sceneSwap(SR, S3, C('failed') - 0.5, 'push');
 {
   const p = pill('Leo · 16', 540, 1330, { size: 'md', parent: S3 }); S0(p);
   [[C('failed'), 310, -10], [C('math'), 540, 4], [C('times'), 770, 12]].forEach(([t0, x, r], i) => {
     const tp = testPaper(x, 1010 - i * 10, { parent: S3, rot: r }); tp.dataset.overlapOk = '';
-    tw(tp, t0 - 0.05, 0.01, { opacity: [0, 1] }); tw(tp, t0 - 0.05, 0.2, { scale: [1.8, 1], y: [-120, 0] }, 'in');
+    tw(tp, t0 - 0.14, 0.16, { opacity: [0, 1] }, 'linear'); tw(tp, t0 - 0.12, 0.3, { scale: [1.35, 1], y: [-90, 0] }, 'out');
     shake(cam, t0 + 0.15, 0.2, 8);
   });
   const h = titleCard('Failed math<br>_three times._', { parent: S3, y: 450, size: 88 }); pop(h, C('failed'));
@@ -167,7 +178,15 @@ const S12 = stageSet(); sceneSwap(S11, S12, C('didnt quit') - 0.1, 'zoom');
 }
 
 /* ============ S13 — "At nineteen, he built a tiny app for his mom's bakery." ============ */
-const S13 = stageSet(); sceneSwap(S12, S13, C('built') - 0.6, 'whip');
+/* ============ ST — re-hook: "Then one tiny thing changed everything." (a text from Mom) ============ */
+const ST = stageSet(); sceneSwap(S12, ST, C('tiny') - 0.45, 'push');
+{
+  const ph = bigPhone(540, 990, { parent: ST, title: 'MOM' }); S0(ph);
+  ph.order(0, 'Orders lost again', C('tiny') - 0.2); ph.order(1, 'Paper list = chaos', C('changed') - 0.1);
+  const h = titleCard('One *tiny* thing', { parent: ST, y: 440, size: 84 }); pop(h, C('tiny'));
+  tw(ST, C('tiny'), C('built') - C('tiny'), { scale: [1, 1.06] }, 'linear');
+}
+const S13 = stageSet(); sceneSwap(ST, S13, C('built') - 0.6, 'whip');
 {
   S0(floor(FL, { parent: S13 }));
   const bk = bakery(745, FL, { parent: S13, size: 0.82 }); S0(bk); bk.lights(C('bakery'));
@@ -223,24 +242,33 @@ const S17 = stageSet(); sceneSwap(S16, S17, C('company') - 0.8, 'zoom');
 }
 
 /* ============ S18 — "Then one morning, a job application landed on his desk." ============ */
-const S18 = stageSet(); sceneSwap(S17, S18, C('morning') - 0.6, 'whip');
+/* ============ SC — re-hook: "But the craziest part was still coming." ============ */
+const SC = stageSet(); sceneSwap(S17, SC, C('craziest') - 0.5, 'zoom');
+{
+  const sp = spotlight(540, 560, { width: 520, height: 820, parent: SC }); S0(sp);
+  const ck = icon('clock', 540, 980, { size: 340, parent: SC }); S0(ck);
+  on((t) => { const k = Math.floor((t - C('craziest')) * 2); ck.style.rotate = (Math.max(0, k) * 6) + 'deg'; });
+  const h = titleCard('The craziest part<br>was still *coming.*', { parent: SC, y: 440, size: 74 }); pop(h, C('craziest'));
+  tw(SC, C('craziest'), C('morning') - C('craziest'), { scale: [1, 1.1] }, 'in');
+}
+const S18 = stageSet(); sceneSwap(SC, S18, C('morning') - 0.6, 'whip');
 {
   S0(officeWindow({ parent: S18 }));
   const sun = halo(860, 700, { r: 300, parent: S18 }); sun.dataset.glowColor = '245,197,66'; S0(sun);
   const leo = person(540, 1380, { size: 0.95, tie: true, accent: GOLD, parent: S18 }); S0(leo); leo.pose(-1, 'type', 0.01).head(C('desk'), 'down', 0.3);
   const dk = deskFront(540, 1430, { parent: S18, laptop: false }); S0(dk);
   const ps = paperSheet(770, 1185, S18, -6);
-  tw(ps, C('application') - 0.3, 0.05, { opacity: [0, 1] }); tw(ps, C('application') - 0.3, 0.8, { y: [-700, 0], rotate: [-40, 0] }, 'in');
+  tw(ps, C('application') - 0.3, 0.05, { opacity: [0, 1] }); tw(ps, C('application') - 0.3, 0.8, { y: [-380, 0], rotate: [-30, 0] }, 'inOut');
   const h = titleCard('Then one morning…', { parent: S18, y: 440, size: 76 }); pop(h, C('morning'));
 }
 
 /* ============ S19+S20 — "He knew the name. It was his old math teacher." ============ */
 const S19 = stageSet(); sceneSwap(S18, S19, C('knew', 0, C('application')) - 0.4, 'zoom');
 {
-  const f = appForm(540, 1010, { parent: S19 }); S0(f);
+  const f = appForm(540, 905, { parent: S19 }); S0(f);
   f.fill(0, 'Margaret Hale', C('knew', 0, C('application')) - 0.2, 0.6);
   f.photo(C('old') - 0.2); f.fill(1, 'Math teacher', C('math', 0, C('old')) - 0.1, 0.5); f.fill(2, 'School cut my position', C('teacher', 0, C('old')), 0.6);
-  S19.style.transformOrigin = '540px 700px'; tw(S19, C('knew', 0, C('application')), C('could') - C('knew', 0, C('application')), { scale: [1, 1.12] }, 'linear');
+  S19.style.transformOrigin = '540px 1380px'; tw(S19, C('knew', 0, C('application')), C('could') - C('knew', 0, C('application')), { scale: [1, 1.12] }, 'linear');
 }
 /* memory flash — the classroom, the pointing finger (callback to frame 0) */
 const SM = stageSet(); sceneSwap(S19, SM, C('teacher', 0, C('old')) + 0.35, 'cut');
@@ -297,49 +325,62 @@ const S24 = stageSet(); sceneSwap(S23, S24, C('because') - 0.1, 'zoom');
   out(t1, C('playing') - 0.35, 0.2);
   const t2 = titleCard('He’s playing a<br>*different game.*', { parent: S24, y: 500, kicker: 'Remember this', size: 78 });
   tw(t2, C('playing') - 0.1, 0.45, { opacity: [0, 1], scale: [0.94, 1] }, 'out');
+  // comment bait: a question the viewer answers (drives comments + rewatches)
+  const q = pill('Would you have hired her?', 540, 770, { size: 'md', parent: S24 }); q.style.fontSize = '34px'; q.style.padding = '18px 34px'; pop(q, VO + 0.6);
 }
 
-/* ================= SOUND DESIGN (real recordings) ================= */
+/* ================= SOUND DESIGN — natural, diegetic sounds of each place (real recordings, assets/sfx/real) =================
+ * Beds = the room you're in (class chatter, crickets, rain, office, street). Hits = real objects (chalk, paper, keys, doorbell).
+ * No trailer stingers or brass. mix_audio.py ducks all of this under the voice and auto-checks the balance. */
 {
   const R = (n, t, v, d = 0) => sfx('real/' + n, t, v, d);
-  // S1 classroom: murmur bed, the verdict, the laugh
-  R('crowd-murmur', 0, 0.22, C('years') - 0.3); R('dun-dun-dun', C('never'), 0.3, 1.8); R('crowd-laugh', C('anything') - 0.15, 0.35, 1.4);
-  // S2 flash-forward
-  R('whoosh-trailer-hit', C('years') - 0.5, 0.45, 1.6); R('swell-suspense', C('years'), 0.25, 2.5); R('impact-big', C('job') - 0.05, 0.4, 1.5);
-  // S3 the tests
-  R('rewind', C('failed') - 0.7, 0.3, 0.7);
-  [C('failed'), C('math'), C('times')].forEach((t, i) => { R('impact-wood', t + 0.12, 0.45 + i * 0.05, 0.6); R('paper-move', t, 0.3, 0.4); });
-  // S4 laughter
-  R('crowd-murmur', C('sat') - 0.3, 0.2, 2); R('crowd-laugh', C('laughed') - 0.1, 0.45, 2.2); R('heartbeat', C('laughed') + 0.3, 0.3, 1.5);
-  // S5 quiet
-  R('heartbeat-hit', C('stopped'), 0.35, 1.8);
-  // S6 night: the open loop
-  R('night-ambience', C('nobody') - 0.4, 0.3, C('laptop', -0.3) - C('nobody') + 0.4); R('tension-drone', C('nobody'), 0.25, 2.4); R('pop-click', C('home') - 0.1, 0.35, 0.4);
-  // S7-S9 gaming vs coding, typing, errors
-  R('glitch', C('gaming') - 0.2, 0.15, 0.8); R('typing', C('leo', 0, C('gaming')), 0.3, 2.2);
-  R('typing', C('teaching') - 0.1, 0.4, C('one video') - C('teaching'));
-  R('whoosh-small', C('video') - 0.2, 0.25, 0.6); R('score-count', C('one video'), 0.2, C('first') - C('one video') - 0.2);
-  [0, 1, 2].forEach((i) => R('pop-click', C('error') + 0.15 + i * 0.25, 0.35, 0.3));
-  // S10-S11 crash and tears
-  R('typing', C('first') - 0.3, 0.35, C('crashed') - C('first') + 0.3); R('impact-big', C('crashed'), 0.55, 1.8); R('lose-piano', C('crashed') + 0.2, 0.35, 1.8);
-  R('wind-winter', C('cried') - 0.3, 0.25, C('quit') - C('cried') + 0.3);
-  // S12 the turn
-  R('reveal-impact', C('quit') - 0.05, 0.55, 1.8); R('riser', C('quit') + 0.3, 0.25, 2.2);
-  // S13-S16 the climb
-  R('door-creak', C('built') - 0.5, 0.2, 0.8); R('achievement', C('bakery'), 0.35, 1.4); R('crowd-ooh', C('bakery') + 0.1, 0.2, 1);
-  R('coins-handle', C('saved'), 0.35, 1.2); R('win-notify', C('day'), 0.3, 1);
-  R('car-arrive', C('next') - 0.4, 0.2, 1.4); R('notify-positive', C('wanted'), 0.35, 1);
-  R('transition-riser', C('more') - 0.6, 0.35, 1.6); R('payout', C('more') + 0.8, 0.35, 1.5);
-  // S17 the company
-  R('crowd-murmur', C('company') - 0.6, 0.2, 2.2); R('win-chimes', C('employees') + 0.4, 0.4, 1.8);
-  // S18-S20 the application, the name, the memory
-  R('paper-fall', C('application') + 0.3, 0.45, 1); R('impact-quick', C('desk'), 0.35, 0.6);
-  R('heartbeat', C('knew', 0, C('application')) - 0.2, 0.5, C('could') - C('knew', 0, C('application'))); R('swell-rumble', C('knew', 0, C('application')), 0.25, 3);
-  R('impact-trailer', C('teacher', 0, C('old')), 0.5, 1.6); R('crowd-laugh', C('teacher', 0, C('old')) + 0.35, 0.25, 0.8);
-  // S21-S22 the choice
-  R('tension-drone', C('could'), 0.3, C('hired') - C('could')); R('crowd-laugh', C('all did', -0.3), 0.15, 1.2);
-  R('swell-heaven', C('instead') - 0.3, 0.45, 2.5);
-  // S23-S24 the callback and the lesson
-  R('crowd-murmur', C('teach') - 0.2, 0.18, 2.5); R('pop', C('back', 0, C('sit')) - 0.2, 0.3, 0.4);
-  R('reveal-impact', C('slow') - 0.3, 0.4, 1.6); R('piano-chord', C('different') - 0.1, 0.45, 2.5); R('logo-reveal', C('game'), 0.35, 2);
+  const K2 = C('heres') - 0.15;
+  // classroom (S1): chatter, clock, chalk, the laugh
+  R('restaurant-chatter', 0, 0.14, C('years') - 0.4); R('clock-tick', 0, 0.12, C('years') - 0.4);
+  R('chalk-board', C('never') - 0.1, 0.4, 1.2); R('teens-laugh', C('anything') - 0.15, 0.3, 1.6);
+  // twelve years later (S2): office, the paper
+  R('office-ambience', C('years') - 0.4, 0.2, K2 - C('years') + 0.4); R('paper-slide', C('asking') + 0.15, 0.35, 0.8); R('heartbeat-single', C('job'), 0.4, 1.2);
+  // rewind (SR)
+  R('rewind', K2, 0.22, 1.4); R('clock-tick', K2 + 0.3, 0.25, C('failed') - K2 - 0.5);
+  // the tests (S3)
+  [C('failed'), C('math'), C('times')].forEach((t) => { R('paper-slide', t - 0.12, 0.35, 0.5); R('impact-wood', t + 0.14, 0.22, 0.4); });
+  // laughed at (S4)
+  R('restaurant-chatter', C('sat') - 0.4, 0.14, C('so he') - C('sat') + 0.4); R('pencil-write', C('sat'), 0.2, 1.2);
+  R('class-laughter', C('laughed') - 0.1, 0.4, 1.8);
+  // quiet (S5)
+  R('clock-tick', C('so he'), 0.22, C('nobody') - C('so he')); R('heartbeat-single', C('hand'), 0.3, 1.2);
+  // night (S6-S9): crickets outside, door, typing
+  R('crickets-night', C('nobody') - 0.4, 0.28, C('first') - C('nobody') + 0.4); R('door-close', C('home') - 0.2, 0.35, 1);
+  R('key-press', C('gaming') - 0.2, 0.25, 0.4); R('key-press', C('gaming') + 0.15, 0.2, 0.4);
+  R('laptop-typing', C('leo', 0, C('gaming')), 0.3, C('one video') - C('leo', 0, C('gaming')));
+  R('mouse-click', C('video') - 0.25, 0.35, 0.4); R('typing-slow', C('error') - 0.1, 0.3, C('first') - C('error'));
+  [0, 1, 2].forEach((i) => R('key-press', C('error') + 0.2 + i * 0.3, 0.3, 0.3));
+  // the crash and the tears (S10-S11): fast typing, the crash, rain on the window
+  R('laptop-typing', C('first') - 0.3, 0.3, C('crashed') - C('first') + 0.3); R('heartbeat-single', C('crashed') + 0.05, 0.45, 1.2);
+  R('rain-window', C('cried') - 0.35, 0.3, C('quit') - C('cried') + 0.6); R('clock-tick', C('cried'), 0.18, C('quit') - C('cried'));
+  // he didn't quit (S12)
+  R('key-press', C('didnt'), 0.4, 0.4); R('laptop-typing', C('quit') + 0.1, 0.3, C('tiny') - C('quit') - 0.5);
+  // a text from Mom (ST)
+  R('phone-typing', C('tiny') - 0.1, 0.25, 1.2);
+  // bakery, orders, the street (S13-S16)
+  R('city-traffic', C('built') - 0.6, 0.12, C('company') - C('built')); R('shop-doorbell', C('bakery') - 0.1, 0.4, 1.5);
+  R('market-walla', C('orders') - 0.3, 0.12, C('company') - C('orders') - 0.6); R('coins-clink', C('saved'), 0.25, 1);
+  R('shop-doorbell', C('door') + 0.1, 0.35, 1.5); R('door-open', C('next') - 0.3, 0.2, 0.8);
+  // the company (S17)
+  R('office-ambience', C('company') - 0.6, 0.22, C('craziest') - C('company') + 0.6); R('small-clapping', C('employees') + 0.2, 0.3, 1.8);
+  // the clock (SC)
+  R('clock-tick', C('craziest') - 0.4, 0.35, C('morning') - C('craziest') + 0.2); R('heartbeat', C('still'), 0.3, 1.4);
+  // the application, the name, the memory (S18-SM)
+  R('office-ambience', C('morning') - 0.6, 0.16, C('could') - C('morning') + 0.6);
+  R('paper-slide', C('application') + 0.25, 0.4, 0.8); R('paper-crinkle', C('desk') - 0.1, 0.25, 0.6);
+  R('heartbeat', C('knew', 0, C('application')) - 0.2, 0.32, C('could') - C('knew', 0, C('application')));
+  R('pen-click', C('old') - 0.2, 0.3, 0.5); R('chalk-line', C('teacher', 0, C('old')) + 0.35, 0.3, 0.6); R('teens-laugh', C('teacher', 0, C('old')) + 0.4, 0.2, 0.8);
+  // the choice (S21-S22)
+  R('class-laughter', C('all did', -0.3), 0.1, 1.2); R('clock-tick', C('could'), 0.18, C('hired') - C('could'));
+  R('stapler', C('hired') + 0.12, 0.3, 0.6);
+  // the new classroom and the lesson (S23-S24)
+  R('restaurant-chatter', C('teach') - 0.3, 0.14, C('because') - C('teach') + 0.3); R('chalk-board', C('teach'), 0.35, 1);
+  R('paper-crinkle', C('back', 0, C('sit')) - 0.25, 0.2, 0.5);
+  R('laptop-typing', C('because'), 0.15, END - C('because') - 0.5); R('piano-chord', C('different') - 0.1, 0.22, 3);
+  R('notify-bubble', VO + 0.6, 0.3, 0.8);
 }

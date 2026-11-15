@@ -67,7 +67,8 @@ Create `videos/<slug>/` (or use the scratchpad if the user only wants the file).
    Download the take, then use fast pacing by default:
    `ffmpeg -i take.mp3 -af "silenceremove=start_periods=1:start_threshold=-45dB:stop_periods=-1:stop_duration=0.12:stop_threshold=-45dB:stop_silence=0.1,atempo=1.06,<post_filter>" voice.mp3`
    (aim for ~210 wpm). Write numbers as words, and cue scenes on non-number words.
-4. **Align.** `HF_HUB_DISABLE_XET=1 python3 -I scripts/align.py voice.mp3 videos/<slug>/` → `words.js` + a timed transcript.
+4. **Align.** `HF_HUB_DISABLE_XET=1 python3 -I scripts/align.py voice.mp3 videos/<slug>/ --script script_tagged.txt` → `words.js`
+   with the SCRIPT's words and the recognizer's timings (cues and subtitles never depend on transcription mistakes).
 5. **Scenes** (`scenes.js`; see `assets/examples/modea-kid-in-the-back-scenes.js` (the best one: a person story with real places) and
    `modea-janitor-banker-scenes.js` for the patterns):
    - **A character with a face the viewer roots for** (`accent` stripe = the hero, `bun`/`glasses`/`hood`/`tie` to tell people apart),
@@ -93,14 +94,24 @@ Create `videos/<slug>/` (or use the scratchpad if the user only wants the file).
      visuals answer the open loop early; an underdog moment (narrow spotlight + heartbeat); a first-win spike; a
      vindication punch-in; a callback.
    - `window.GX_PACE = 0.72` and `punches('#stage', 0.04, 0.22)` for fast pacing; the camera always drifts.
+   - **Subtitles are required:** `subtitles()` right after `punches(...)`: word-by-word captions, the spoken word in gold, in
+     their own band (it shrinks the scene 8% upward; `--check` flags anything that touches them).
+   - **Re-hooks every ~15 s** as spoken lines with their own set: "Here's how it happened.", "Then one tiny thing changed
+     everything.", "But the craziest part was still coming." End with a comment question pill ("Would you have…?").
+   - **No pops (they read as stutter):** nothing may appear, vanish, change colour or jump in under ~5 frames. Use fades
+     (≥ 0.12 s), colour mixes, and exits that start from the current value (`tw(el, t, d, { scale: [null, 1.6] })`).
    - Nothing uses `Date`, `Math.random` or CSS animations: use `rand(seed)` and engine tweens (the renderer seeks frames).
    - Need a prop the kit doesn't have? Draw it (an SVG in `ICONS` or a new builder in `characters.js`). Never settle for
      a generic icon when the metaphor needs a specific object.
-6. **Sound.** Run `python3 -I scripts/fetch_sfx.py` once (real recorded/produced sounds → `assets/sfx/real/`, git-ignored).
+6. **Sound — natural first.** Run `python3 -I scripts/fetch_sfx.py` once (real recorded/produced sounds → `assets/sfx/real/`, git-ignored).
    A sound-design block at the end of `scenes.js`: `sfx('real/<name>', t, vol, dur)` on every beat (see `real/index.json`).
-   Use a bed per set (wind, night, murmur, drone) plus hits. Never use synthesized UI blips or `foley-*` when a real sound exists. Use whooshes for time jumps,
-   physical sounds for actions, a bass hit (`click-deep`, `foley-boom`) on turns, and a pad on the payoff.
-   The renderer mixes it under the voice at −14 LUFS.
+   Every place gets its own real ambience bed (class chatter `restaurant-chatter`, `crickets-night`, `rain-window`, `office-ambience`,
+   `city-traffic`, `market-walla`, `clock-tick`) and every action its real object sound (`chalk-board`, `paper-slide`, `laptop-typing`,
+   `key-press`, `shop-doorbell`, `door-close`, `teens-laugh`, `heartbeat-single`). The user rejected trailer stingers and brass
+   (`dun-dun-dun`, `impact-trailer`, `swell-*`, `win-chimes`, `logo-reveal`): at most one soft musical moment at the end.
+   Set `window.GX_WHOOSH = 0.12` so transitions get a soft air whoosh. The mixer ducks all SFX under the voice and runs the
+   **audio check** (voice ≥ 9 dB over SFX while talking; nothing louder than the voice between lines), auto-lowering offenders;
+   read `audio_report.txt`. Mixed to −14 LUFS.
 
 ## Mode B steps
 3. **Environment.** Reuse a kit from the catalog in `metaphor-loops.md`, or **build the environment the metaphor needs**
@@ -120,8 +131,10 @@ Create `videos/<slug>/` (or use the scratchpad if the user only wants the file).
   and clear of the right 150 px below y 960). Mark intentional overlaps with `el.dataset.overlapOk = ''`.
 - **Stills:** `--still t1,t2,...` (one per beat). Look at every frame: is the hook clear at frame 0? Is anything empty, static or
   cluttered? Is the action big enough to read on a phone?
-- **Render:** `node scripts/render.cjs videos/<slug>` (60 fps by default, 2× motion blur, parallel, post bloom, audio mix). Look at a contact sheet,
-  then send the MP4.
+- **Render:** `node scripts/render.cjs videos/<slug>` (60 fps by default, 2× motion blur, parallel, post bloom, audio mix + audio check).
+  It then runs the **stutter check** (`scripts/check_motion.py`: frozen frames, 1-frame jumps/pops, ignoring the subtitle band).
+  Fix every JUMP it reports (look at the frames around it: `ffmpeg -vf select='between(n,A,B)',tile`), then look at a contact sheet
+  and send the MP4.
 
 ## Quality bar
 - 1080×1920, **60 fps**, H.264 + AAC. `--check` = 0 issues (strict). Mode A at −14 LUFS.

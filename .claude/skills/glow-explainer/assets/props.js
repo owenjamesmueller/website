@@ -31,18 +31,18 @@
     ST().appendChild(g); return g;
   }
   function enter(g, t, kind = 'whip', dir = 1) {
-    if (kind === 'cut') return tw(g, t, 0.01, { opacity: [0, 1] });
-    if (kind === 'whip') { tw(g, t, 0.06, { opacity: [0, 1] }); tw(g, t, 0.32, { x: [700 * dir, 0], blur: [14, 0] }, 'out'); }
+    if (kind === 'cut') return tw(g, t, 0.15, { opacity: [0, 1] }, 'linear');   // 5-frame dissolve: a 1-frame cut reads as a stutter
+    if (kind === 'whip') { tw(g, t, 0.14, { opacity: [0, 1] }, 'linear'); tw(g, t, 0.34, { x: [700 * dir, 0], blur: [14, 0] }, 'out'); }   // fades >= 8 frames: no pops
     if (kind === 'zoom') { tw(g, t, 0.25, { opacity: [0, 1] }); tw(g, t, 0.45, { scale: [1.35, 1], blur: [10, 0] }, 'out'); }
     if (kind === 'push') { tw(g, t, 0.25, { opacity: [0, 1] }); tw(g, t, 0.45, { scale: [0.82, 1] }, 'out'); }
-    sfx(kind === 'zoom' ? 'real/whoosh-deep-hit' : kind === 'push' ? 'real/whoosh-air' : 'real/whoosh-fast', t - 0.08, kind === 'cut' ? 0 : 0.42, 1.2);
+    sfx(window.GX_WHOOSH !== undefined && window.GX_WHOOSH < 0.3 ? 'real/whoosh-air' : kind === 'zoom' ? 'real/whoosh-deep-hit' : kind === 'push' ? 'real/whoosh-air' : 'real/whoosh-fast', t - 0.08, kind === 'cut' ? 0 : (window.GX_WHOOSH ?? 0.42), 1.2);   // GX_WHOOSH: transition volume (natural videos: ~0.12)
     return g;
   }
   function leave(g, t, kind = 'whip', dir = 1) {
-    if (kind === 'cut') return tw(g, t, 0.01, { opacity: [1, 0] });
-    if (kind === 'whip') { tw(g, t, 0.28, { x: [0, -700 * dir], blur: [0, 14] }, 'in'); tw(g, t + 0.22, 0.06, { opacity: [1, 0] }); }
-    if (kind === 'zoom') { tw(g, t, 0.35, { scale: [1, 1.6], blur: [0, 12] }, 'in'); tw(g, t + 0.2, 0.15, { opacity: [1, 0] }); }
-    if (kind === 'push') { tw(g, t, 0.3, { scale: [1, 0.7] }, 'in'); tw(g, t + 0.1, 0.2, { opacity: [1, 0] }); }
+    if (kind === 'cut') return tw(g, t, 0.15, { opacity: [1, 0] }, 'linear');
+    if (kind === 'whip') { tw(g, t, 0.28, { x: [null, -700 * dir], blur: [0, 14] }, 'in'); tw(g, t + 0.08, 0.16, { opacity: [1, 0] }, 'linear'); }
+    if (kind === 'zoom') { tw(g, t, 0.35, { scale: [null, 1.6], blur: [0, 12] }, 'in'); tw(g, t + 0.12, 0.2, { opacity: [1, 0] }, 'linear'); }
+    if (kind === 'push') { tw(g, t, 0.3, { scale: [null, 0.7] }, 'in'); tw(g, t + 0.1, 0.2, { opacity: [1, 0] }); }
     return g;
   }
   function sceneSwap(a, b, t, kind = 'whip', dir = 1) { leave(a, t, kind, dir); enter(b, t + (kind === 'cut' ? 0 : 0.12), kind, dir); }
@@ -87,7 +87,7 @@
     const el = place(d, x, y, { parent, z: 25, glow: false }); el.dataset.glowColor = '229,72,77';
     tw(el, t0, 0.01, { opacity: [0, 1] }); tw(el, t0, 0.22, { scale: [2.6, 1], rotate: [rot - 10, rot] }, 'in');
     tw(el, t0 + 0.22, 0.25, { scale: [1, 1.04] }, 'out');
-    sfx('real/impact-trailer', t0 + 0.16, 0.6, 1.5);
+    sfx(window.GX_WHOOSH !== undefined && window.GX_WHOOSH < 0.3 ? 'real/impact-wood' : 'real/impact-trailer', t0 + 0.16, window.GX_WHOOSH !== undefined && window.GX_WHOOSH < 0.3 ? 0.35 : 0.6, 1.5);
     return el;
   }
   function balance(x, y, { parent, left = '', right = '' } = {}) {
@@ -252,7 +252,7 @@
     const el = place(svgDiv(w, h + 70, `<rect x="${w * 0.1}" y="70" width="${w * 0.8}" height="${h}" fill="#13151b" stroke="#d0d0d0" stroke-width="5"/>${windowsGrid(w * 0.18, 110, 4, Math.floor((h - 60) / 52), w * 0.17, 52, 1.0, 11)}<rect x="${w * 0.12}" y="8" width="${w * 0.76}" height="54" rx="8" fill="#e6e6e6"/><text x="${w / 2}" y="46" text-anchor="middle" font-family="Space Mono,monospace" font-weight="700" font-size="30" fill="#111">${label}</text>`, 'gx-brandtower'), x, y, { parent, anchor: 'bottom', z: 3, glow: false });
     scenery(el);
     const wins = [...el.querySelectorAll('.win')];
-    el.lightsOut = (t0, dur = 1.5) => { wins.forEach((wn, i) => { const tt = t0 + rand(i * 2.7) * dur; on((t) => wn.setAttribute('fill', t >= tt ? '#20232c' : '#f5d37a')); }); return el; };
+    el.lightsOut = (t0, dur = 1.5) => { wins.forEach((wn, i) => { const tt = t0 + rand(i * 2.7) * dur; on((t) => wn.setAttribute('opacity', (1 - 0.85 * Math.max(0, Math.min(1, (t - tt) / 0.2))).toFixed(3))); }); return el; };
     return el;
   }
   function brickWall(x, y, { parent, cols = 6, rows = 5, bw = 92, bh = 46 } = {}) { // .rise(t0, dur): rows build up

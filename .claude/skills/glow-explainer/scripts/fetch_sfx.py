@@ -33,6 +33,12 @@ MIXKIT = {
     # people & UI
     'gasp': 966, 'crowd-laugh': 424, 'crowd-murmur': 361, 'pop': 2358, 'pop-click': 2364, 'msg-pop': 2354,
     'notify-positive': 951,
+    # NATURAL / diegetic (prefer these: real places, real objects; use stingers rarely)
+    'chalk-board': 2366, 'chalk-line': 2372, 'pencil-write': 2376, 'paper-slide': 1530, 'paper-shuffle': 2379, 'paper-crinkle': 2385,
+    'laptop-typing': 2537, 'typing-slow': 2532, 'key-press': 2541, 'mouse-click': 2997, 'phone-typing': 1393, 'notify-bubble': 2357,
+    'crickets-night': 1787, 'rain-light': 2393, 'rain-window': 1248, 'clock-tick': 1060,
+    'teens-laugh': 429, 'restaurant-chatter': 444, 'office-ambience': 447, 'city-traffic': 2930, 'city-night': 2678,
+    'heartbeat-single': 490, 'kid-sob': 474, 'small-clapping': 3035, 'stapler': 2995,
 }
 CC0 = {  # sfxmint sample ids (CC0)
     'cinematic-boom': 'cinematic-boom-01', 'reveal-impact': 'reveal-impact-01', 'video-whoosh': 'short-video-whoosh-01',
@@ -43,6 +49,9 @@ CC0 = {  # sfxmint sample ids (CC0)
     'rock-crumble': 'rock-crumbling-01', 'card-flip': 'paper-fabric-card-flip-06', 'footsteps-concrete': 'footsteps-concrete-03',
     'car-door-2': 'car-door-opening-and-closing-01', 'dun-dun-dun': 'dun-dun-dun-01', 'elevator-ding': 'office-elevator-08',
     'service-bell': 'service-bell-01',
+    'shop-doorbell': 'door-doorbell-01', 'door-open': 'door-open-01', 'door-close': 'door-close-01', 'door-knock': 'door-knock-01',
+    'market-walla': 'busy-market-crowd-murmur-walla-01', 'rain-ambience': 'ambience-rain-03', 'crying': 'crying-01', 'pen-click': 'office-pen-17',
+    'class-laughter': 'crowd-laughter-22', 'clock-metronome': 'metronome-ticking-01',
 }
 
 def decode(url):

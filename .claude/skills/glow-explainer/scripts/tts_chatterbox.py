@@ -12,7 +12,8 @@ Setup (once): pip install --no-deps chatterbox-tts && pip install s3tokenizer co
 CPU speed: roughly 2–4x real time.
 Every sentence is transcribed right after it is generated (faster-whisper) and re-generated with a new seed if
 the words don't match the script (garbled words, a repeated line, a dropped word), up to --tries times.
-Parts are cached in <out>_parts/; --redo 3,5 regenerates only those sentence numbers (1-based) and re-joins.
+Parts are cached in <out>_parts/ by sentence text, so editing or inserting lines only generates the changed ones;
+--redo 3,5 regenerates those sentence numbers (1-based) and re-joins.
 """
 import argparse, re, numpy as np, soundfile as sf, torch
 from chatterbox.tts import ChatterboxTTS
@@ -22,7 +23,7 @@ ap.add_argument("--gap", type=float, default=0.18)
 ap.add_argument("--tries", type=int, default=4); ap.add_argument("--min-match", type=float, default=0.9)
 ap.add_argument("--redo", default="")
 a = ap.parse_args()
-import os, difflib
+import os, difflib, hashlib
 from faster_whisper import WhisperModel
 asr = WhisperModel("small", compute_type="int8")
 NUM = {"0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine", "10": "ten",
@@ -44,7 +45,8 @@ out = []; n = 0
 for tag, sent in parts:
     sent = re.sub(r'\[(hook|turn|payoff|calm)\]', '', sent).strip()   # never let a tag be spoken
     if not sent: continue
-    n += 1; ex = LEVEL.get(tag, a.ex); fp = os.path.join(PARTS, f"{n:02d}.wav")
+    n += 1; ex = LEVEL.get(tag, a.ex)
+    fp = os.path.join(PARTS, hashlib.md5(f"{tag}|{sent}|{a.voice}|{a.cfg}".encode()).hexdigest()[:12] + ".wav")   # cache by text: edit/insert lines freely
     if os.path.exists(fp) and n not in REDO:
         w, _ = sf.read(fp, dtype="float32"); print(f"#{n} cached  {sent[:60]}", flush=True)
     else:

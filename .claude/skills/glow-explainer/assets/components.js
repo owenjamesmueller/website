@@ -256,5 +256,39 @@
     return g;
   }
 
-  Object.assign(window, { figure, floor, pill, stat, card, headline, spotlight, icon, chart, group, halo, bokeh, ring, tag, bubble, notify, place, goldCoin, walkIn, skyline, bar, ICONS });
+
+  // ---- SUBTITLES: word-by-word captions synced to window.WORDS (spoken word lit in the accent colour) ----
+  // subtitles({ y, size }) — call once in scenes.js. makeRoom shrinks the scene 8% upward so the band y≈1400–1500
+  // stays free (nothing may overlap the subtitles; --check enforces it). Chunks: max 3 words / 18 letters, break at punctuation.
+  function subtitles({ y = 1436, size = 62, maxWords = 3, maxChars = 16, hold = 0.35, color = '#f5c542', makeRoom = true } = {}) {
+    const W = window.WORDS || [];
+    if (makeRoom) { const c = document.getElementById('cam'); c.style.transformOrigin = '540px 400px'; c.style.scale = '0.92'; }
+    const chunks = []; let cur = [];
+    W.forEach((w) => {
+      const len = cur.reduce((n, x) => n + x.word.length + 1, 0) + w.word.length;
+      if (cur.length && (cur.length >= maxWords || len > maxChars || w.start - cur[cur.length - 1].end > 0.35)) { chunks.push(cur); cur = []; }
+      cur.push(w); if (/[.!?,;:]$/.test(w.word)) { chunks.push(cur); cur = []; }
+    });
+    if (cur.length) chunks.push(cur);
+    const d = document.createElement('div'); d.className = 'gx-sub';
+    d.style.cssText = 'font-family:Inter,Arial,sans-serif;font-weight:900;font-size:' + size + 'px;text-transform:uppercase;letter-spacing:-0.01em;white-space:nowrap;color:#fff;-webkit-text-stroke:12px #000;paint-order:stroke fill;text-shadow:0 6px 18px rgba(0,0,0,.6);line-height:1.1';
+    const el = place(d, 497, y, { parent: document.getElementById('stage'), z: 60, glow: false });   // centred between the left edge and the Reels button column
+    el.style.opacity = 1; let last = -1;
+    const clean = (w) => w.replace(/[.,;:!?]+$/, '');
+    on((t) => {
+      let k = -1;
+      for (let i = 0; i < chunks.length; i++) {
+        const c = chunks[i], nx = chunks[i + 1];
+        const end = Math.min(c[c.length - 1].end + hold, nx ? nx[0].start : 1e9);
+        if (t >= c[0].start - 0.05 && t < end) { k = i; break; }
+      }
+      el.style.visibility = k < 0 ? 'hidden' : 'visible';
+      if (k < 0) return;
+      if (k !== last) { d.innerHTML = chunks[k].map((w) => '<span>' + clean(w.word) + '</span>').join(' '); last = k; }
+      d.querySelectorAll('span').forEach((sp, j) => { const w = chunks[k][j]; sp.style.color = t >= w.start - 0.03 ? (t < w.end + 0.08 ? color : '#fff') : 'rgba(255,255,255,.55)'; });
+      const p = Math.min(1, (t - chunks[k][0].start + 0.05) / 0.12); el.style.scale = (0.88 + 0.12 * EASE.back(Math.max(0, p))).toFixed(3);
+    });
+    return el;
+  }
+  Object.assign(window, { subtitles, figure, floor, pill, stat, card, headline, spotlight, icon, chart, group, halo, bokeh, ring, tag, bubble, notify, place, goldCoin, walkIn, skyline, bar, ICONS });
 })();
