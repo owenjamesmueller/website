@@ -47,9 +47,11 @@ voice.json  the narrator voice settings (voice_id, model, tempo)
    `creative_generate_speech` tool, using `voice_id`, `model_id` from
    `voice.json`. Pick the better of the two takes (listen for flubs: run
    `align.py` on both and compare the transcript to the script). Download the
-   take's `content_url` with curl, then apply the tempo:
-   `ffmpeg -i take.mp3 -af "atempo=<voice.json tempo>" videos/<slug>/voice.mp3`.
-   Target pace is ~180 wpm.
+   take's `content_url` with curl, then apply tempo and the reference-matched EQ:
+   `ffmpeg -i take.mp3 -af "atempo=<tempo>,<post_filter>" -b:a 192k videos/<slug>/voice.mp3`
+   (both from `voice.json`). Target pace is ~180 wpm. Write numbers as words in
+   the script, but cue scenes on nearby non-number words, because the aligner
+   may transcribe "two hundred dollars" as "$200".
 
 4. **Align.** `HF_HUB_DISABLE_XET=1 python3 -I scripts/align.py videos/<slug>/voice.mp3 videos/<slug>/`
    (needs `pip install faster-whisper soundfile librosa`). This writes

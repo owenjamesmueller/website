@@ -118,6 +118,9 @@
     rocket: `<path ${S} d="M100 20 C140 50 145 110 130 150 H70 C55 110 60 50 100 20 Z"/><circle ${S} cx="100" cy="80" r="16"/>
              <path ${S} d="M70 120 L45 160 L72 152 M130 120 L155 160 L128 152"/><path ${S} d="M88 160 Q100 190 112 160"/>`,
     desk: `<path ${S} d="M20 120 H180 M40 120 V185 M160 120 V185"/><rect ${S} x="70" y="60" width="70" height="50" rx="6"/>`,
+    house: `<path ${S} d="M30 95 L100 35 L170 95"/><path ${S} d="M48 82 V170 H152 V82"/><rect ${S} x="86" y="118" width="28" height="52"/>`,
+    book: `<path ${S} d="M100 55 C80 40 45 40 25 48 V160 C45 152 80 152 100 167 C120 152 155 152 175 160 V48 C155 40 120 40 100 55 Z"/><path ${S} d="M100 55 V167"/>`,
+    arrowUp: `<path ${S} stroke-width="8" d="M100 170 V40 M60 80 L100 35 L140 80"/>`,
     arrowR: `<path ${S} stroke-width="8" d="M30 100 H160 M120 60 L165 100 L120 140"/>`,
   };
   function icon(name, x, y, { size = 200, parent } = {}) {

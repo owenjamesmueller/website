@@ -46,6 +46,17 @@
   function pop(el, t0, dur = 0.45) {
     return tw(el, t0, dur, { opacity: [0, 1], scale: [0.6, 1] }, 'back');
   }
+  // fade a list of elements up and out together (scene exit)
+  function out(els, t0, dur = 0.3) {
+    for (const el of [].concat(els)) tw(el, t0, dur, { opacity: [1, 0], y: [0, -30] }, 'in');
+  }
+  // move from (x0,y0) to (x1,y1) along an arc (coins, sheets, flying icons)
+  function arc(el, t0, dur, dx, dy, lift = 260) {
+    tw(el, t0, dur, { x: [0, dx] }, 'linear');
+    tw(el, t0, dur / 2, { y: [0, -lift] }, 'out');
+    tw(el, t0 + dur / 2, dur / 2, { y: [-lift, dy] }, 'in');
+    return $(el);
+  }
   function count(el, t0, dur, from, to, fmt = (v) => Math.round(v).toLocaleString('en-US')) {
     el = $(el);
     hooks.push((t) => {
@@ -123,5 +134,5 @@
     document.documentElement.style.setProperty('--t', t);
   };
 
-  Object.assign(window, { tw, show, pop, count, type, on, cue, cueEnd, rand, EASE, $ });
+  Object.assign(window, { tw, show, pop, out, arc, count, type, on, cue, cueEnd, rand, EASE, $ });
 })();

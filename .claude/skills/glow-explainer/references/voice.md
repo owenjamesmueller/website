@@ -8,10 +8,16 @@ Measured from the reference video (the same narrator is in both narrated referen
 - clean, close-mic, no music under it
 
 ## Current voice (voice.json)
-**Laura – a top narration voice** (`GZ4PpFJV8ikEGUtBrjK7`) on `eleven_v4`, sped up with
-`atempo=1.1` to reach ~180 wpm. It was the closest of ~45 ElevenLabs voices scored with a
-speaker-embedding model (Resemblyzer): 0.72 against the reference. Same-speaker scores are
-about 0.85+, so it is the same type of voice but not the same voice. The reference narrator
+**Laura – a top narration voice** (`GZ4PpFJV8ikEGUtBrjK7`) on `eleven_v3`, `atempo=1.05`,
+then `post_filter`: an EQ curve matched to the reference's long-term spectrum (it has duller
+highs: −6 to −9 dB above 5 kHz, and less boom around 180 Hz) plus light compression.
+
+How it was chosen (speaker-embedding score against the reference; same speaker ≈ 0.85+):
+- ~65 ElevenLabs library voices: best is Laura, 0.72
+- 3 voices designed from a description of the reference: 0.64–0.67
+- Laura by model: eleven_v3 0.71–0.73, eleven_v4 0.71–0.72, multilingual_v2 0.68
+- EQ/pitch post-processing: pitch shifts make it worse; the EQ helps the tone but barely moves the score
+So it is the closest available voice of the same type, not the same voice. The reference narrator
 is probably a custom voice that isn't in the public library.
 
 To change voices: edit `voice.json`. To check a candidate objectively, generate the reference
