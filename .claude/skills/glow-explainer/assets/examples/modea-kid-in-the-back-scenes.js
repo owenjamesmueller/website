@@ -2,13 +2,13 @@
  * bakery, a street of shops, an office. Open loops: the flash-forward hook (she asks HIM for a job), "what he did at night",
  * the application on his desk. Callbacks: the raised hand, the laughter, the back row.
  */
-window.GX_PACE = 0.8;
+window.GX_PACE = 0.7;
 const VO = window.DURATION;
-window.DURATION = VO + 3.2;                                    // lesson card + comment question
+window.DURATION = VO + 2.8;                                    // lesson card + comment question
 const END = window.DURATION;
 const C = (p, o = 0, from = 0) => cue(p, o, from);
 const cam = document.getElementById('cam'); drift(cam, 4);
-punches('#stage', 0.035, 0.22);
+punches('#stage', 0.025, 0.22);
 window.GX_WHOOSH = 0.12;                                       // transitions get a soft air whoosh, not a trailer swoosh
 subtitles();                                                   // word-by-word captions in their own band (scene shrinks 8%)
 const FL = 1300, GOLD = '#f5c542';

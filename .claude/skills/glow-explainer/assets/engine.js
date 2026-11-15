@@ -137,7 +137,8 @@
   function punches(el = '#stage', amount = 0.035, dur = 0.22) {
     const W = window.WORDS || [];
     // ramp IN over ~5 frames (from the current zoom: fast sentences overlap), then settle: an instant 1-frame zoom reads as a stutter (check_motion.py flags it)
-    W.forEach((w, i) => { if (i === 0 || /[.!?]$/.test(W[i - 1].word)) { tw(el, w.start - 0.1, 0.08, { scale: [null, 1 + amount] }, 'inOut'); tw(el, w.start - 0.02, dur + 0.1, { scale: [1 + amount, 1] }, 'inOut'); } });
+    const P = window.GX_PACE || 1;   // punches keep their own timing: GX_PACE must not squeeze the ramp into 3 frames
+    W.forEach((w, i) => { if (i === 0 || /[.!?]$/.test(W[i - 1].word)) { tw(el, w.start - 0.14, 0.12 / P, { scale: [null, 1 + amount] }, 'inOut'); tw(el, w.start - 0.02, (dur + 0.18) / P, { scale: [1 + amount, 1] }, 'inOut'); } });
   }
   function cue(phrase, offset = 0, from = 0) { const m = findPhrase(phrase, from); return m ? m[0].start + offset : NaN; }
   function cueEnd(phrase, offset = 0, from = 0) { const m = findPhrase(phrase, from); return m ? m[1].end + offset : NaN; }
