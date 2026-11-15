@@ -22,6 +22,11 @@ body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: var(--i
     radial-gradient(ellipse 70% 35% at 50% 18%, rgba(255,255,255,0.10), transparent 70%),
     radial-gradient(ellipse 90% 70% at 50% 55%, transparent 55%, rgba(0,0,0,0.85) 100%);
 }
+/* faint dot grid, like the references */
+#dots {
+  position: absolute; inset: -60px; z-index: 0; pointer-events: none;
+  background: radial-gradient(circle, rgba(255,255,255,0.10) 1.7px, transparent 2.2px) 0 0 / 36px 36px;
+}
 /* film grain (static SVG noise; engine shifts it per frame via --t) */
 #grain {
   position: absolute; inset: -50%; z-index: 50; pointer-events: none; opacity: 0.07;
@@ -42,7 +47,7 @@ body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: var(--i
 
 .gx-stat { text-align: center; }
 .gx-stat-cap { font-size: 22px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); opacity: .8; }
-.gx-stat-val { font-weight: 900; line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.gx-stat-val { font-weight: 900; text-shadow: 0 0 30px rgba(255,255,255,.45); line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 
 .gx-card { border: 4px solid var(--ink); border-radius: 18px; background: rgba(0,0,0,0.85); overflow: hidden; }
 .gx-card-title {
@@ -66,3 +71,36 @@ body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: var(--i
 /* your own handle, top-right like the references (set in index.html) */
 #handle { position: absolute; top: 300px; right: 70px; z-index: 40; text-align: center; font-weight: 800; font-size: 22px; letter-spacing: .04em; }
 #handle svg { display: block; margin: 0 auto 8px; }
+
+/* ---- depth & light ------------------------------------------------- */
+.gx-halo { border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.07) 38%, transparent 70%); }
+.gx-bokeh { border-radius: 50%; background: rgba(255,255,255,0.05); filter: blur(10px); }
+.gx-ring { border: 3px dashed rgba(255,255,255,0.45); border-radius: 50%; }
+
+/* ---- characters ---------------------------------------------------- */
+.gx-tag { font-size: 20px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; white-space: nowrap; }
+.gx-bubble {
+  position: relative; border: 3px solid var(--ink); border-radius: 18px; background: #050505;
+  font-size: 24px; font-weight: 800; letter-spacing: .1em; padding: 10px 20px; white-space: nowrap; text-transform: uppercase;
+}
+.gx-bubble::after {
+  content: ''; position: absolute; left: 50%; bottom: -14px; width: 18px; height: 18px; background: #050505;
+  border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink); transform: translateX(-50%) rotate(45deg);
+}
+.gx-bubble-fill { background: var(--ink); color: #000; }
+.gx-bubble-fill::after { background: var(--ink); }
+.gx-code { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; font-size: 30px; line-height: 1.6; font-weight: 600; white-space: pre; }
+.gx-notify { display: flex; align-items: center; gap: 22px; border: 3px solid var(--ink); border-radius: 26px; padding: 22px 30px; background: rgba(10,10,10,.9); }
+.gx-notify b { display: block; font-size: 20px; letter-spacing: .18em; opacity: .7; }
+.gx-notify span { font-size: 46px; font-weight: 900; }
+
+/* ---- world details (from the reference loops) ---------------------- */
+.gx-figure svg { -webkit-box-reflect: below 0 linear-gradient(transparent 55%, rgba(255,255,255,0.16)); }
+.gx-skyline { pointer-events: none; }
+.gx-bld { position: absolute; bottom: 0; border: 3px solid rgba(255,255,255,0.16); border-bottom: none; border-radius: 6px 6px 0 0; background: linear-gradient(#0d0d0d, #070707); }
+.gx-bld i { position: absolute; width: 12px; height: 18px; border-radius: 2px; background: #f5c542; box-shadow: 0 0 12px rgba(245,197,66,.7); opacity: 0; }
+.gx-bar { border: 4px solid var(--ink); border-radius: 14px; display: flex; align-items: flex-end; overflow: visible; position: relative; }
+.gx-bar-fill { width: 100%; height: 0; background: var(--ink); border-radius: 8px; box-shadow: 0 0 40px rgba(255,255,255,.4); }
+.gx-bar-label { position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%); font-size: 22px; font-weight: 800; letter-spacing: .18em; white-space: nowrap; }
+.gx-beam { background: linear-gradient(90deg, rgba(255,240,200,.55), transparent); clip-path: polygon(0 40%, 100% 0, 100% 100%, 0 60%); filter: blur(6px); }
+.gx-split { width: 0; height: 1500px; border-left: 3px dashed rgba(255,255,255,.35); }

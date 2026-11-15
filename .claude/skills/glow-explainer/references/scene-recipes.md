@@ -1,19 +1,45 @@
 # Script formula & scene recipes
 
-## Script formula (mode A)
-The reference scripts follow one shape. ~180 wpm, 45–75 s, 130–200 words.
+## Story formula (mode A) — write a STORY, not a list of facts
+Facts don't hold attention; a person with a problem does. The smart-kid reference keeps people
+watching because every ~5 seconds it either opens a question or pays one off. Use these beats
+(~180 wpm, 55–70 s, 170–210 words):
 
-1. **Paradox hook** (1 sentence, under 4 s): a claim that flips an assumption.
+1. **Paradox hook + open loop** (≤ 5 s). A result that sounds wrong, plus a promise that the reason is coming.
    "The smartest person you know is probably broke, and the reason why explains almost everything about money."
-   "The more you try to make money, the harder it becomes to get rich."
-2. **One character** (2–3 sentences): "Think about the smartest kid from your school…", "Imagine someone who…". Always "he", always faceless.
-3. **Time skip** with a number: "Twenty years later…", "Years later…".
-4. **Diagnosis** (1 sentence): "What went wrong is that X and Y play by opposite rules."
-5. **The rule**, explained as a contrast (2–4 sentences): school vs money, making money vs getting rich, now vs later.
-6. **Consequence** for the character (1–2 sentences).
-7. **The turn / foil**: someone "far less gifted" does the opposite and wins, or a "Of course… but don't let…" caveat. End on a quotable line.
+   "Two best friends got the same job at eighteen. Twenty years later, only one of them is rich."
+2. **Twist the knife on the mystery** (1 sentence): remove the obvious explanation.
+   "…and the crazy part is, they earned almost exactly the same money." / "he didn't get dumber and he never stopped working hard."
+3. **A character the viewer already knows**: "the smartest kid from *your* school", or two named friends. Use "he"/"Think about…"/"Imagine…".
+4. **Tiny specific moments** (2–3), never abstractions: "had the answer before the teacher finished the question",
+   "went straight to the mall and bought new shoes", "everyone laughed at him".
+5. **Expectation → betrayal**: "everyone was certain he'd succeed" / "for years it looked like Marcus was winning".
+6. **The turn**: "But here's what nobody saw." / "What went wrong is…". Signal the reveal out loud.
+7. **The hidden rule** stated as a contrast the viewer can repeat: "school and money play by opposite rules",
+   "Marcus got paid by his job. Jake kept buying things that paid him."
+8. **Time skip payoff** with a number: "Twenty years later…".
+9. **Callback ending** that recolours the opening: "…people start calling it luck." /
+   "Nobody noticed the moment Jake got rich. It happened on that very first payday, while everyone was laughing."
 
-Style: plain words, no jargon, no lists, no questions to the viewer except the hook. Every sentence must be drawable.
+Rules: no lists of tips, no "here are 3 ways", no direct advice to the viewer; let the story imply it. One curiosity
+gap in the first 5 s, one "but" turn in the middle, one line people would quote at the end. Write numbers as words.
+See `assets/examples/two-friends-story-script.txt` (+ its scenes file) for a full worked example.
+
+## Visual storytelling rules
+- **A cast, not icons.** Named characters (tags under their feet), on dashed ground rings, with reflections.
+  They walk in (`walkIn`), react (`bob` for laughing/excitement, swap to an `arm:'up'` figure for wins), dim when they lose.
+- **Light tells you who matters**: `halo` + `spotlight` follow the character the sentence is about; others go to 35 % opacity.
+- **A world that changes**: day → night (`moon`, `skyline` with windows lighting up one by one), the payday calendar, the car with
+  headlight beam, the bus driving past. Environments from the loop references make it feel like a place.
+- **Money is gold** (`goldCoin`, the only accent colour): coins drop on payday, arc into a fund, leak out to payments,
+  rain on the character while he sleeps. Following the coins *is* the story.
+- **Reactions and voices**: speech bubbles ("HA HA", "Z z z"), notifications ("PAYMENT RECEIVED +$500"), scoreboards
+  ("WHO IS WINNING?" ✓/✗), typed code that turns into ERROR lines.
+- **Time devices**: flash-forward and rewind with a blur pulse on `#cam` and a "YEARS LATER +20" counter; night counters.
+- **Split screen** (dashed centre line) when contrasting two lives; bars that fill for the final comparison.
+- **Camera is a storyteller**: push in on "here's what nobody saw", pull back for the rule, constant `drift(cam)`,
+  `shake` on impacts (first payment). Render with motion blur (`--mb 3`, the default).
+- **Background depth**: dot grid + `bokeh` + stacked bloom (built in).
 
 ## Phrase → visual recipes (from the references)
 

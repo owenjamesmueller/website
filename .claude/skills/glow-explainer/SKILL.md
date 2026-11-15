@@ -31,11 +31,12 @@ voice.json  the narrator voice settings (voice_id, model, tempo)
 
 ## Workflow (mode A)
 
-1. **Script.** If the user gave a topic, write the script yourself following the
-   formula in `references/scene-recipes.md` (hook with a paradox → one
-   character → "what went wrong" → the rule → the consequence → the turn). 130–200
-   words, short declarative sentences, one idea per sentence. Show the script to
-   the user and get a yes before spending credits on voice.
+1. **Script = a story.** If the user gave a topic, turn it into a story using the
+   9-beat formula in `references/scene-recipes.md`: paradox hook with an open loop,
+   remove the obvious explanation, a character the viewer knows, tiny specific moments,
+   "it looked like he was winning", "but here's what nobody saw", the hidden rule as a
+   contrast, a time skip, and a callback ending. 170–210 words. Never a list of tips.
+   Show the script to the user and get a yes before spending credits on voice.
 
 2. **Project folder.** Create `videos/<slug>/` in the working directory (or the
    scratchpad if the user only wants the file) and copy in
@@ -63,6 +64,11 @@ voice.json  the narrator voice settings (voice_id, model, tempo)
      its own `{ }` block, keyed to `cue('word')` so visuals land on the spoken word.
    - Every noun the narrator says that can be drawn **is** drawn the moment it's
      said: a pill label, an icon pop, a counter, a check/cross.
+   - Stage it like a film: named characters with reactions, a world that changes,
+     gold coins to follow, light on whoever the sentence is about. Follow "Visual
+     storytelling rules" in `references/scene-recipes.md`. The full component list
+     is at the top of `assets/components.js`, and
+     `assets/examples/two-friends-story-scenes.js` is the reference implementation.
    - Keep the hero figure on the floor most of the video; it is the continuity.
    - Clear a scene's props (`tw(..., {opacity:[1,0], y:[0,-30]})`) ~0.25 s before
      the next sentence starts, or transform them into the next scene.
@@ -78,7 +84,7 @@ voice.json  the narrator voice settings (voice_id, model, tempo)
    Fix and repeat. This is the cheap loop: do it until each still reads clearly.
 
 7. **Render.** `node scripts/render.cjs videos/<slug>` → `videos/<slug>/out.mp4`
-   (30 fps, about 3× realtime). Extract a contact sheet
+   (30 fps with 3× motion blur, about 1× realtime; `--mb 1` for a fast draft). Extract a contact sheet
    (`ffmpeg -i out.mp4 -vf "fps=1/2,scale=240:-1,tile=6x3" sheet.jpg`), look at it,
    then send the MP4 to the user.
 

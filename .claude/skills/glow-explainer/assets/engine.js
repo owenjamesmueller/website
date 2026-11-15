@@ -57,6 +57,39 @@
     tw(el, t0 + dur / 2, dur / 2, { y: [-lift, dy] }, 'in');
     return $(el);
   }
+  // constant slow handheld drift on an element (use on #cam); amp in px
+  function drift(el, amp = 6) {
+    el = $(el);
+    hooks.push((t) => {
+      el.style.translate = `${Math.sin(t * 0.37) * amp + Math.sin(t * 0.91) * amp * 0.4}px ${Math.cos(t * 0.29) * amp + Math.sin(t * 1.3) * amp * 0.3}px`;
+    });
+  }
+  // short camera/element shake at t0
+  function shake(el, t0, dur = 0.35, amp = 14) {
+    el = $(el);
+    for (let i = 0; i < 6; i++) {
+      const a = (i % 2 ? -1 : 1) * amp * (1 - i / 6);
+      tw(el, t0 + (dur / 6) * i, dur / 6, { rotate: [i ? -a * 0.05 : 0, a * 0.05] }, 'inOut');
+    }
+    tw(el, t0 + dur, 0.1, { rotate: [0, 0] });
+  }
+  // looping bob (laughing, idling, floating) between t0 and t1
+  function bob(el, t0, t1, amp = 10, speed = 14) {
+    el = $(el);
+    if (!el.__bobs) {
+      el.__bobs = [];
+      hooks.push((t) => {
+        let m = 0;
+        for (const b of el.__bobs) if (t >= b.t0 && t <= b.t1) m -= Math.abs(Math.sin((t - b.t0) * b.speed)) * b.amp;
+        el.style.marginTop = m + 'px';
+      });
+    }
+    el.__bobs.push({ t0, t1, amp, speed });
+  }
+  // fade only (no movement) — use for characters that must stay on the floor
+  function fade(els, t0, a, b, dur = 0.35) {
+    for (const el of [].concat(els)) tw(el, t0, dur, { opacity: [a, b] }, 'inOut');
+  }
   function count(el, t0, dur, from, to, fmt = (v) => Math.round(v).toLocaleString('en-US')) {
     el = $(el);
     hooks.push((t) => {
@@ -117,7 +150,11 @@
     el.style.opacity = v.opacity;
     el.style.visibility = v.opacity <= 0.001 ? 'hidden' : 'visible';
     el.style.transform = `translate(${v.x}px, ${v.y}px) rotate(${v.rotate}deg) scale(${v.scale})`;
-    const glow = el.dataset.glow !== undefined ? ` drop-shadow(0 0 ${14 * v.glow}px rgba(255,255,255,${0.55 * v.glow}))` : '';
+    // stacked bloom: tight core + wide soft halo (the references' signature look)
+    const g = v.glow, c = el.dataset.glowColor || '255,255,255', m = Math.min(g, 1);
+    const glow = el.dataset.glow !== undefined && g > 0.01
+      ? ` drop-shadow(0 0 ${4 * g}px rgba(${c},${0.9 * m})) drop-shadow(0 0 ${22 * g}px rgba(${c},${0.45 * m})) drop-shadow(0 0 ${60 * g}px rgba(${c},${0.22 * m}))`
+      : '';
     el.style.filter = (v.blur > 0.01 ? `blur(${v.blur}px)` : '') + glow || 'none';
     if (list.some((k) => 'draw' in k.props)) {
       const paths = el.matches('path,line,polyline,circle,rect,ellipse') ? [el] : el.querySelectorAll('path,line,polyline,circle,rect,ellipse');
@@ -134,5 +171,5 @@
     document.documentElement.style.setProperty('--t', t);
   };
 
-  Object.assign(window, { tw, show, pop, out, arc, count, type, on, cue, cueEnd, rand, EASE, $ });
+  Object.assign(window, { tw, show, pop, out, fade, arc, drift, shake, bob, count, type, on, cue, cueEnd, rand, EASE, $ });
 })();
