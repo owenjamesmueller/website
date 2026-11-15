@@ -35,7 +35,8 @@
     el = $(el);
     if (!el) throw new Error('tw: element not found ' + el);
     if (!tracks.has(el)) tracks.set(el, []);
-    tracks.get(el).push({ t0, t1: t0 + Math.max(dur, 1e-4), props, ease: EASE[ease] || ease });
+    // window.GX_PACE < 1 makes every motion snappier without moving when it starts (default 1)
+    tracks.get(el).push({ t0, t1: t0 + Math.max(dur * (window.GX_PACE || 1), 1e-4), props, ease: EASE[ease] || ease });
     return el;
   }
   function show(el, t0, t1, fade = 0.25) {
@@ -91,6 +92,7 @@
     for (const el of [].concat(els)) tw(el, t0, dur, { opacity: [a, b] }, 'inOut');
   }
   function count(el, t0, dur, from, to, fmt = (v) => Math.round(v).toLocaleString('en-US')) {
+    dur *= window.GX_PACE || 1;
     el = $(el);
     hooks.push((t) => {
       const p = EASE.out(clamp((t - t0) / dur, 0, 1));
@@ -99,6 +101,7 @@
     return el;
   }
   function type(el, t0, dur, text, caret = true) {
+    dur *= window.GX_PACE || 1;
     el = $(el);
     hooks.push((t) => {
       const n = Math.floor(clamp((t - t0) / dur, 0, 1) * text.length);
@@ -127,6 +130,11 @@
     }
     console.warn('cue not found:', phrase);
     return null;
+  }
+  // a quick camera punch-in at the start of every sentence (fast-paced reels feel)
+  function punches(el = '#stage', amount = 0.035, dur = 0.22) {
+    const W = window.WORDS || [];
+    W.forEach((w, i) => { if (i === 0 || /[.!?]$/.test(W[i - 1].word)) tw(el, w.start - 0.02, dur, { scale: [1 + amount, 1] }, 'out'); });
   }
   function cue(phrase, offset = 0, from = 0) { const m = findPhrase(phrase, from); return m ? m[0].start + offset : NaN; }
   function cueEnd(phrase, offset = 0, from = 0) { const m = findPhrase(phrase, from); return m ? m[1].end + offset : NaN; }
@@ -176,5 +184,5 @@
     document.documentElement.style.setProperty('--t', t);
   };
 
-  Object.assign(window, { sfx, tw, show, pop, out, fade, arc, drift, shake, bob, count, type, on, cue, cueEnd, rand, EASE, $ });
+  Object.assign(window, { punches, sfx, tw, show, pop, out, fade, arc, drift, shake, bob, count, type, on, cue, cueEnd, rand, EASE, $ });
 })();

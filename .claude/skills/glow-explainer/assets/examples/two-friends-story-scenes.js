@@ -4,10 +4,12 @@
  *   Ends on a title card: PLANT IT EARLY.
  * Captions sit UNDER the floor (one idea each); 1–3 things on screen at a time.
  */
-window.DURATION = (window.DURATION || 60) + 2.6;           // room for the title card
+window.GX_PACE = 0.72;                                    // fast-paced: all motion ~28% quicker
+window.DURATION = (window.DURATION || 60) + 1.9;           // room for the title card
+punches('#stage', 0.04, 0.22);
 const cam = document.getElementById('cam');
 drift(cam, 5);
-const FL = 1300, MX = 300, JX = 780, JC = 690, END = window.DURATION, VO = END - 2.6;
+const FL = 1300, MX = 300, JX = 780, JC = 690, END = window.DURATION, VO = END - 1.9;
 const C = (p, o = 0, from = 0) => cue(p, o, from);
 const usd = (v) => '$' + Math.round(v).toLocaleString('en-US');
 const capSwap = (() => {                                  // one caption slot per character
