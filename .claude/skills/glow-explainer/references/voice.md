@@ -39,6 +39,9 @@ If the user owns the voice (it is their channel, or they have the voice owner's 
 use the clone-voice workflow and put the new voice_id in `voice.json`.
 
 ## Free voices (no credits)
+- **Default: deep male narrator.** Chatterbox with a Kokoro `am_onyx` reference clip (`tts_kokoro.py ref.txt ref_onyx.wav --voice am_onyx --speed 1.0`),
+  `--ex 0.8 --cfg 0.35`, then the `male_free.post_filter` from `voice.json`. Median 119 Hz, pitch spread ~10–11 st. Alternatives: `am_michael`
+  (lighter American), `bm_george` (British). Every sentence is checked by speech recognition and retried if it's garbled.
 - **Chatterbox** (`scripts/tts_chatterbox.py`, MIT, keeps Resemble's imperceptible AI watermark): expressive. Its pitch spread
   measured 13 semitones, against 12 for the reference narrator. Use `--voice` with a LICENSED reference clip for timbre (a Kokoro
   clip, or the user's own recorded voice with consent). Tag sentences `[hook] [turn] [payoff] [calm]`. CPU: ~6–10× real time.

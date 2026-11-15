@@ -107,7 +107,7 @@ const S7 = stageSet(); sceneSwap(S6, S7, C('night') - 0.5, 'zoom');
   // top: friends gaming
   S0(floor(930, { parent: S7 }));
   const tv = tvGlow(800, 930, { parent: S7 }); S0(tv);
-  [[190, 0.5], [420, 0.5]].forEach(([x, s], i) => { const f = person(x, 930, { size: s, dim: true, parent: S7 }); S0(f); f.pose(-1, 'type', 0.01); bob(f, C('gaming') - 0.3, C('cracked') + 1, 5, 18 + i * 3); });
+  [[190, 0.5], [420, 0.5]].forEach(([x, s], i) => { const f = person(x, 930, { size: s, dim: true, parent: S7 }); S0(f); f.pose(-1, 'type', 0.01); bob(f, C('gaming') - 0.3, C('laptop', -0.3) + 1, 5, 18 + i * 3); });
   const pf = pill('Friends: gaming', 300, 560, { size: 'md', parent: S7 }); pop(pf, C('friends'));
   // bottom: Leo coding
   const sep = document.createElement('div'); sep.style.cssText = 'width:1080px;height:4px;background:rgba(255,255,255,.35)'; S0(place(sep, 540, 950, { parent: S7, z: 3, glow: false }));
@@ -119,9 +119,9 @@ const S7 = stageSet(); sceneSwap(S6, S7, C('night') - 0.5, 'zoom');
 }
 
 /* ============ S8 — laptop close-up: "...cracked laptop, teaching himself to code." ============ */
-const S8 = stageSet(); sceneSwap(S7, S8, C('cracked') - 0.25, 'zoom');
+const S8 = stageSet(); sceneSwap(S7, S8, C('laptop', -0.3) - 0.25, 'zoom');
 {
-  const sc = codeScreen(540, 1000, { parent: S8 }); S0(sc); sc.crack(C('cracked'));
+  const sc = codeScreen(540, 1000, { parent: S8 }); S0(sc); sc.crack(C('laptop', -0.3));
   sc.code(C('teaching') - 0.1, C('one video') - 0.1, 0.09);
   const h = titleCard('Teaching himself<br>to *code.*', { parent: S8, y: 430, size: 80 }); pop(h, C('teaching'));
 }
@@ -314,7 +314,7 @@ const S24 = stageSet(); sceneSwap(S23, S24, C('because') - 0.1, 'zoom');
   // S5 quiet
   R('heartbeat-hit', C('stopped'), 0.35, 1.8);
   // S6 night: the open loop
-  R('night-ambience', C('nobody') - 0.4, 0.3, C('cracked') - C('nobody') + 0.4); R('tension-drone', C('nobody'), 0.25, 2.4); R('pop-click', C('home') - 0.1, 0.35, 0.4);
+  R('night-ambience', C('nobody') - 0.4, 0.3, C('laptop', -0.3) - C('nobody') + 0.4); R('tension-drone', C('nobody'), 0.25, 2.4); R('pop-click', C('home') - 0.1, 0.35, 0.4);
   // S7-S9 gaming vs coding, typing, errors
   R('glitch', C('gaming') - 0.2, 0.15, 0.8); R('typing', C('leo', 0, C('gaming')), 0.3, 2.2);
   R('typing', C('teaching') - 0.1, 0.4, C('one video') - C('teaching'));
