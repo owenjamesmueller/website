@@ -6,7 +6,7 @@
  */
 const cam = document.getElementById('cam');
 drift(cam, 5);
-const FL = 1420, MX = 330, JX = 750, END = window.DURATION;
+const FL = 1400, MX = 330, JX = 700, END = window.DURATION;
 const C = (p, o = 0, from = 0) => cue(p, o, from);
 const usd = (v) => '$' + Math.round(v).toLocaleString('en-US');
 
@@ -26,6 +26,7 @@ const mRing = ring(MX, FL, { parent: cam }), jRing = ring(JX, FL, { parent: cam 
 {
   walkIn(marcus, 0.05, 1.0, -520); walkIn(jake, 0.15, 1.0, 520);
   pop(mTag, 0.9); pop(jTag, 1.0); show(mRing, 0.9); show(jRing, 1.0);
+  fade([mTag, jTag], C('financed') - 0.4, 1, 0);
   const job = pill('Same job', 540, 470, { parent: cam }); pop(job, C('same job'));
   const age = stat('Age', '0', 540, 640, { size: 150, parent: cam });
   pop(age, C('job') + 0.1); count(age.querySelector('.gx-stat-val'), C('job') + 0.1, 0.7, 0, 18);
@@ -39,9 +40,9 @@ const mRing = ring(MX, FL, { parent: cam }), jRing = ring(JX, FL, { parent: cam 
   const yl = stat('Years later', '+0', 540, 520, { size: 140, parent: cam });
   pop(yl, s + 0.35); count(yl.querySelector('.gx-stat-val'), s + 0.35, 0.8, 0, 20, (v) => '+' + Math.round(v));
   const spot = spotlight(JX, -120, { parent: cam }); show(spot, C('only one'), e, 0.3);
-  const flag = icon('flag', JX + 120, FL - 330, { size: 260, parent: cam });
+  const flag = icon('flag', JX + 120, FL - 330, { size: 260, parent: cam }); flag.dataset.overlapOk = '';
   tw(flag, C('rich') - 0.1, 0.6, { opacity: [0, 1], y: [80, 0] }, 'back');
-  const rich = pill('Rich', JX + 150, FL - 470, { size: 'md', parent: cam }); pop(rich, C('rich'));
+  const rich = pill('Rich', JX + 150, FL - 500, { size: 'md', parent: cam }); pop(rich, C('rich'));
   [[-110, -380], [150, -520], [-160, -200]].forEach(([dx, dy], i) => {
     const sp = icon('sparkle', JX + dx, FL + dy, { size: 50, parent: cam }); pop(sp, C('rich') + 0.1 + i * 0.12);
     tw(sp, C('rich') + 0.3, 1.2, { rotate: [0, 90], scale: [1, 0.6] }, 'inOut');
@@ -103,9 +104,9 @@ const mRing = ring(MX, FL, { parent: cam }), jRing = ring(JX, FL, { parent: cam 
   count(inv.querySelector('.gx-stat-val'), s + 0.3, 0.8, 0, 200, usd);
   // everyone laughs
   const L = C('laughed');
-  const f1 = figure(110, FL, { dim: true, size: 0.75, parent: cam }), f2 = figure(980, FL, { dim: true, size: 0.75, parent: cam });
+  const f1 = figure(120, FL, { dim: true, size: 0.75, parent: cam }), f2 = figure(890, FL, { dim: true, size: 0.75, parent: cam });
   walkIn(f1, C('everyone') - 0.3, 0.5, -200); walkIn(f2, C('everyone') - 0.3, 0.5, 200);
-  const bubbles = [[110, FL - 260], [MX - 60, FL - 330], [980, FL - 260]].map(([x, y], i) => {
+  const bubbles = [[150, FL - 400], [MX - 60, FL - 330], [850, FL - 340]].map(([x, y], i) => {
     const b = bubble('Ha ha', x, y, { parent: cam }); pop(b, L + i * 0.12); bob(b, L, L + 2.2, 8, 16); return b;
   });
   bob(marcus, L, L + 2.2, 6, 16); bob(f1, L, L + 2.2, 6, 16); bob(f2, L, L + 2.2, 6, 16);
@@ -134,11 +135,11 @@ const mRing = ring(MX, FL, { parent: cam }), jRing = ring(JX, FL, { parent: cam 
 {
   const s = C('financed');
   const car = icon('car', MX, FL - 70, { size: 300, parent: cam });
-  tw(car, s - 0.1, 0.8, { opacity: [0, 1], x: [-600, 0] }, 'out'); car.style.zIndex = 6;
+  tw(car, s - 0.1, 0.8, { opacity: [0, 1], x: [-600, 0] }, 'out'); car.style.zIndex = 6; car.dataset.overlapOk = '';
   const beam = document.createElement('div'); beam.className = 'gx-beam'; beam.style.width = '420px'; beam.style.height = '160px';
   place(beam, MX + 330, FL - 90, { parent: cam, glow: false }); show(beam, s + 0.7, null, 0.3);
-  const pay = pill('−$420 / month', MX, FL - 300, { invert: false, parent: cam }); pop(pay, C('car') + 0.2);
-  const bus = icon('bus', JX, FL - 95, { size: 320, parent: cam }); bus.style.zIndex = 4;
+  const pay = pill('−$420 / month', MX, FL - 380, { invert: false, parent: cam }); pop(pay, C('car') + 0.2);
+  const bus = icon('bus', JX, FL - 95, { size: 320, parent: cam }); bus.style.zIndex = 4; bus.dataset.overlapOk = '';
   tw(bus, C('bus') - 0.6, 1.0, { opacity: [0, 1], x: [700, 0] }, 'out');
   tw(bus, C('bus') + 0.9, 0.8, { x: [0, -900] }, 'in'); tw(bus, C('bus') + 1.4, 0.3, { opacity: [1, 0] });
   window.CAR = [car, beam, pay];
@@ -161,11 +162,11 @@ const mRing = ring(MX, FL, { parent: cam }), jRing = ring(JX, FL, { parent: cam 
   const s = C('every night');
   const sky = skyline(FL, { parent: cam, t0: s, seed: 7 }); show(sky, s, C('stranger') - 0.2, 0.6);
   const moon = icon('moon', 900, 360, { size: 140, parent: cam }); pop(moon, s + 0.1);
-  const lap = icon('laptop', JX, FL - 120, { size: 200, parent: cam }); pop(lap, C('code') - 0.5); lap.style.zIndex = 7;
-  const code = card(JX - 40, 640, 560, 320, { title: 'learn_to_code.js', body: '<div class="gx-code cd"></div>', parent: cam });
+  const lap = icon('laptop', JX, FL - 120, { size: 200, parent: cam }); pop(lap, C('code') - 0.5); lap.style.zIndex = 7; lap.dataset.overlapOk = '';
+  const code = card(JX - 60, 640, 560, 320, { title: 'learn_to_code.js', body: '<div class="gx-code cd"></div>', parent: cam });
   pop(code, C('teaching'));
   type(code.querySelector('.cd'), C('teaching') + 0.2, 1.4, 'let night = 1;\nwhile (true) {\n  learn();');
-  const night = stat('Night', '1', JX - 40, 1000, { size: 72, parent: cam }); pop(night, C('code'));
+  const night = stat('Night', '1', JX - 60, 1000, { size: 72, parent: cam }); pop(night, C('code'));
   window.S9 = { sky, moon, lap, code, night };
 }
 
@@ -175,8 +176,8 @@ const mRing = ring(MX, FL, { parent: cam }), jRing = ring(JX, FL, { parent: cam 
   const { code, night } = window.S9;
   const cd = code.querySelector('.cd');
   on((t) => { if (t >= s) cd.textContent = 'ERROR: undefined\nERROR: undefined\nERROR: ...'; });
-  const xs = [[-230, -120], [180, -60], [-40, 140]].map(([dx, dy], i) => {
-    const x = icon('cross', JX - 40 + dx, 640 + dy, { size: 90, parent: cam }); pop(x, s + i * 0.18); return x;
+  const xs = [-140, 0, 140].map((dx, i) => {
+    const x = icon('cross', JX - 60 + dx, 875, { size: 76, parent: cam }); pop(x, s + i * 0.18); return x;
   });
   count(night.querySelector('.gx-stat-val'), s, 1.8, 1, 340);
   shake(code, s + 0.05, 0.3, 10);
@@ -204,7 +205,7 @@ const mRing = ring(MX, FL, { parent: cam }), jRing = ring(JX, FL, { parent: cam 
   tw(cam, s, 1.0, { scale: [1.12, 1], x: [-150, 0] }, 'inOut');
   const inc = stat('Income', '$29,000', JX, 560, { size: 104, parent: cam }); pop(inc, s);
   count(inc.querySelector('.gx-stat-val'), C('doubled'), 1.0, 29000, 58000, usd);
-  const x2 = pill('×2', JX + 230, 470, { size: 'md', parent: cam }); pop(x2, C('doubled') + 0.3);
+  const x2 = pill('×2', JX, 680, { size: 'md', parent: cam }); pop(x2, C('doubled') + 0.3);
   const one = pill('The one thing nobody does', 540, 400, { parent: cam }); pop(one, C('one thing'));
   out([inc, x2], C('change') - 0.4);
   const same = card(JX - 40, 700, 520, 320, {
@@ -221,22 +222,22 @@ const mRing = ring(MX, FL, { parent: cam }), jRing = ring(JX, FL, { parent: cam 
 {
   const s = C('raises');
   // bring Marcus back, Jake steps aside: split screen
-  [marcus, mTag, mRing].forEach((e) => tw(e, s - 0.4, 0.4, { opacity: [0, 1] }));
+  [marcus, mRing].forEach((e) => tw(e, s - 0.4, 0.4, { opacity: [0, 1] }));
   const split = document.createElement('div'); split.className = 'gx-split';
   place(split, 540, 1100, { parent: cam, glow: false }); show(split, s, C('whole difference') - 0.1, 0.4);
-  const mi = stat('Income', '$29,000', MX, 420, { size: 72, parent: cam }); pop(mi, s);
+  const mi = stat('Income', '$29,000', MX, 400, { size: 72, parent: cam }); pop(mi, s);
   count(mi.querySelector('.gx-stat-val'), s + 0.2, 2.5, 29000, 61000, usd);
   const items = [['car', 'Bigger car payment', C('car payment')], ['house', 'Nicer apartment', C('apartment')], ['phone', 'Newer phone', C('phone')]];
   const els = [];
   items.forEach(([ic, txt, t], i) => {
-    const y = 620 + i * 250;
-    const e1 = icon(ic, 120, y, { size: 140, parent: cam }); pop(e1, t - 0.1);
+    const y = 560 + i * 165;
+    const e1 = icon(ic, 130, y, { size: 110, parent: cam }); pop(e1, t - 0.1);
     const e2 = pill(txt, 375, y, { invert: false, parent: cam }); pop(e2, t);
     const c = goldCoin(120, y - 60, { size: 44, parent: cam });
     tw(c, t, 0.1, { opacity: [0, 1] }); tw(c, t, 0.6, { x: [0, -200] }, 'in'); tw(c, t + 0.5, 0.1, { opacity: [1, 0] });
     els.push(e1, e2);
   });
-  const lo = stat('Left over', '$0', MX, 1440 + 120, { size: 60, parent: cam }); pop(lo, C('phone') + 0.3);
+  const lo = stat('Left over', '$0', MX, 1030, { size: 60, parent: cam }); pop(lo, C('phone') + 0.3);
   out([mi, lo, ...els], C('whole difference') - 0.3);
 }
 
@@ -308,10 +309,10 @@ const mRing = ring(MX, FL, { parent: cam }), jRing = ring(JX, FL, { parent: cam 
   const rw = pill('◀◀ First payday', 540, 400, { invert: false, parent: cam }); pop(rw, s + 0.1);
   // the payday scene again, all in grey except Jake
   [marcus, mTag].forEach((e) => tw(e, s + 0.1, 0.3, { opacity: [0, 0.4] }));
-  const f1 = figure(110, FL, { dim: true, size: 0.75, parent: cam }), f2 = figure(980, FL, { dim: true, size: 0.75, parent: cam });
+  const f1 = figure(120, FL, { dim: true, size: 0.75, parent: cam }), f2 = figure(890, FL, { dim: true, size: 0.75, parent: cam });
   show(f1, s + 0.2); show(f2, s + 0.2);
   const L = C('laughing') - 0.5;
-  const bs = [[110, FL - 260], [MX, FL - 330], [980, FL - 260]].map(([x, y], i) => {
+  const bs = [[150, FL - 400], [MX, FL - 330], [850, FL - 340]].map(([x, y], i) => {
     const b = bubble('Ha ha', x, y, { parent: cam }); pop(b, L + i * 0.1); bob(b, L, END, 8, 16); tw(b, L + 0.4, 0.4, { opacity: [1, 0.45] }); return b;
   });
   const fund = icon('fund', JX, 640, { size: 180, parent: cam }); pop(fund, C('payday', 0, s));

@@ -152,7 +152,9 @@
     el.style.transform = `translate(${v.x}px, ${v.y}px) rotate(${v.rotate}deg) scale(${v.scale})`;
     // stacked bloom: tight core + wide soft halo (the references' signature look)
     const g = v.glow, c = el.dataset.glowColor || '255,255,255', m = Math.min(g, 1);
-    const glow = el.dataset.glow !== undefined && g > 0.01
+    // CSS bloom is slow (3 shadows per element); by default the renderer adds bloom in post (ffmpeg).
+    // Set window.GX_CSS_BLOOM = true to preview it live in a browser.
+    const glow = window.GX_CSS_BLOOM && el.dataset.glow !== undefined && g > 0.01
       ? ` drop-shadow(0 0 ${4 * g}px rgba(${c},${0.9 * m})) drop-shadow(0 0 ${22 * g}px rgba(${c},${0.45 * m})) drop-shadow(0 0 ${60 * g}px rgba(${c},${0.22 * m}))`
       : '';
     el.style.filter = (v.blur > 0.01 ? `blur(${v.blur}px)` : '') + glow || 'none';

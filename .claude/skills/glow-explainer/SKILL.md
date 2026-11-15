@@ -78,17 +78,23 @@ voice.json  the narrator voice settings (voice_id, model, tempo)
    - Need a new icon? Add an SVG string to `ICONS` in your project's
      `components.js` (stroke `#fff`, width 6, round caps, 200×200 viewBox).
 
-6. **Preview stills.** `node scripts/render.cjs videos/<slug> --still 1,4.5,9,...`
+6. **Layout check.** `node scripts/render.cjs videos/<slug> --check` scans every 0.25 s
+   and lists overlapping text/icons/characters and anything outside the Reels safe zone
+   (text inside x 65–1015, y 270–1500, and clear of the right 150 px below y 960 where the
+   like/comment/share buttons sit). Fix until it prints `0 issue(s)`. Mark intentional
+   overlaps (a character inside a car, a laptop in front of him) with `el.dataset.overlapOk = ''`.
+
+7. **Preview stills.** `node scripts/render.cjs videos/<slug> --still 1,4.5,9,...`
    (one time per scene). Look at every still with Read. Check overlap,
    off-canvas elements, things visible that should have cleared, and empty frames.
    Fix and repeat. This is the cheap loop: do it until each still reads clearly.
 
-7. **Render.** `node scripts/render.cjs videos/<slug>` → `videos/<slug>/out.mp4`
+8. **Render.** `node scripts/render.cjs videos/<slug>` → `videos/<slug>/out.mp4`
    (30 fps with 3× motion blur, about 1× realtime; `--mb 1` for a fast draft). Extract a contact sheet
    (`ffmpeg -i out.mp4 -vf "fps=1/2,scale=240:-1,tile=6x3" sheet.jpg`), look at it,
    then send the MP4 to the user.
 
-8. **End card** (optional, as in the references): the final 1.5 s fades to black
+9. **End card** (optional, as in the references): the final 1.5 s fades to black
    with the handle icon centred.
 
 ## Mode B (metaphor loop)
@@ -102,8 +108,8 @@ or use a music-generation skill if one is available.
 
 ## Quality bar
 
-- 1080×1920, 30 fps, H.264 + AAC, safe area: keep text between y=250 and y=1650
-  and x=70–1010.
+- 1080×1920, 30 fps, H.264 + AAC. `--check` must report 0 issues (no overlaps, Reels safe zone).
+- Leave breathing room: at most ~4 text elements on screen at once; clear a scene before the next.
 - Monochrome. One extra colour only when it carries meaning (gold coins, red alarm).
 - Something moves at least every 1.5 s. No static holds longer than that.
 - Numbers always tick (`count`), never just appear.
