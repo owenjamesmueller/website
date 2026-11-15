@@ -49,3 +49,21 @@ The hero is usually centred. With two-sided comparisons, objects sit at x=360 an
 - Emphasis: a quick elastic wobble (rotate ±8°) on the key object when its word is spoken.
 - Lines draw on (`draw: [0,1]`) for charts, paths and the cross over the exam.
 - Timing: the visual lands on the spoken keyword, never before it. A new visual beat roughly every 1–1.5 s.
+
+## Big-character style (the "settled people" reference) — preferred for stories
+- **Characters are large** (`person(x, floorY, {size: 0.9})` ≈ 400 px tall, a third of the frame width) with chunky
+  arms that pose: `idle up both point hold type shrug wave carry` (`p.pose(t, 'both')`). Poses ARE the acting:
+  celebrate = both, mock = point, confused = shrug, working = type at a `desk`, holding a thing = hold/carry.
+- **One-word captions UNDER the floor** (`caption('YOU: WORK', x, floorY)`), not pills over heads. Format
+  "NAME: VERB" when two characters are on stage ("MARCUS: SPENDS", "JAKE: PLANTS"). Swap captions as the story moves.
+- **Sparse frames**: 1–3 things on screen. One small label above if needed. Lots of black.
+- **Abstract ideas become objects** (the core trick):
+  ambition = a flame you hold · advice = stacked speech bubbles · sabotage disguised as care = a gift box with an
+  extinguisher inside · progress = a tall glowing bar · changing your life = pushing a boulder · goals = a mountain
+  vs a tent · your circle = a literal room with ceiling lamps · energy = a battery charging · money that grows = a
+  seed → tree raining gold coins (`sprout`, `tree().grow().rain()`) · lifestyle creep = a bucket leaking through holes
+  labelled CAR / RENT / PHONE (`bucket().fill().leak()`).
+- **Rooms and lamps** (`room`, ceiling lamps throw a soft light pool) for "where you are"; protest-style `sign`s
+  on sticks for what a crowd says ("LIFE IS SHORT", "WE'RE YOUNG").
+- **Ends on a title card**: two or three huge words that turn the moral into an instruction
+  (`titleCard('Choose<br>your room.')`, `titleCard('Plant it<br>early.')`), held ~2 s, then the handle.

@@ -18,12 +18,18 @@ watching because every ~5 seconds it either opens a question or pays one off. Us
 7. **The hidden rule** stated as a contrast the viewer can repeat: "school and money play by opposite rules",
    "Marcus got paid by his job. Jake kept buying things that paid him."
 8. **Time skip payoff** with a number: "Twenty years later…".
-9. **Callback ending** that recolours the opening: "…people start calling it luck." /
+9. **Caveat (optional)**: "Of course, this doesn't mean… because there's a big difference between X and Y" — makes it feel fair.
+10. **Callback ending** that recolours the opening: "…people start calling it luck." /
    "Nobody noticed the moment Jake got rich. It happened on that very first payday, while everyone was laughing."
 
 Rules: no lists of tips, no "here are 3 ways", no direct advice to the viewer; let the story imply it. One curiosity
 gap in the first 5 s, one "but" turn in the middle, one line people would quote at the end. Write numbers as words.
 See `assets/examples/two-friends-story-script.txt` (+ its scenes file) for a full worked example.
+
+## Pick a central metaphor first
+Before writing scenes, choose 1–2 physical objects that ARE the idea and follow them through the whole video
+(see the style guide's metaphor list). The seed planted on payday becomes the tree at the end; the bucket that
+leaks is the same bucket twenty years later. The final title card names the metaphor ("PLANT IT EARLY.").
 
 ## Visual storytelling rules
 - **A cast, not icons.** Named characters (tags under their feet), on dashed ground rings, with reflections.

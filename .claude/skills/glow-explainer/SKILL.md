@@ -40,7 +40,7 @@ voice.json  the narrator voice settings (voice_id, model, tempo)
 
 2. **Project folder.** Create `videos/<slug>/` in the working directory (or the
    scratchpad if the user only wants the file) and copy in
-   `assets/{index.html,engine.js,components.js,base.css}`. Set the user's handle
+   `assets/{index.html,engine.js,components.js,characters.js,base.css}`. Set the user's handle
    in `index.html` (`#handle-text`), or delete `#handle` if they have none. Never
    use another creator's handle.
 
@@ -64,6 +64,9 @@ voice.json  the narrator voice settings (voice_id, model, tempo)
      its own `{ }` block, keyed to `cue('word')` so visuals land on the spoken word.
    - Every noun the narrator says that can be drawn **is** drawn the moment it's
      said: a pill label, an icon pop, a counter, a check/cross.
+   - Prefer the big-character style: `person()` with poses, captions under the floor,
+     a central metaphor object (see "Big-character style" in `references/style-guide.md`),
+     and a title card at the end. Add `window.DURATION += 2.6` for the card.
    - Stage it like a film: named characters with reactions, a world that changes,
      gold coins to follow, light on whoever the sentence is about. Follow "Visual
      storytelling rules" in `references/scene-recipes.md`. The full component list
