@@ -1,0 +1,19 @@
+{
+  "provider": "elevenlabs",
+  "voice_id": "GZ4PpFJV8ikEGUtBrjK7",
+  "voice_name": "Laura - a top narration voice",
+  "model_id": "eleven_v4",
+  "tempo": 1.1,
+  "target_wpm": 180,
+  "reference": {
+    "clip": "IQ 160 video (smartest person is probably broke)",
+    "median_f0_hz": 210,
+    "f0_range_hz": [150, 290],
+    "wpm": 180,
+    "best_library_similarity": 0.72
+  },
+  "alternates": [
+    { "voice_id": "lxYfHSkYm1EzQzGhdbfc", "voice_name": "Jessica Anne Bogart - Narration", "similarity": 0.66 },
+    { "voice_id": "tnSpp4vdxKPjI9w0GnoV", "voice_name": "Hope - upbeat and clear", "similarity": 0.64 }
+  ]
+}
