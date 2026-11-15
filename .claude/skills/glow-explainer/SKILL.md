@@ -31,7 +31,8 @@ a boat in a storm in B) are worked examples, not templates to reskin.
 ## Files
 ```
 assets/   engine.js (timeline, tweens, cues, sfx)   components.js (icons, pills, stats, cards, halos...)
-          characters.js (mode A posable people)  props.js (mode A SET SYSTEM + story props)  loops.js (mode B kits)
+          characters.js (mode A posable people)  props.js (mode A SET SYSTEM + story props)  story.js (mode A PLACES:
+          classroom, bedroom, laptop close-ups, house at night, bakery, shop street, office, forms, phones)  loops.js (mode B kits)
           base.css  index.html  sfx/ (SFX + foley-*.wav)  examples/ (one worked example per mode)
 scripts/  render.cjs (stills | --check | parallel render + motion blur + bloom + audio mix)
           align.py  tts_chatterbox.py (free EXPRESSIVE voice)  tts_kokoro.py (fallback)  fetch_sfx.py (REAL sound library)
@@ -51,7 +52,7 @@ voice.json  narrator voice settings
 
 ## Step 2 (both): project
 Create `videos/<slug>/` (or use the scratchpad if the user only wants the file). Copy
-`assets/{index.html,engine.js,components.js,characters.js,props.js,loops.js,base.css}`. Set the user's handle in `index.html`
+`assets/{index.html,engine.js,components.js,characters.js,props.js,story.js,loops.js,base.css}`. Set the user's handle in `index.html`
 (`#handle-text`), or delete `#handle`. Never use another creator's handle.
 
 ## Mode A steps
@@ -65,7 +66,15 @@ Create `videos/<slug>/` (or use the scratchpad if the user only wants the file).
    `ffmpeg -i take.mp3 -af "silenceremove=start_periods=1:start_threshold=-45dB:stop_periods=-1:stop_duration=0.12:stop_threshold=-45dB:stop_silence=0.1,atempo=1.06,<post_filter>" voice.mp3`
    (aim for ~210 wpm). Write numbers as words, and cue scenes on non-number words.
 4. **Align.** `HF_HUB_DISABLE_XET=1 python3 -I scripts/align.py voice.mp3 videos/<slug>/` → `words.js` + a timed transcript.
-5. **Scenes** (`scenes.js`; see `assets/examples/modea-janitor-banker-scenes.js` and `modea-kodak-drawer-scenes.js` for the patterns):
+5. **Scenes** (`scenes.js`; see `assets/examples/modea-kid-in-the-back-scenes.js` (the best one: a person story with real places) and
+   `modea-janitor-banker-scenes.js` for the patterns):
+   - **A character with a face the viewer roots for** (`accent` stripe = the hero, `bun`/`glasses`/`hood`/`tie` to tell people apart),
+     and **people ACT every line**: `pose` (raise, cover, laugh, cross, give...) and `head` (down, up, shake). A story about a company or
+     a fact list with icons on black is not enough: the Kodak attempt was rejected by the user for exactly that.
+   - **Every beat happens in a PLACE** (`story.js`), filling the frame, never objects floating on black.
+   - **Retention devices:** a flash-forward hook that shows the ending's twist first, open loops ("nobody knew what he did at night"),
+     a humiliation, a secret grind, a failure with tears, a first win, escalation by counters, a twist, a moral choice, a callback to frame 0.
+   - **Cue duplicates:** `cue(word)` finds the FIRST match; pass `from` for words spoken twice (`C('knew', 0, C('application'))`).
    - **Variety: a new SET for every beat (every ~3–6 s)**, never one stage for the whole video. Use `stageSet()` +
      `sceneSwap(A, B, t, 'whip'|'zoom'|'push'|'cut')`, and vary the framing: wide establishing shots, close-ups (the coat
      with safety pins), split screens, charts, an object filling the frame (a jar, a scale, a mansion), a title moment.

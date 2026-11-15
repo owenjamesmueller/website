@@ -2,7 +2,8 @@
  * Load after engine.js and components.js.
  *
  *   const p = person(x, floorY, { size, dim, cap, flip })   // anchor = feet
- *   p.pose(t0, 'up', dur)        // idle | up | both | point | hold | type | shrug | wave | carry
+ *   p.pose(t0, 'up', dur)        // idle | up | both | point | hold | type | shrug | wave | carry | mop | hips | cover | laugh | cross | raise | give
+ *   p.head(t0, 'down'|'up'|'tilt'|'shake'|0)   options: bun, glasses, hood, tie, cap, beanie, accent:'#f5c542' (a colour stripe = the hero)
  *   caption('YOU: WORK', x, floorY)                         // small tracked label UNDER the floor
  *   room(x, y, w, h)  lamp(x, y)  desk(x, floorY)  sign(text, x, y)  titleCard(html)
  *   tree(x, floorY, { size }) -> el.grow(t0, dur); el.rain(t0, t1, every)   // coins fall from it
@@ -26,10 +27,15 @@
     carry: [40, 70, 40, 70],
     mop:   [6, 0, 35, -35],          // right hand on a mop handle (use with { mop: true })
     hips:  [40, 120, 40, 120],       // hands on hips
+    cover: [150, 108, 150, 108],     // hands over the face (crying, shame)
+    laugh: [35, 105, 35, 105],       // hands on the belly
+    cross: [30, 120, 30, 120],       // arms folded (pair with a stern head)
+    raise: [6, 0, 172, -4],          // hand straight up (classroom)
+    give:  [6, 0, 75, -20],          // hand out, offering something
   };
   const rad = (d) => (d * Math.PI) / 180;
 
-  function person(x, y, { size = 1, dim = false, cap = false, tie = false, beanie = false, mop = false, parent } = {}) {
+  function person(x, y, { size = 1, dim = false, cap = false, tie = false, beanie = false, mop = false, bun = false, glasses = false, hood = false, accent = '', parent } = {}) {
     const fill = dim ? '#9a9a9a' : '#ffffff';
     const d = document.createElement('div');
     d.className = 'gx-svg gx-figure gx-person';
@@ -37,10 +43,15 @@
       <path class="armL" fill="none" stroke="${fill}" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
       <path class="armR" fill="none" stroke="${fill}" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
       <path fill="${fill}" d="M58 440 V300 Q58 214 150 210 Q242 214 242 300 V440 Z"/>
+      ${hood ? `<path d="M70 300 Q60 200 150 196 Q240 200 230 300" fill="none" stroke="#0a0a0a" stroke-width="8"/><path d="M128 250 V300 M172 250 V300" stroke="#0a0a0a" stroke-width="6" stroke-linecap="round"/>` : ''}
+      ${accent ? `<rect x="62" y="330" width="176" height="14" rx="7" fill="${accent}"/>` : ''}
+      <g class="head">${bun ? `<circle cx="150" cy="58" r="34" fill="${fill}"/><circle cx="150" cy="58" r="34" fill="none" stroke="#0a0a0a" stroke-width="5"/>` : ''}
       <circle cx="150" cy="128" r="58" fill="${fill}"/>
+      ${glasses ? `<g fill="none" stroke="#0a0a0a" stroke-width="7"><circle cx="126" cy="130" r="17"/><circle cx="174" cy="130" r="17"/><path d="M143 130 H157"/></g>` : ''}
+      ${hood ? `<path d="M86 150 Q78 66 150 62 Q222 66 214 150" fill="none" stroke="#0a0a0a" stroke-width="9" stroke-linecap="round"/>` : ''}
       ${cap ? `<path d="M78 62 L150 30 L222 62 L150 92 Z" fill="#050505" stroke="${fill}" stroke-width="8" stroke-linejoin="round"/>` : ''}
       ${tie ? `<path d="M116 216 L150 256 L184 216" fill="none" stroke="#0a0a0a" stroke-width="9" stroke-linejoin="round"/><path d="M140 252 H160 L170 330 L150 356 L130 330 Z" fill="#0a0a0a"/>` : ''}
-      ${beanie ? `<path d="M90 112 Q90 54 150 54 Q210 54 210 112 Z" fill="#0a0a0a"/><rect x="86" y="100" width="128" height="24" rx="11" fill="#0a0a0a" stroke="${fill}" stroke-width="5"/>` : ''}
+      ${beanie ? `<path d="M90 112 Q90 54 150 54 Q210 54 210 112 Z" fill="#0a0a0a"/><rect x="86" y="100" width="128" height="24" rx="11" fill="#0a0a0a" stroke="${fill}" stroke-width="5"/>` : ''}</g>
       ${mop ? `<g class="mop"><path d="M275 150 V430" stroke="#c9c9c9" stroke-width="10" stroke-linecap="round"/><path d="M235 432 H315 L300 470 H250 Z" fill="#c9c9c9"/><path d="M245 470 V500 M262 470 V505 M279 470 V505 M296 470 V500" stroke="#c9c9c9" stroke-width="7" stroke-linecap="round"/></g>` : ''}
     </svg>`;
     const el = place(d, x, y, { parent, anchor: 'bottom', z: 5, glow: !dim });
@@ -48,6 +59,17 @@
     const keys = [{ t0: -99, dur: 0, pose: mop ? POSES.mop : POSES.idle }];
     const mopEl = el.querySelector('.mop'); const sweeps = [];
     el.sweep = (t0, t1) => { sweeps.push([t0, t1]); return el; };
+    // head moves: el.head(t0, 'down'|'up'|'tilt'|'shake'|0, dur) — down = shame/sad, shake = 'no', tilt = curious
+    const hd = el.querySelector('.head'), hk = [{ t0: -99, dur: 0, v: [0, 0] }], HEAD = { 0: [0, 0], down: [26, 0], up: [-10, 0], tilt: [0, 14] };
+    const shakes = [];
+    el.head = (t0, name, dur = 0.3) => { if (name === 'shake') shakes.push([t0, t0 + 0.8]); else { hk.push({ t0, dur, v: HEAD[name] || [0, 0] }); hk.sort((a, b) => a.t0 - b.t0); } return el; };
+    on((t) => {
+      let i = 0; for (let k = 0; k < hk.length; k++) if (t >= hk[k].t0) i = k;
+      const c = hk[i], f = i ? hk[i - 1].v : c.v, p = c.dur ? EASE.inOut(Math.max(0, Math.min(1, (t - c.t0) / c.dur))) : 1;
+      let dy = f[0] + (c.v[0] - f[0]) * p, rot = f[1] + (c.v[1] - f[1]) * p;
+      for (const [a, b] of shakes) if (t >= a && t <= b) rot += Math.sin((t - a) * 22) * 12 * (1 - (t - a) / (b - a));
+      hd.setAttribute('transform', `translate(0 ${dy.toFixed(1)}) rotate(${rot.toFixed(1)} 150 160)`);
+    });
     el.pose = (t0, name, dur = 0.35) => { keys.push({ t0, dur, pose: POSES[name] || name }); keys.sort((a, b) => a.t0 - b.t0); return el; };
     const arm = (sx, sy, a1, a2, side) => {
       const s = side === 'L' ? -1 : 1;
