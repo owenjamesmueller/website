@@ -24,10 +24,12 @@
     shrug: [55, 85, 55, 85],
     wave:  [6, 0, 140, 35],
     carry: [40, 70, 40, 70],
+    mop:   [6, 0, 35, -35],          // right hand on a mop handle (use with { mop: true })
+    hips:  [40, 120, 40, 120],       // hands on hips
   };
   const rad = (d) => (d * Math.PI) / 180;
 
-  function person(x, y, { size = 1, dim = false, cap = false, parent } = {}) {
+  function person(x, y, { size = 1, dim = false, cap = false, tie = false, beanie = false, mop = false, parent } = {}) {
     const fill = dim ? '#9a9a9a' : '#ffffff';
     const d = document.createElement('div');
     d.className = 'gx-svg gx-figure gx-person';
@@ -37,10 +39,15 @@
       <path fill="${fill}" d="M58 440 V300 Q58 214 150 210 Q242 214 242 300 V440 Z"/>
       <circle cx="150" cy="128" r="58" fill="${fill}"/>
       ${cap ? `<path d="M78 62 L150 30 L222 62 L150 92 Z" fill="#050505" stroke="${fill}" stroke-width="8" stroke-linejoin="round"/>` : ''}
+      ${tie ? `<path d="M116 216 L150 256 L184 216" fill="none" stroke="#0a0a0a" stroke-width="9" stroke-linejoin="round"/><path d="M140 252 H160 L170 330 L150 356 L130 330 Z" fill="#0a0a0a"/>` : ''}
+      ${beanie ? `<path d="M90 112 Q90 54 150 54 Q210 54 210 112 Z" fill="#0a0a0a"/><rect x="86" y="100" width="128" height="24" rx="11" fill="#0a0a0a" stroke="${fill}" stroke-width="5"/>` : ''}
+      ${mop ? `<g class="mop"><path d="M275 150 V430" stroke="#c9c9c9" stroke-width="10" stroke-linecap="round"/><path d="M235 432 H315 L300 470 H250 Z" fill="#c9c9c9"/><path d="M245 470 V500 M262 470 V505 M279 470 V505 M296 470 V500" stroke="#c9c9c9" stroke-width="7" stroke-linecap="round"/></g>` : ''}
     </svg>`;
     const el = place(d, x, y, { parent, anchor: 'bottom', z: 5, glow: !dim });
     const aL = el.querySelector('.armL'), aR = el.querySelector('.armR');
-    const keys = [{ t0: -1, dur: 0, pose: POSES.idle }];
+    const keys = [{ t0: -99, dur: 0, pose: mop ? POSES.mop : POSES.idle }];
+    const mopEl = el.querySelector('.mop'); const sweeps = [];
+    el.sweep = (t0, t1) => { sweeps.push([t0, t1]); return el; };
     el.pose = (t0, name, dur = 0.35) => { keys.push({ t0, dur, pose: POSES[name] || name }); keys.sort((a, b) => a.t0 - b.t0); return el; };
     const arm = (sx, sy, a1, a2, side) => {
       const s = side === 'L' ? -1 : 1;
@@ -54,6 +61,7 @@
       const cur = keys[i], from = i ? keys[i - 1].pose : cur.pose;
       const p = cur.dur ? EASE.inOut(Math.max(0, Math.min(1, (t - cur.t0) / cur.dur))) : 1;
       const v = cur.pose.map((b, i) => from[i] + (b - from[i]) * p);
+      if (mopEl) { let a = 0; for (const [a0, a1] of sweeps) if (t >= a0 && t <= a1) a = Math.sin((t - a0) * 7) * 14; mopEl.setAttribute('transform', `rotate(${a.toFixed(1)} 275 410)`); }
       aL.setAttribute('d', arm(...SH.L, v[0], v[1], 'L'));
       aR.setAttribute('d', arm(...SH.R, v[2], v[3], 'R'));
     });

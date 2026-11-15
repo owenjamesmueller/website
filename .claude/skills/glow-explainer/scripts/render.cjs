@@ -49,7 +49,7 @@ const BLOOM = bloom > 0
       // Reels safe zone (conservative blend of published guides): text must stay inside this box;
       // the right 150 px below y=960 is covered by like/comment/share buttons.
       const SAFE = { top: 270, bottom: 1500, left: 65, right: 1015, rightColX: 930, rightColY: 960 };
-      const UI = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-icon:not(.gx-icon-coin):not(.gx-icon-sparkle),.gx-bar,.gx-chart,.gx-figure,.gx-caption,.gx-sign,.gx-title,.gx-tree,.gx-bucket,.gx-desk,.gx-sprout,.gx-mono-sign,.gx-mono-bubble,.gx-quote,.gx-mono-head';
+      const UI = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-icon:not(.gx-icon-coin):not(.gx-icon-sparkle),.gx-bar,.gx-chart,.gx-figure,.gx-caption,.gx-sign,.gx-title,.gx-tree,.gx-bucket,.gx-desk,.gx-sprout,.gx-mono-sign,.gx-mono-bubble,.gx-quote,.gx-mono-head,.gx-prop:not([data-scenery]),.gx-stick';
       const TEXT = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-bar,.gx-caption,.gx-sign,.gx-title,.gx-mono-sign,.gx-mono-bubble,.gx-quote,.gx-mono-head';
       const vis = (el) => { let o = 1; for (let e = el; e && e.nodeType === 1; e = e.parentElement) o *= +getComputedStyle(e).opacity; return o; };
       const name = (el) => (el.className.baseVal ?? el.className).split(' ').find((c) => c.startsWith('gx-') && c !== 'gx-svg') + ':' + (el.textContent || '').trim().slice(0, 22);
@@ -57,7 +57,10 @@ const BLOOM = bloom > 0
       const out = new Map();
       for (let t = 0; t < duration; t += 0.25) {
         window.__seek(t);
-        const els = [...document.querySelectorAll(UI)].filter((e) => !e.closest('[data-overlap-ok]') && vis(e) > 0.6 && !e.parentElement.closest(UI));
+        // sets mid-transition (moving, scaled or blurred) are skipped: overlap during a whip/zoom is intended
+        const moving = (e) => { const g = e.closest('.gx-set'); if (!g) return false; const tr = g.style.transform || '', f = g.style.filter || '';
+          return /blur\((?!0px)/.test(f) || (tr && !/^translate\(0px, 0px\) rotate\(0deg\) scale\(1\)$/.test(tr)); };
+        const els = [...document.querySelectorAll(UI)].filter((e) => !e.closest('[data-overlap-ok]') && vis(e) > 0.6 && !e.parentElement.closest(UI) && !moving(e));
         const B = els.map(box);
         for (let i = 0; i < els.length; i++) {
           const a = B[i];
@@ -66,7 +69,9 @@ const BLOOM = bloom > 0
             if (off) { const k = 'SAFE ' + name(els[i]); if (!out.has(k)) out.set(k, t.toFixed(2)); }
           }
           for (let j = i + 1; j < els.length; j++) {
-            if (els[i].matches('.gx-figure') && els[j].matches('.gx-figure')) continue;
+            const fig = (e) => e.matches('.gx-figure,.gx-stick');
+            if (fig(els[i]) && fig(els[j])) continue;                       // crowds may touch
+            if (!fig(els[i]) && !fig(els[j]) && els[i].matches('.gx-prop') && els[j].matches('.gx-prop')) continue; // prop stacks (coins in a jar)
             const b = B[j], pad = 6;
             const ix = Math.min(a.r, b.r) - Math.max(a.l, b.l), iy = Math.min(a.b, b.b) - Math.max(a.t, b.t);
             if (ix > pad && iy > pad) { const k = 'OVERLAP ' + name(els[i]) + '  ×  ' + name(els[j]); if (!out.has(k)) out.set(k, t.toFixed(2)); }

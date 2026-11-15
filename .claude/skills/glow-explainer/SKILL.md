@@ -19,7 +19,7 @@ exact, re-timeable and checkable.
 | use when | the idea needs explaining (a mechanism, a rule, a turn) | the idea fits one picture (a trap, a choice, peer pressure) |
 
 If the user doesn't say which, pick the mode that fits the idea and say why in one line.
-Neither mode is tied to a subject or a setting. The examples in `assets/examples/` (two friends and money in A,
+Neither mode is tied to a subject or a setting. The examples in `assets/examples/` (a true janitor-vs-banker story in A,
 a boat in a storm in B) are worked examples, not templates to reskin.
 
 ## Always read first
@@ -31,10 +31,10 @@ a boat in a storm in B) are worked examples, not templates to reskin.
 ## Files
 ```
 assets/   engine.js (timeline, tweens, cues, sfx)   components.js (icons, pills, stats, cards, halos...)
-          characters.js (mode A posable people + props)   loops.js (mode B stick figures + environment kits)
+          characters.js (mode A posable people)  props.js (mode A SET SYSTEM + story props)  loops.js (mode B kits)
           base.css  index.html  sfx/ (SFX + foley-*.wav)  examples/ (one worked example per mode)
 scripts/  render.cjs (stills | --check | parallel render + motion blur + bloom + audio mix)
-          align.py (word timestamps)  mix_audio.py  gen_foley.py (procedural foley)  check_voice.py
+          align.py (word timestamps)  tts_kokoro.py (free voice)  mix_audio.py  gen_foley.py (foley)  check_voice.py
 voice.json  narrator voice settings
 ```
 
@@ -50,17 +50,28 @@ voice.json  narrator voice settings
 
 ## Step 2 (both): project
 Create `videos/<slug>/` (or use the scratchpad if the user only wants the file). Copy
-`assets/{index.html,engine.js,components.js,characters.js,loops.js,base.css}`. Set the user's handle in `index.html`
+`assets/{index.html,engine.js,components.js,characters.js,props.js,loops.js,base.css}`. Set the user's handle in `index.html`
 (`#handle-text`), or delete `#handle`. Never use another creator's handle.
 
 ## Mode A steps
 3. **Voice.** One `creative_generate_speech` call for the whole script with the `voice_id`/`model_id` from `voice.json`
-   (check the credit balance with `estimate_only` first; if it's short, `eleven_flash_v2_5` costs about half).
+   (check the credit balance with `estimate_only` first; if it's short, `eleven_flash_v2_5` costs about half). **No credits?**
+   `python3 -I scripts/tts_kokoro.py script.txt take.wav` (free, local, af_alloy; about as close to the reference as Flash).
+   Prefer a TRUE story with real details (verify facts with a search; don't name private people in a negative light).
    Download the take, then use fast pacing by default:
    `ffmpeg -i take.mp3 -af "silenceremove=start_periods=1:start_threshold=-45dB:stop_periods=-1:stop_duration=0.12:stop_threshold=-45dB:stop_silence=0.1,atempo=1.06,<post_filter>" voice.mp3`
    (aim for ~210 wpm). Write numbers as words, and cue scenes on non-number words.
 4. **Align.** `HF_HUB_DISABLE_XET=1 python3 -I scripts/align.py voice.mp3 videos/<slug>/` → `words.js` + a timed transcript.
-5. **Scenes** (`scenes.js`; see `assets/examples/two-friends-story-scenes.js` for the patterns):
+5. **Scenes** (`scenes.js`; see `assets/examples/modea-janitor-banker-scenes.js` for the patterns):
+   - **Variety: a new SET for every beat (every ~3–6 s)**, never one stage for the whole video. Use `stageSet()` +
+     `sceneSwap(A, B, t, 'whip'|'zoom'|'push'|'cut')`, and vary the framing: wide establishing shots, close-ups (the coat
+     with safety pins), split screens, charts, an object filling the frame (a jar, a scale, a mansion), a title moment.
+     If two consecutive stills look alike, redesign one.
+   - **Nothing passes through anything.** Coins land *in* a jar, building or hand; bills pile up *beside* a character;
+     people stop *at* doors and steps; vehicles carry their driver. Background buildings sit behind characters, never
+     in front of or through them. `--check` flags moving props crossing characters; scenery (`data-scenery`) is exempt,
+     so check that by eye in the stills.
+   - Titles over busy backgrounds get a plate (`titleCard(...).classList.add('plate')`).
    - One scene per sentence, keyed to spoken words with `cue('word')`; every drawable noun appears as it's said.
    - Big posed characters (`person`, `pose`), captions under the floor (`caption`), the central metaphor object followed
      from start to end, light on whoever the sentence is about, a title card at the end (`window.DURATION += 1.9`).

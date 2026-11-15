@@ -49,6 +49,8 @@ Use at least 5 in mode A and at least 3 in a mode B loop. The examples span nich
 | **Quotable rule** | "school and money play by opposite rules" | the quote card (≤ 12 words) |
 
 ## 4. Pacing and pattern interrupts
+- **Visual variety is retention:** a new set or composition every ~3–6 s (mode A). A video that looks the same for 60 s
+  loses people even if the story is good.
 - A new visual event at least every 1.5 s; a scene or beat change every 4–5 s; never a static frame (the camera always drifts).
 - Mode A fast pace: ~210 wpm, gaps ≤ 0.1 s, `GX_PACE 0.72`, `punches()` on every sentence.
 - Mode B: someone is doing something physical every second; one big hit (lightning, snap, fall) roughly two-thirds of the way in.
