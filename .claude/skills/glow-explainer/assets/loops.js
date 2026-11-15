@@ -177,3 +177,129 @@
 
   Object.assign(window, { stick, STICK_POSES: SP, monoHead, monoSign, monoBubble, quoteCard, road, ocean, bubbles, chain, seaweed, cliff });
 })();
+
+/* ---------------- STORM KIT: sea, sky, rain, lightning, boat, raft ----------------
+ * All driven by a storm curve: storm(t) -> 0 (calm) .. 1 (full storm). Pass the same function everywhere.
+ *   const W = sea({ y: 1180, storm })        // W.y(x, t) = water surface height; front layer occludes what is below it
+ *   sky({ storm, goldAt })  rain({ storm })  lightning(t, x)
+ *   const B = boat({ x, w, sea: W, draft: t => px, tilt: t => deg })   // B.group = parent for figures; B.toScreen(px,py,t)
+ *   B.hole(px, label, t0)   raft(x, sea, { planks, mastAt })
+ */
+(function () {
+  function sea({ y = 1180, storm = () => 0.3, parent } = {}) {
+    const A = (t) => 8 + 46 * storm(t);
+    const Y = (x, t) => y + A(t) * (0.6 * Math.sin(x * 0.011 + t * 1.7) + 0.4 * Math.sin(x * 0.026 - t * 2.4));
+    const mk = (z, fill, stroke, off) => {
+      const d = document.createElement('div'); d.className = 'gx-sea';
+      d.innerHTML = `<svg width="1080" height="1920" viewBox="0 0 1080 1920"><path fill="${fill}" stroke="${stroke}" stroke-width="5"/></svg>`;
+      const el = place(d, 540, 960, { parent, z, glow: false }); el.style.opacity = 1;
+      const p = el.querySelector('path');
+      on((t) => { let s = `M-20 1940 L-20 ${Y(-20, t + off) + off * 30}`; for (let x = 0; x <= 1100; x += 20) s += ` L${x} ${(Y(x, t + off) + off * 30).toFixed(1)}`; p.setAttribute('d', s + ' L1100 1940 Z'); });
+      return el;
+    };
+    const back = mk(1, '#0b1c2c', 'rgba(170,210,235,.25)', -0.6);
+    const front = mk(30, 'rgba(9,26,41,.95)', 'rgba(210,235,250,.75)', 0);
+    return { y: Y, back, front, base: y };
+  }
+
+  function sky({ storm = () => 0.5, goldAt = 99, parent } = {}) {
+    const d = document.createElement('div'); d.className = 'gx-sky';
+    let clouds = '';
+    for (let i = 0; i < 9; i++) clouds += `<i style="left:${-200 + rand(i) * 1300}px;top:${80 + rand(i * 3) * 520}px;width:${380 + rand(i * 5) * 420}px;height:${150 + rand(i * 7) * 140}px"></i>`;
+    d.innerHTML = `<div class="gold"></div><div class="clouds">${clouds}</div>`;
+    const el = place(d, 540, 960, { parent, z: 0, glow: false }); el.style.opacity = 1;
+    const cl = el.querySelectorAll('.clouds i'), gold = el.querySelector('.gold');
+    on((t) => {
+      cl.forEach((c, i) => { c.style.transform = `translateX(${((t * (12 + i * 3)) % 400) - 100}px)`; c.style.opacity = (0.35 + 0.5 * storm(t)) * Math.max(0, 1 - (t - goldAt) / 1.2); });
+      gold.style.opacity = Math.max(0, Math.min(1, (t - goldAt) / 1.2));
+    });
+    return el;
+  }
+
+  function rain({ storm = () => 0.5, parent, n = 150 } = {}) {
+    const d = document.createElement('div'); d.className = 'gx-rain';
+    let ls = ''; for (let i = 0; i < n; i++) ls += '<line/>';
+    d.innerHTML = `<svg width="1080" height="1920" viewBox="0 0 1080 1920"><g stroke="rgba(200,220,240,.55)" stroke-width="2.5" stroke-linecap="round">${ls}</g></svg>`;
+    const el = place(d, 540, 960, { parent, z: 40, glow: false }); el.style.opacity = 1;
+    const L = el.querySelectorAll('line');
+    on((t) => {
+      const k = storm(t);
+      L.forEach((l, i) => {
+        const vis = rand(i * 1.37) < k; l.style.display = vis ? '' : 'none'; if (!vis) return;
+        const sp = 1700 + rand(i) * 900, y = ((t * sp + rand(i * 9) * 1920) % 2100) - 100, x = (rand(i * 4.1) * 1300 - 110) - y * 0.22;
+        l.setAttribute('x1', x.toFixed(1)); l.setAttribute('y1', y.toFixed(1)); l.setAttribute('x2', (x - 14).toFixed(1)); l.setAttribute('y2', (y + 60).toFixed(1));
+      });
+    });
+    return el;
+  }
+
+  function lightning(t0, x, { parent, yEnd = 1150 } = {}) {
+    let p = `M${x} -20`, cx = x, cy = -20, i = 0;
+    while (cy < yEnd) { cy += 70 + rand(t0 + i) * 60; cx += (rand(t0 * 3 + i) - 0.5) * 140; p += ` L${cx.toFixed(0)} ${cy.toFixed(0)}`; i++; }
+    const d = document.createElement('div'); d.className = 'gx-bolt';
+    d.innerHTML = `<svg width="1080" height="1920" viewBox="0 0 1080 1920"><path d="${p}" fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round"/></svg>`;
+    const el = place(d, 540, 960, { parent, z: 35, glow: true });
+    tw(el, t0, 0.04, { opacity: [0, 1] }); tw(el, t0 + 0.08, 0.05, { opacity: [1, 0.2] }); tw(el, t0 + 0.14, 0.04, { opacity: [0.2, 1] }); tw(el, t0 + 0.24, 0.3, { opacity: [1, 0] });
+    const f = document.createElement('div'); f.style.cssText = 'width:1080px;height:1920px;background:#dfe9ff';
+    const fl = place(f, 540, 960, { parent: document.getElementById('stage'), z: 39, glow: false });
+    tw(fl, t0, 0.03, { opacity: [0, 0.55] }); tw(fl, t0 + 0.05, 0.35, { opacity: [0.55, 0] });
+    return el;
+  }
+
+  function sunbeam(x, t0, { parent } = {}) {
+    const d = document.createElement('div'); d.className = 'gx-sunbeam';
+    const el = place(d, x, -200, { parent, anchor: 'top', z: 3, glow: false });
+    tw(el, t0, 1.4, { opacity: [0, 1] }, 'inOut');
+    return el;
+  }
+
+  function boat({ x = 400, w = 600, sea: W, draft = () => 0, tilt = () => 0, parent } = {}) {
+    const H = 560, HULL = 190, gun = H - HULL;                 // group height; gunwale y in group coords
+    const g = document.createElement('div'); g.className = 'gx-boat';
+    g.style.width = w + 'px'; g.style.height = H + 'px';
+    g.innerHTML = `<svg class="hull" width="${w}" height="${HULL + 10}" viewBox="0 0 ${w} ${HULL + 10}" style="position:absolute;left:0;top:${gun}px;z-index:10;overflow:visible">
+      <path d="M0 4 H${w} L${w - 55} ${HULL - 20} Q${w - 68} ${HULL} ${w - 100} ${HULL} H100 Q68 ${HULL} 55 ${HULL - 20} Z" fill="#15171e" stroke="#e8e8e8" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M22 60 H${w - 22} M40 115 H${w - 40}" stroke="#3b3f4c" stroke-width="4"/></svg>`;
+    const el = place(g, x, W.base + 120, { parent, anchor: 'bottom', z: 20, glow: false }); el.style.opacity = 1;
+    el.style.transformOrigin = '50% 100%';
+    const motion = (t) => ({ dy: W.y(x, t) - W.base + draft(t), rot: tilt(t) + Math.sin(t * 1.5) * (1.5 + 3 * ((W.y(x + 40, t) - W.y(x - 40, t)) / 40)) });
+    on((t) => { const m = motion(t); el.style.transform = `translate(0px, ${m.dy.toFixed(1)}px) rotate(${m.rot.toFixed(2)}deg)`; });
+    // group coords (px from left, py from top) -> screen at time t
+    el.toScreen = (px, py, t) => {
+      const m = motion(t), r = (m.rot * Math.PI) / 180, ox = x, oy = W.base + 120 + m.dy;
+      const lx = px - w / 2, ly = py - H;
+      return { x: ox + lx * Math.cos(r) - ly * Math.sin(r), y: oy + lx * Math.sin(r) + ly * Math.cos(r) };
+    };
+    el.gun = gun; el.W = w; el.H = H;
+    // a leak: jet of water spraying up from inside the boat + a label on the hull
+    el.hole = (px, label, t0) => {
+      const j = document.createElement('div'); j.className = 'gx-jet';
+      j.innerHTML = `<svg width="80" height="200" viewBox="0 0 80 200" style="overflow:visible"><path d="M40 200 Q30 90 40 10 M40 200 Q55 100 62 40 M40 200 Q22 110 16 50" fill="none" stroke="#bfe3f5" stroke-width="7" stroke-linecap="round" stroke-dasharray="14 10"/></svg>`;
+      const je = place(j, px, gun + 40, { parent: el, anchor: 'bottom', z: 8, glow: false });
+      je.style.transformOrigin = '50% 100%';
+      tw(je, t0, 0.25, { opacity: [0, 1], scale: [0.2, 1] }, 'back');
+      const p = je.querySelector('svg'); on((t) => { p.style.strokeDashoffset = (-t * 140).toFixed(0); je.style.scale = t > t0 ? 0.9 + 0.12 * Math.sin(t * 18 + px) : ''; });
+      const s = monoSign(label, px, gun + 95, { parent: el, z: 12 }); pop(s, t0 + 0.1, 0.3);
+      return { jet: je, sign: s };
+    };
+    return el;
+  }
+
+  function raft(x, W, { parent, planks = 5, w = 250 } = {}) {
+    const d = document.createElement('div'); d.className = 'gx-raft';
+    d.style.width = w + 'px'; d.style.height = '330px';
+    let ps = ''; for (let i = 0; i < planks; i++) ps += `<rect class="pl pl${i}" x="${i * (w / planks) + 2}" y="292" width="${w / planks - 4}" height="30" rx="5" fill="#8a6a3f" stroke="#e8d3a8" stroke-width="3"/>`;
+    d.innerHTML = `<svg width="${w}" height="330" viewBox="0 0 ${w} 330" style="overflow:visible">
+      <g class="mast" opacity="0"><path d="M${w / 2} 292 V40" stroke="#e8d3a8" stroke-width="7"/><path d="M${w / 2 + 4} 50 Q${w / 2 + 120} 120 ${w / 2 + 6} 250 Z" fill="#f5c542" stroke="#fff3c9" stroke-width="3"/></g>${ps}</svg>`;
+    const el = place(d, x, W.base + 20, { parent, anchor: 'bottom', z: 22, glow: false }); el.style.opacity = 1;
+    el.style.transformOrigin = '50% 100%';
+    on((t) => { const dy = W.y(x, t) - W.base, r = (W.y(x + 60, t) - W.y(x - 60, t)) * 0.25; el.style.transform = `translate(0px, ${dy.toFixed(1)}px) rotate(${r.toFixed(2)}deg)`; });
+    el.querySelectorAll('.pl').forEach((p) => (p.style.opacity = 0));
+    el.addPlank = (i, t0) => { const p = el.querySelector('.pl' + i); on((t) => { const k = Math.max(0, Math.min(1, (t - t0) / 0.18)); p.style.opacity = k; p.setAttribute('transform', `translate(0 ${((1 - k) * -40).toFixed(1)})`); }); };
+    el.mast = (t0) => { const m = el.querySelector('.mast'); on((t) => m.setAttribute('opacity', Math.max(0, Math.min(1, (t - t0) / 0.4)))); };
+    el.deck = (t) => ({ x, y: W.y(x, t) + 20 - 38 });   // feet position on the raft
+    return el;
+  }
+
+  Object.assign(window, { sea, sky, rain, lightning, sunbeam, boat, raft });
+})();

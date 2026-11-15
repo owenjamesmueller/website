@@ -24,7 +24,7 @@ before generating audio. For mode B also read `references/metaphor-loops.md`.
 
 ```
 assets/   engine.js  components.js  characters.js (mode A people)  loops.js (mode B)
-          base.css  index.html  sfx/  examples/ (two-friends-story = A, modeb-easy-road = B)
+          base.css  index.html  sfx/  examples/ (two-friends-story = A, modeb-same-boat = B)
 scripts/  align.py (word timestamps -> words.js)   render.cjs (frames -> mp4)
           check_voice.py (optional: score a voice against a reference clip)
 voice.json  the narrator voice settings (voice_id, model, tempo)
@@ -121,14 +121,17 @@ Read `references/metaphor-loops.md` first. The workflow is shorter, with no voic
    the easy road and one figure takes the empty one. Write it as 4 beats on a 14 s timeline:
    hook (0–1 s, already moving), escalation (taunts and pressure), turn (the hero breaks away), and
    payoff (light or reward), then a quote card in the last 2.5 s. Score it with the Mode B audit in the
-   reference (≥ 5/6).
+   reference (≥ 7/8). Read its "Lessons from a rejected draft" first: stakes from frame 0, physical action
+   every second, close framing, and foley rather than UI sounds.
 2. **Project**: copy the same assets as mode A (they include `loops.js`). Write `words.js` as
    `window.WORDS=[];window.DURATION=14.5;`. Start `scenes.js` from
-   `assets/examples/modeb-easy-road-scenes.js`.
+   `assets/examples/modeb-same-boat-scenes.js`.
 3. **Build** with `stick()` figures (grey crowd, white hero with an accent headband), an environment
    (`road()` fork, `ocean()` + `bubbles()` + `chain()` + `seaweed()`, `cliff()`), `monoHead()` typed
    headlines, `monoSign()` labels, `monoBubble()` taunts, and `quoteCard()`. Frame 0 must already be busy.
-4. `--check`, stills, then render. SFX stay quiet (no loudness normalisation without a voice), because
+4. Sound: run `python3 -I scripts/gen_foley.py` once if `assets/sfx/foley-*.wav` is missing. Put a bed under the
+   whole loop and a foley hit on every action.
+5. `--check`, stills, then render. SFX stay quiet (no loudness normalisation without a voice), because
    the user adds music in the app. If they hand you a music file instead:
    `ffmpeg -i out.mp4 -i music.mp3 -filter_complex "[1:a]volume=0.8[m];[0:a][m]amix=inputs=2:normalize=0" -map 0:v -c:v copy -shortest final.mp4`.
 

@@ -138,3 +138,11 @@ body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: var(--i
 .gx-lamp2.lit::after { background: #f5c542; box-shadow: 0 0 40px 18px rgba(245,197,66,.55), 0 120px 160px 40px rgba(245,197,66,.12); }
 .gx-house2.lit svg path { stroke: #f5c542; }
 .gx-house2.lit { filter: drop-shadow(0 0 30px rgba(245,197,66,.6)); }
+
+/* ---- storm kit ---- */
+.gx-sea svg, .gx-rain svg, .gx-bolt svg { display: block; }
+.gx-sky { width: 1080px; height: 1920px; background: linear-gradient(#070a12 0%, #111a28 45%, #182434 70%); }
+.gx-sky .gold { position: absolute; inset: 0; opacity: 0; background: radial-gradient(ellipse 80% 45% at 75% 18%, rgba(255,214,120,.85), rgba(255,170,80,.25) 45%, transparent 70%), linear-gradient(#3a3550 0%, #6b5a5a 40%, #20283a 75%); }
+.gx-sky .clouds i { position: absolute; border-radius: 50%; background: #2a3344; filter: blur(28px); }
+.gx-sunbeam { width: 900px; height: 2300px; background: linear-gradient(rgba(255,220,140,.55), rgba(255,200,110,.12) 70%, transparent); clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%); filter: blur(18px); transform-origin: 50% 0; rotate: 18deg; }
+.gx-boat { position: absolute; }
