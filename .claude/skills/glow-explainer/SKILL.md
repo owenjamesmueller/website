@@ -81,6 +81,14 @@ voice.json  the narrator voice settings (voice_id, model, tempo)
    - Need a new icon? Add an SVG string to `ICONS` in your project's
      `components.js` (stroke `#fff`, width 6, round caps, 200×200 viewBox).
 
+5b. **Sound effects.** Add a sound-design block at the end of `scenes.js`:
+   `sfx('coin-collect', cue('paid'), 0.35)`. The files are in `assets/sfx/` (MIT, from SoundWeaver).
+   Use whoosh-short or refresh for time jumps, coin-collect or coin-double for money moving,
+   invalid-thunk or error-soft-thud for losses, success-* for wins, type-key for typing,
+   mention-pop for speech bubbles, notification-ding for messages, and click-deep for dramatic beats.
+   Keep volumes 0.15–0.5 so the voice stays on top. The renderer mixes them into `mix.wav`
+   and normalizes to −14 LUFS (the Reels standard) automatically.
+
 6. **Layout check.** `node scripts/render.cjs videos/<slug> --check` scans every 0.25 s
    and lists overlapping text/icons/characters and anything outside the Reels safe zone
    (text inside x 65–1015, y 270–1500, and clear of the right 150 px below y 960 where the

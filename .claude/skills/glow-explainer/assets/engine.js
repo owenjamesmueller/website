@@ -108,6 +108,9 @@
     return el;
   }
   function on(fn) { hooks.push(fn); }
+  // sound effect at time t (seconds). name = file in assets/sfx without .wav; vol 0..1
+  window.SFX = window.SFX || [];
+  function sfx(name, t, vol = 0.5) { if (isFinite(t)) window.SFX.push({ name, t: +t.toFixed(3), vol }); }
 
   // ---- voiceover cues -------------------------------------------------
   const norm = (w) => w.toLowerCase().replace(/[^a-z0-9$%]/g, '');
@@ -173,5 +176,5 @@
     document.documentElement.style.setProperty('--t', t);
   };
 
-  Object.assign(window, { tw, show, pop, out, fade, arc, drift, shake, bob, count, type, on, cue, cueEnd, rand, EASE, $ });
+  Object.assign(window, { sfx, tw, show, pop, out, fade, arc, drift, shake, bob, count, type, on, cue, cueEnd, rand, EASE, $ });
 })();

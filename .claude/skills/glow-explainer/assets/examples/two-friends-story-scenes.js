@@ -290,6 +290,7 @@ let BUCKET, MB;
   const s = C('happened');
   tw(cam, s - 0.1, 0.25, { blur: [0, 10] }, 'in'); tw(cam, s + 0.15, 0.35, { blur: [10, 0] }, 'out');
   const rw = pill('◀◀ First payday', 540, 470, { invert: false, parent: cam }); pop(rw, s + 0.1);
+  capSwap('j', '', JC, s);
   const m2 = person(MX, FL, { size: 0.9, dim: true, parent: cam }); fade(m2, s + 0.1, 0, 0.6);
   const f2 = person(110, FL, { size: 0.6, dim: true, parent: cam }); f2.dataset.overlapOk = ''; fade(f2, s + 0.1, 0, 0.6);
   m2.pose(s + 0.1, 'point', 0.01);
@@ -308,4 +309,72 @@ let BUCKET, MB;
   tw(tc, VO + 0.5, 0.6, { opacity: [0, 1], scale: [0.92, 1] }, 'out');
   const black = document.createElement('div'); black.style.cssText = 'width:1080px;height:1920px;background:#000';
   place(black, 540, 960, { glow: false, z: 60 }); tw(black, END - 0.35, 0.35, { opacity: [0, 1] });
+}
+
+/* ---------------- sound design ----------------
+ * Subtle by default (SFX sit under the voice). Every sound marks a story beat:
+ * whooshes = time jumps, coins = money moving, thuds = losses, chimes = wins.
+ */
+{
+  const S = (n, t, v) => sfx(n, t, v);
+  // 1 intro
+  S('transition-glide', 0.05, 0.35);
+  S('pop-bubble', C('same job'), 0.35); S('popover-pop', C('job') + 0.1, 0.3);
+  // 2 flash-forward / rewind
+  S('whoosh-short', C('years later') - 0.3, 0.45);
+  S('modal-open-rise', C('only one'), 0.4);
+  for (let i = 0; i < 4; i++) S('coin-collect', C('only one') + 0.8 + i * 0.35, 0.18);
+  S('success-subtle-ping', C('rich'), 0.4);
+  S('refresh', C('crazy') - 0.35, 0.4);
+  // 3 same money
+  S('pop-bubble', C('earned'), 0.3); S('pop-bubble', C('earned') + 0.1, 0.3);
+  S('click-deep', C('same money'), 0.4);
+  // 4 payday + shoes
+  S('notification-gentle-bell', C('payday') - 0.1, 0.35);
+  S('coin-collect', C('payday') + 0.6, 0.35); S('coin-collect', C('payday') + 0.7, 0.3);
+  S('xp-up', C('shoes') - 0.1, 0.35); S('success-subtle-ping', C('shoes'), 0.25);
+  // 5 the seed + laughing
+  S('coin-collect', C('jake put') + 0.1, 0.35);
+  S('modal-open-rise', C('jake put') + 0.8, 0.35);
+  S('mention-pop', C('laughed'), 0.35); S('mention-pop', C('laughed') + 0.12, 0.3);
+  // 6 winning?
+  S('popover-pop', C('winning'), 0.35);
+  // 7 car + bus
+  S('whoosh-short', C('financed') - 0.1, 0.4); S('invalid-thunk', C('car') + 0.2, 0.35);
+  S('transition-glide', C('bus') - 0.6, 0.35); S('whoosh-short', C('bus') + 0.9, 0.3);
+  // 8 what nobody saw
+  S('click-deep', C('nobody saw'), 0.55); S('transition-smooth-whoosh', C('nobody saw', -0.6), 0.3);
+  // 9 night room + typing
+  S('modal-open-rise', C('every night'), 0.3);
+  for (let t = C('teaching') + 0.2; t < C('terrible') - 0.2; t += 0.11) S('type-key', t, 0.32);
+  for (let i = 0; i < 4; i++) S('tap-light', C('code') - 0.3 + i * 0.45, 0.25);
+  // 10 errors
+  S('error-soft-thud', C('terrible'), 0.45); S('error-soft-thud', C('terrible') + 0.9, 0.3);
+  // 11 first payment
+  S('notification-ding', C('stranger'), 0.5); S('click-deep', C('paid') + 0.05, 0.5);
+  S('coin-double', C('paid') + 0.1, 0.45); S('success-celebrate', C('website'), 0.35);
+  // 12 income doubled + didn't change
+  S('level-up', C('doubled'), 0.4);
+  S('popover-pop', C('one thing'), 0.3);
+  [0, 0.3, 0.6].forEach((d) => S('checkbox-check', C('lived') - 0.4 + d, 0.35));
+  // 13 the leaking bucket
+  for (let i = 0; i < 6; i++) S('coin-collect', C('raises') + 0.3 + i * 0.45, 0.16);
+  S('invalid-thunk', C('car payment'), 0.4); S('invalid-thunk', C('apartment'), 0.4); S('invalid-thunk', C('phone'), 0.4);
+  S('error-soft-thud', C('phone') + 0.3, 0.4);
+  // 14 the whole difference
+  S('transition-smooth-whoosh', C('whole difference'), 0.4);
+  S('modal-open-rise', C('buying'), 0.35); S('modal-open-rise', C('buying') + 0.35, 0.3);
+  for (let i = 0; i < 5; i++) S('coin-collect', C('buying') + 1.0 + i * 0.5, 0.14);
+  S('hover-soft', C('slept'), 0.3);
+  // 15 twenty years later
+  S('whoosh-short', C('years later', 0, C('slept')) - 0.3, 0.45);
+  for (let i = 0; i < 6; i++) S('coin-collect', C('years later', 0, C('slept')) + 0.7 + i * 0.3, 0.14);
+  S('error-soft-thud', C('paycheck'), 0.3); S('success-celebrate', C('at all') - 0.3, 0.4);
+  // 16 nobody noticed
+  S('click-deep', C('nobody noticed'), 0.5);
+  // 17 rewind to the seed, title card
+  S('refresh', C('happened') - 0.15, 0.45); S('whoosh-short', C('happened'), 0.3);
+  S('mention-pop', C('laughing') - 0.5, 0.3); S('mention-pop', C('laughing') - 0.4, 0.25);
+  S('success-warm-chime', C('laughing') + 0.2, 0.4);
+  S('loading-complete-chord', VO + 0.5, 0.45);
 }

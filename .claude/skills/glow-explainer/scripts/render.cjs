@@ -98,6 +98,17 @@ const BLOOM = bloom > 0
   const duration = await page.evaluate(() => window.DURATION || 10);
   const from = +opt('from', 0), to = +opt('to', duration);
 
+  // sound effects: scenes call sfx(name, t, vol) -> mix them under the voice into mix.wav
+  let audioPath = audio;
+  if (!isSegment && audio !== 'none') {
+    const events = await page.evaluate(() => window.SFX || []);
+    if (events.length) {
+      fs.writeFileSync(path.join(dir, 'sfx.json'), JSON.stringify(events));
+      const r = require('child_process').spawnSync('python3', ['-I', path.join(__dirname, 'mix_audio.py'), dir, '--duration', String(duration)], { stdio: 'inherit' });
+      if (r.status === 0) audioPath = path.join(dir, 'mix.wav');
+    }
+  }
+
   if (workers > 1 && !isSegment) {
     // split into frame-aligned segments, render each in its own process, then concat + mux audio
     await browser.close();
@@ -119,7 +130,7 @@ const BLOOM = bloom > 0
     await Promise.all(jobs);
     fs.writeFileSync(path.join(tmp, 'list.txt'), segs.map((s) => `file '${s}'`).join('\n'));
     const ff = ['-y', '-f', 'concat', '-safe', '0', '-i', path.join(tmp, 'list.txt')];
-    if (audio && audio !== 'none') ff.push('-ss', String(from), '-i', audio, '-c:a', 'aac', '-b:a', '192k', '-shortest');
+    if (audioPath && audioPath !== 'none') ff.push('-ss', String(from), '-i', audioPath, '-c:a', 'aac', '-b:a', '192k', '-shortest');
     ff.push('-c:v', 'copy', '-movflags', '+faststart', out);
     await new Promise((r) => spawn('ffmpeg', ff, { stdio: ['ignore', 'ignore', 'inherit'] }).on('close', r));
     fs.rmSync(tmp, { recursive: true, force: true });
@@ -128,8 +139,8 @@ const BLOOM = bloom > 0
   }
   const n = Math.ceil((to - from) * fps * mb);
   const ff = ['-y', '-f', 'image2pipe', '-framerate', String(fps * mb), '-c:v', 'mjpeg', '-i', '-'];
-  const useAudio = audio && audio !== 'none';
-  if (useAudio) ff.push('-ss', String(from), '-i', audio);
+  const useAudio = audioPath && audioPath !== 'none';
+  if (useAudio) ff.push('-ss', String(from), '-i', audioPath);
   ff.push('-vf', (mb > 1 ? `tmix=frames=${mb},framestep=${mb},` : '') + BLOOM);
   ff.push('-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-preset', 'medium', '-r', String(fps));
   if (useAudio) ff.push('-c:a', 'aac', '-b:a', '192k', '-shortest');
