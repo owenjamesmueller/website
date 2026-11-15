@@ -29,7 +29,7 @@ const isSegment = args.includes('--segment');
 // Full-frame bloom in post: a tight core glow + a wide soft halo, screen-blended over the frame.
 const bloom = +opt('bloom', 1);
 const BLOOM = bloom > 0
-  ? `split=2[o][h];[h]colorlevels=rimin=0.45:gimin=0.45:bimin=0.45,split=2[a][b];[a]gblur=sigma=7[a2];[b]gblur=sigma=40[b2];[a2][b2]blend=all_mode=screen[g];[o][g]blend=all_mode=screen:all_opacity=${(0.85 * bloom).toFixed(2)}`
+  ? `format=gbrp,split=2[o][h];[h]colorlevels=rimin=0.45:gimin=0.45:bimin=0.45,split=2[a][b];[a]gblur=sigma=7[a2];[b]gblur=sigma=40[b2];[a2][b2]blend=all_mode=screen[g];[o][g]blend=all_mode=screen:all_opacity=${(0.85 * bloom).toFixed(2)},format=yuv420p`
   : 'null';
 
 (async () => {
