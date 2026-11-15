@@ -23,38 +23,44 @@ const capSwap = (() => {                                  // one caption slot pe
 })();
 
 bokeh(8, { parent: cam, seed: 4 });
-const fl = floor(FL, { parent: cam }); show(fl, 0, END - 0.3, 0.5);
+const fl = floor(FL, { parent: cam }); show(fl, -0.5, END - 0.3, 0.3);
 const marcus = person(MX, FL, { size: 0.9, parent: cam });
 const jake = person(JX, FL, { size: 0.9, parent: cam });
 const jHalo = halo(JX, FL - 200, { r: 300, parent: cam });
 
-/* 1 — "Two best friends got the same job at eighteen." */
+/* 1 — "Two best friends got the same job at eighteen."
+ * RETENTION: frame 0 is the thumbnail — both characters already on stage + a text hook, so the
+ * scroll stops before a word is spoken (many viewers start muted). */
 {
-  walkIn(marcus, 0.05, 1.0, -560); walkIn(jake, 0.15, 1.0, 560);
-  marcus.pose(1.0, 'wave', 0.3).pose(1.8, 'idle', 0.3);
-  capSwap('m', 'Marcus', MX, 0.9); capSwap('j', 'Jake', JC, 1.0);
-  const job = pill('Same job', 540, 470, { parent: cam }); pop(job, C('same job'));
-  const age = stat('Age', '0', 540, 640, { size: 140, parent: cam });
-  pop(age, C('job') + 0.1); count(age.querySelector('.gx-stat-val'), C('job') + 0.1, 0.7, 0, 18);
-  out([job, age], C('years later') - 0.45, 0.2);
+  walkIn(marcus, -0.3, 0.45, -160); walkIn(jake, -0.3, 0.45, 160);
+  marcus.pose(0.6, 'wave', 0.25).pose(1.4, 'idle', 0.25);
+  capSwap('m', 'Marcus', MX, -0.2); capSwap('j', 'Jake', JC, -0.2);
+  window.HOOK = titleCard('Same job.<br>Same pay.', { parent: cam, y: 470 });
+  window.HOOK.style.fontSize = '84px'; tw(window.HOOK, -0.2, 0.2, { opacity: [0, 1] });
+  const age = stat('Age', '0', 540, 760, { size: 120, parent: cam });
+  pop(age, C('job') + 0.1); count(age.querySelector('.gx-stat-val'), C('job') + 0.1, 0.6, 0, 18);
+  out([window.HOOK, age], C('years later') - 0.35, 0.2);
 }
 
-/* 2 — "Twenty years later, only one of them is rich," (flash-forward, foreshadows the tree) */
+/* 2 — "Twenty years later, only one of them is rich,"
+ * RETENTION: open loop — show THAT one gets rich, hide WHICH one. The tree glows between them, a
+ * question mark over each head, "Guess which one?" invites a comment. Revealed only at the payoff. */
 {
   const s = C('years later') - 0.3, e = C('crazy') - 0.2;
   tw(cam, s, 0.25, { blur: [0, 6] }, 'in'); tw(cam, s + 0.25, 0.3, { blur: [6, 0] }, 'out');
-  const yl = stat('Years later', '+0', 540, 420, { size: 120, parent: cam });
-  pop(yl, s + 0.35); count(yl.querySelector('.gx-stat-val'), s + 0.35, 0.7, 0, 20, (v) => '+' + Math.round(v));
-  const tr = tree(560, FL, { size: 1.05, parent: cam }); tr.dataset.overlapOk = ''; tr.style.zIndex = 3;
-  tr.grow(C('only one'), 0.7); tr.rain(C('only one') + 0.6, e, 0.22);
+  const h2 = titleCard('20 years later:<br>only one is rich.', { parent: cam, y: 470 }); h2.style.fontSize = '72px';
+  tw(h2, s + 0.25, 0.25, { opacity: [0, 1], scale: [0.94, 1] }, 'out');
+  const tr = tree(540, FL, { size: 1.0, parent: cam }); tr.dataset.overlapOk = ''; tr.style.zIndex = 3;
+  tr.grow(C('only one'), 0.6); tr.rain(C('only one') + 0.5, e, 0.22);
   fade(tr, e, 1, 0, 0.25);
-  const spot = spotlight(JX, -120, { parent: cam }); show(spot, C('only one'), e, 0.3);
-  show(jHalo, C('only one'), e + 0.2, 0.3);
-  jake.pose(C('rich') - 0.1, 'both', 0.3).pose(e, 'idle', 0.25);
-  tw(marcus, C('only one'), 0.4, { opacity: [1, 0.3] }, 'inOut'); tw(marcus, e + 0.1, 0.3, { opacity: [0.3, 1] });
-  const rich = pill('Rich', JX, 560, { size: 'md', parent: cam }); pop(rich, C('rich'));
+  const spot = spotlight(540, -120, { parent: cam }); show(spot, C('only one'), e, 0.3);
+  // the spotlight swings between the two friends: which one?
+  tw(spot, C('only one') + 0.2, 0.5, { rotate: [0, 9] }, 'inOut'); tw(spot, C('only one') + 0.7, 0.6, { rotate: [9, -9] }, 'inOut');
+  const q1 = icon('question', MX, FL - 470, { size: 96, parent: cam }), q2 = icon('question', JX, FL - 470, { size: 96, parent: cam });
+  pop(q1, C('only one') + 0.15); pop(q2, C('only one') + 0.25);
+  const g = pill('Guess which one?', 540, 640, { invert: false, parent: cam }); pop(g, C('rich'));
   tw(cam, e, 0.2, { blur: [0, 8] }, 'in'); tw(cam, e + 0.2, 0.3, { blur: [8, 0] }, 'out');
-  out([yl, rich], e, 0.2);
+  out([h2, q1, q2, g], e, 0.2);
 }
 
 /* 3 — "and the crazy part is, they earned almost exactly the same money." */
@@ -110,7 +116,12 @@ let SEED;
     const b = bubble('Ha ha', x, y, { parent: cam }); pop(b, L + i * 0.12); bob(b, L, L + 2.2, 8, 16); return b;
   });
   bob(marcus, L, L + 2.2, 6, 16); bob(f1, L, L + 2.2, 5, 16);
-  out([lbl, ...bs], C('honestly') + 0.1); fade(f1, C('honestly') + 0.1, 1, 0);
+  // EMOTION: the underdog moment — light narrows to Jake alone while they laugh
+  const lone = spotlight(JX, -120, { width: 360, parent: cam }); show(lone, L + 0.2, C('honestly'), 0.3);
+  tw(jHalo, L + 0.2, 0.3, { opacity: [0, 0.7] }); tw(jHalo, C('honestly'), 0.3, { opacity: [0.7, 0] });
+  sfx('click-deep', L + 0.25, 0.45); sfx('click-deep', L + 0.55, 0.35);   // heartbeat
+  out(lbl, C('laughed') - 0.15, 0.15);
+  out(bs, C('honestly') + 0.1); fade(f1, C('honestly') + 0.1, 1, 0);
   marcus.pose(C('honestly') + 0.1, 'idle', 0.3);
 }
 
@@ -271,6 +282,8 @@ let BUCKET, MB;
   MB.pose(C('still needs'), 'shrug', 0.3); tw(MB, C('paycheck'), 0.5, { opacity: [1, 0.4] });
   capSwap('m', 'Needs paychecks', MX, C('paycheck'));
   jake.pose(C('at all') - 0.3, 'both', 0.3);
+  // EMOTION: vindication — a hard punch-in on the payoff line
+  tw('#stage', C('at all') - 0.3, 0.5, { scale: [1.08, 1] }, 'out');
   capSwap('j', "Doesn't need it", JC, C('at all') - 0.2);
   show(jHalo, C('at all') - 0.2, C('happened'), 0.4);
   out(yl, C('nobody noticed') - 0.3);

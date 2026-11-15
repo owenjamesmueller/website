@@ -36,7 +36,8 @@ voice.json  the narrator voice settings (voice_id, model, tempo)
    remove the obvious explanation, a character the viewer knows, tiny specific moments,
    "it looked like he was winning", "but here's what nobody saw", the hidden rule as a
    contrast, a time skip, and a callback ending. 170–210 words. Never a list of tips.
-   Show the script to the user and get a yes before spending credits on voice.
+   **Score it with the audit in `references/retention.md` and rewrite until it scores ≥ 8/10**,
+   then show the script and score to the user and get a yes before spending credits on voice.
 
 2. **Project folder.** Create `videos/<slug>/` in the working directory (or the
    scratchpad if the user only wants the file) and copy in
@@ -64,6 +65,9 @@ voice.json  the narrator voice settings (voice_id, model, tempo)
      its own `{ }` block, keyed to `cue('word')` so visuals land on the spoken word.
    - Every noun the narrator says that can be drawn **is** drawn the moment it's
      said: a pill label, an icon pop, a counter, a check/cross.
+   - Apply `references/retention.md` to the edit: frame 0 = characters + text hook; an open
+     loop the visuals don't give away; underdog moment (narrow spotlight, heartbeat);
+     first-win spike; vindication punch-in; twist callback; a short title card.
    - Prefer the big-character style: `person()` with poses, captions under the floor,
      a central metaphor object (see "Big-character style" in `references/style-guide.md`),
      and a title card at the end. Add `window.DURATION += 2.6` for the card.
