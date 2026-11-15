@@ -49,8 +49,8 @@ const BLOOM = bloom > 0
       // Reels safe zone (conservative blend of published guides): text must stay inside this box;
       // the right 150 px below y=960 is covered by like/comment/share buttons.
       const SAFE = { top: 270, bottom: 1500, left: 65, right: 1015, rightColX: 930, rightColY: 960 };
-      const UI = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-icon:not(.gx-icon-coin):not(.gx-icon-sparkle),.gx-bar,.gx-chart,.gx-figure,.gx-caption,.gx-sign,.gx-title,.gx-tree,.gx-bucket,.gx-desk,.gx-sprout';
-      const TEXT = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-bar,.gx-caption,.gx-sign,.gx-title';
+      const UI = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-icon:not(.gx-icon-coin):not(.gx-icon-sparkle),.gx-bar,.gx-chart,.gx-figure,.gx-caption,.gx-sign,.gx-title,.gx-tree,.gx-bucket,.gx-desk,.gx-sprout,.gx-mono-sign,.gx-mono-bubble,.gx-quote,.gx-mono-head';
+      const TEXT = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-bar,.gx-caption,.gx-sign,.gx-title,.gx-mono-sign,.gx-mono-bubble,.gx-quote,.gx-mono-head';
       const vis = (el) => { let o = 1; for (let e = el; e && e.nodeType === 1; e = e.parentElement) o *= +getComputedStyle(e).opacity; return o; };
       const name = (el) => (el.className.baseVal ?? el.className).split(' ').find((c) => c.startsWith('gx-') && c !== 'gx-svg') + ':' + (el.textContent || '').trim().slice(0, 22);
       const box = (el) => { const r = el.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom }; };

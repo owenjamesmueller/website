@@ -29,9 +29,12 @@ for i, e in enumerate(ev):
     ms = max(0, int(e["t"] * 1000))
     parts.append(f"[{k}:a]aresample=48000,aformat=channel_layouts=stereo,volume={e['vol'] * a.sfx_gain:.3f},adelay={ms}|{ms}[s{k}]")
     labels.append(f"[s{k}]")
-mix = "".join(labels) + f"amix=inputs={len(labels)}:normalize=0:dropout_transition=0,loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000,apad[out]"
+# with a voice: normalise to Reels loudness (-14 LUFS). SFX-only (mode B, music added in-app): keep them
+# quiet so the in-app music sits on top, just limit peaks.
+master = "loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000" if os.path.exists(voice) else "alimiter=limit=0.7"
+mix = "".join(labels) + f"amix=inputs={len(labels)}:normalize=0:dropout_transition=0,{master},apad[out]"
 cmd = ["ffmpeg", "-y", "-v", "error"] + inputs + ["-filter_complex", ";".join(parts) + ";" + mix, "-map", "[out]"]
 if a.duration: cmd += ["-t", str(a.duration)]
 cmd += [os.path.join(d, "mix.wav")]
 subprocess.run(cmd, check=True)
-print(f"mix.wav: voice + {used} sound effects")
+print(f"mix.wav: {"voice + " if os.path.exists(voice) else ""}{used} sound effects")

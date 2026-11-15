@@ -1,6 +1,6 @@
 ---
 name: glow-explainer
-description: Make vertical 1080x1920 faceless explainer animations in the "glow" style - pure black stage, white glowing line-art icons, a faceless figure on a dashed floor, uppercase pill labels, big ticking counters, spotlight cones, camera push-ins - narrated by an ElevenLabs voice and timed word-by-word to it. Also makes the 15-second silent stick-figure "metaphor loop" variant. Use when the user asks for an animation, explainer, reel, short or TikTok in this style, types /glow-explainer followed by a topic or a script, or asks for "a video like the IQ 160 one".
+description: Make vertical 1080x1920 faceless animations for Reels/TikTok/Shorts in two modes. Mode A - narrated glow-style story explainers (black stage, big posed glowing characters, visual metaphors, captions under the floor, ElevenLabs voice timed word-by-word, sound effects). Mode B - wordless 12-16 s stick-figure metaphor loops (a crowd, one accent-coloured hero, a real environment like a forked road, an ocean or a cliff edge, typed monospace text, taunt bubbles, a quote card, music added in-app). Use when the user asks for an animation, explainer, reel, short or TikTok in this style, types /glow-explainer followed by a topic or a script, or asks for "a video like the IQ 160 one".
 ---
 
 # Glow Explainer
@@ -14,7 +14,7 @@ Two modes:
 | Mode | Use for | Length | Audio |
 |---|---|---|---|
 | **A: Narrated glow explainer** (default) | money/psychology/self-improvement ideas explained in a story about one person | 45–75 s | voiceover only, no music |
-| **B: Metaphor loop** | one visual comparison ("luxury first vs assets first", "what a week feels like") | 12–16 s | music bed only, one line of on-screen text |
+| **B: Metaphor loop** | one wordless visual metaphor ("don't follow the crowd", "friends who drag you down", "the easy road") | 12–16 s | no voice; quiet SFX + the user adds a trending song in the Instagram/TikTok app |
 
 Read `references/style-guide.md` before designing any scene. Read
 `references/scene-recipes.md` when planning visuals. Read `references/voice.md`
@@ -23,7 +23,8 @@ before generating audio. For mode B also read `references/metaphor-loops.md`.
 ## Files
 
 ```
-assets/   engine.js  components.js  base.css  index.html  example-scenes.js
+assets/   engine.js  components.js  characters.js (mode A people)  loops.js (mode B)
+          base.css  index.html  sfx/  examples/ (two-friends-story = A, modeb-easy-road = B)
 scripts/  align.py (word timestamps -> words.js)   render.cjs (frames -> mp4)
           check_voice.py (optional: score a voice against a reference clip)
 voice.json  the narrator voice settings (voice_id, model, tempo)
@@ -112,14 +113,24 @@ voice.json  the narrator voice settings (voice_id, model, tempo)
 9. **End card** (optional, as in the references): the final 1.5 s fades to black
    with the handle icon centred.
 
-## Mode B (metaphor loop)
+## Mode B (wordless metaphor loop)
 
-The same engine and renderer with no voice: set `window.DURATION` by hand in
-`words.js` (`window.WORDS=[];window.DURATION=15;`), use stick figures from
-`references/metaphor-loops.md`, and add the user's music with
-`ffmpeg -i out.mp4 -i music.mp3 -map 0:v -map 1:a -shortest -c:v copy final.mp4`.
-The restricted ElevenLabs connector cannot make music; ask the user for a track,
-or use a music-generation skill if one is available.
+Read `references/metaphor-loops.md` first. The workflow is shorter, with no voice:
+
+1. **Pick one metaphor** that the whole loop acts out, and its turn. For example, a crowd takes
+   the easy road and one figure takes the empty one. Write it as 4 beats on a 14 s timeline:
+   hook (0–1 s, already moving), escalation (taunts and pressure), turn (the hero breaks away), and
+   payoff (light or reward), then a quote card in the last 2.5 s. Score it with the Mode B audit in the
+   reference (≥ 5/6).
+2. **Project**: copy the same assets as mode A (they include `loops.js`). Write `words.js` as
+   `window.WORDS=[];window.DURATION=14.5;`. Start `scenes.js` from
+   `assets/examples/modeb-easy-road-scenes.js`.
+3. **Build** with `stick()` figures (grey crowd, white hero with an accent headband), an environment
+   (`road()` fork, `ocean()` + `bubbles()` + `chain()` + `seaweed()`, `cliff()`), `monoHead()` typed
+   headlines, `monoSign()` labels, `monoBubble()` taunts, and `quoteCard()`. Frame 0 must already be busy.
+4. `--check`, stills, then render. SFX stay quiet (no loudness normalisation without a voice), because
+   the user adds music in the app. If they hand you a music file instead:
+   `ffmpeg -i out.mp4 -i music.mp3 -filter_complex "[1:a]volume=0.8[m];[0:a][m]amix=inputs=2:normalize=0" -map 0:v -c:v copy -shortest final.mp4`.
 
 ## Quality bar
 
