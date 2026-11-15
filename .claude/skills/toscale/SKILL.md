@@ -1,66 +1,76 @@
 ---
-name: moneyscale
-description: Make a vertical "money to scale" Short for the user's faceless channel. One huge, real dollar figure (a billionaire's wealth, a national debt, a sports contract, a company's daily revenue, a movie budget) is turned into physical things the viewer can feel - stacks of $100 bills next to buildings, a countdown of how long you'd need to earn it, what it buys, how fast it's earned per second - escalating until a final twist line. 1080x1920, 30 fps, ~35-50 s, ElevenLabs narration with word-timed captions, HyperFrames (or Remotion) animation, FFmpeg mix and master. Use when the user types /moneyscale followed by a topic or figure, asks for a money scale / net-worth visualisation / "how much is X really" video, or asks for the next episode of this channel.
+name: toscale
+description: Make a video for the user's faceless "To Scale" channel - simple, hypnotic vertical visualisers that show how big, deep, fast, old, heavy or expensive things really are, built so viewers don't swipe away. Every video is under 60 seconds. Three formats - Ladder (smallest to biggest, 20-45 s), Descent (one continuous camera journey with a live counter - ocean depth, into the Earth, up to space, back in time - 30-55 s) and Story ("what would happen if..." on a running clock, 40-58 s). 1080x1920, 30 fps, ElevenLabs narration with word-timed captions, HyperFrames (or Remotion) animation, FFmpeg master. Use when the user types /toscale with a topic, asks for a scale/size/depth/speed comparison, a "what if" or "what happens when" visualiser, or the next episode of this channel.
 ---
 
-# Money, to Scale
+# To Scale
 
-A channel about one idea: **big numbers mean nothing until you can see them.** Every episode takes one real, topical dollar figure and makes it physical, in a fixed visual language viewers learn to recognise.
+**Channel promise:** *you've heard the number; now watch it.* Anything with a size, depth, speed, age, weight, price or count can be an episode, so the topic pool is broad (space, ocean, animals, history, money, the human body, disasters, machines). The niche is the **visual language**, not the subject: one camera, one counter, one baseline object, always this channel's look.
 
-Why this niche (keep it, don't drift): finance-adjacent topics get the highest ad rates of any faceless niche; news supplies a new figure every day (a new contract, a new fine, a new IPO); the payoff is a "wait, WHAT" moment that drives rewatches and comments; and every visual is data driven, which is exactly what code-rendered animation does best. No characters, no lip sync, no stock footage, so nothing breaks consistency.
+Why it holds viewers: every video is a progression with a visible endpoint the viewer is waiting for (the biggest item, the bottom of the ocean, the end of the clock). People stay to see the end. Code-rendered animation (HyperFrames/Remotion) suits this because everything is driven by numbers.
 
-## Tools and where each fits
+## Hard rule: under 60 seconds
 
-| Step | Tool | Notes |
-| --- | --- | --- |
-| Narration + word timings | ElevenLabs (`scripts/voiceover.py`) | `with-timestamps` endpoint gives per-character times; the script turns them into `words.json` for captions. Needs `ELEVENLABS_API_KEY`. |
-| Animation | HyperFrames (default) | Read the `/hyperframes` skill first and obey its contract. Use `/hyperframes-registry` for count-ups, captions and charts before hand-building. |
-| Animation (alternative) | Remotion | Only if the user asks. Same scene list; drive everything from `useCurrentFrame()`, words from `words.json`. |
-| Sound + master + final file | FFmpeg (`scripts/master.sh`) | Mixes VO + SFX, ducks nothing (no music), masters to -14 LUFS, muxes onto the silent render. |
+Every video is **under 60 s** (target 25-50 s; Ladder usually 20-45 s). Shorter wins: cut steps before speeding up the voice. Root `data-duration` must be < 60; if the voiceover runs past 58 s, cut the script and re-voice.
 
-## The format (do not vary these - they ARE the brand)
+## Retention targets (measure every upload)
 
-- **Canvas:** 1080x1920, 30 fps. Background `#0B0F0C` (near-black green). Money green `#3DDC84` is the ONE accent, used only for dollar figures. White `#F4F4F0` text. Red `#FF4D4D` only for the final twist number.
-- **Font:** one heavy grotesk for numbers (e.g. Inter Tight 900 / Archivo Black via `@font-face`), `tabular-nums` always.
-- **Persistent counter:** the episode's main figure sits top-centre (y 190-330) the whole video, shrinking after the hook. Every comparison is measured against it.
-- **The $100 bill brick:** the unit of the channel. $10,000 = one bundle, $1M = one pallet-sized cube, $1B = a cube grid. Bills are drawn as flat SVG rectangles with the green tint, never photo-real currency imagery.
-- **Human figure for scale:** a flat 1.75 m silhouette appears whenever stacks get big, so "tall" is always readable.
-- **Captions:** word-lit, max 4 words on screen, centred at y ~1180, current word in green if it's a number, white otherwise. Everything inside 168-1330 px vertically (platform UI covers the rest).
-- **Voice:** one fixed ElevenLabs voice for every episode (store its id in `VOICE_ID`), calm, slightly amused, ~165 wpm. Never shouting.
-- **No music.** Sound is: cash-register *ka-ching* on the hook number, paper riffle on each stack, soft tick on counters, a low thud on the twist. Short, real recorded SFX (freesound CC0 or ElevenLabs Sound Effects), placed on visible actions only.
+- "Viewed vs swiped away" >= 85% (aim 90%).
+- Average % viewed >= 90% (a clean loop pushes it over 100%).
+No format guarantees these every time. The skill builds in the techniques that get there; YouTube Studio shows which episodes miss. Log each upload's numbers in `retention-log.md` and make more of the families that beat 90%.
 
-## Episode structure (35-50 s)
+## Retention techniques (built into every script and edit)
 
-1. **Hook, 0-2 s.** Frame 0 already shows the figure in huge green numbers plus a 5-word question. e.g. `$47,000,000,000` / "What does that actually look like?" Never a black frame, never a logo.
-2. **Make it physical, 2-12 s.** Stack it: bundles -> pallets -> a tower beside a known landmark (Statue of Liberty, a football field, a 747). Camera pulls out as it grows.
-3. **Make it personal, 12-25 s.** Time comparisons against the viewer: "At the median US salary, you'd need to work..." -> a year counter racing past the pyramids/Romans/dinosaurs. Or per-second earnings: "In the time you've watched this, he made..." with a live counter that keeps running in the corner for the rest of the video.
-4. **Escalate, 25-40 s.** Three rapid "it could buy..." cards (each smaller than the last, getting absurd), or one surprising re-framing (e.g. "spend $1M every day since 1900 and you'd still have...").
-5. **Twist + loop, last 3-5 s.** One red number that reframes everything (the tax paid, the fine as % of revenue, the per-second counter's final value). Last line rhymes back to the first frame so the loop cut feels seamless.
+1. **Frame 0 = the promise.** The first frame already shows the counter/baseline and a 3-6 word line naming the endpoint ("Smallest to biggest thing ever measured"). Never black, never a logo, never a greeting.
+2. **The visible endpoint.** A progress element (depth gauge, ladder rail, clock, size bar) is on screen the whole time, so the viewer knows the payoff is coming.
+3. **Escalating steps, faster and bigger.** Each step bigger/weirder than the last; step length shrinks (3 s -> 2 s -> 1.5 s), then the final one holds.
+4. **Something new every 1.5-3 s.** A new object, a counter jump, a camera move or a caption punch. Nothing static past 3 s.
+5. **Open loop at 60-70%.** "But nothing prepares you for the last one." / "And that's where it gets weird."
+6. **Fast payoff, no outro.** End on the payoff or one twist line, then cut. The last line flows back into the first frame so the video loops.
+7. **Sound-off proof.** Captions + the counter tell the whole story muted.
 
-Pacing: new visual beat every 2-3 s; nothing holds longer than 3 s.
+## The look (the brand - keep fixed across episodes)
+
+- Background: deep gradient `#070B14` -> `#0E1A2B`. One accent `#FFC94A` (warm gold) for the counter and the current item's label. White `#F2F4F7` text. Red `#FF5A5A` used once, for the twist.
+- Font: one heavy grotesk for numbers and labels (Archivo Black or Inter Tight 900 via `@font-face`), `tabular-nums` for counters.
+- **Baseline object:** a flat 1.75 m human silhouette (size topics) or a familiar reference (a bus, the Eiffel Tower, a football field) stays on screen so scale always reads.
+- Objects are clean flat/vector or simple 3D (CSS 3D / Three.js) silhouettes with one shading step, drawn from real reference proportions. Labels sit on the object; no legends.
+- Layout (1080x1920): all text between y 168 and 1330 px; captions at y ~1180, max 4 words, current word lit gold. Counter top-centre.
+- **Sound:** one fixed ElevenLabs voice for every episode (`VOICE_ID`), curious and calm, ~160 wpm. Low ambient drone bed at about -28 dB, a soft whoosh on each camera move, a tick on each counter step, a deep hit on the payoff. No popular music.
+
+## The three formats
+
+### A. Ladder (20-45 s) - start here, most consistent
+Smallest -> biggest (or slowest -> fastest, youngest -> oldest...). 8-12 items. Camera keeps pulling out; the previous item stays visible and shrinks away so growth is felt. Last item is absurd. Examples: "Every animal by size to the blue whale", "Fastest things ever, all the way to light", "Loudest sounds ever recorded".
+
+### B. Descent (30-55 s)
+One continuous camera move along one axis with a live counter: down into the ocean, into the Earth, up into space, back through time, a zoom into the body. Waypoints pop in as the counter passes them. Examples: "How deep the ocean really goes", "Digging to the centre of the Earth", "If you fell into Jupiter".
+
+### C. Story (40-58 s)
+"What would happen if..." or a real event retold on a running clock (T+0 s, T+1 min, T+1 year...). 5-7 beats of 6-9 s, each a bigger jump in time, each ending on a hook into the next. Examples: "What if the Moon disappeared", "The first hour of a supervolcano", "Earth after humans vanish".
 
 ## Workflow
 
-1. **Pick the figure.** If the user gave only a topic, propose 3 figures from `references/topics.md` style with a hook line each and let them pick (skip if they said "no questions").
-2. **Research and lock numbers.** Find the figure from a primary/reputable source (filings, Forbes/Bloomberg real-time lists, government budget docs, league contract reports). Write `numbers.json` with every figure, its source URL and date. Do all derived maths in one place (bill counts, stack height = bills x 0.11 mm, years = figure / salary). Use: $100 bill = 0.11 mm thick, 1 g, 156 x 66 mm; $1M in $100s = 10,000 bills ~ 10 kg ~ 1.1 m tall single stack; US median full-time salary - look up the current BLS figure. Round consistently. On screen, a tiny source line bottom-left of the band.
-3. **Script.** Use `references/script-template.md`. 90-130 words. Read every number the way it will be spoken ("forty-seven billion").
-4. **Voice.** `python3 scripts/voiceover.py script.txt out/` -> `out/vo.mp3`, `out/words.json`, `out/duration.txt`. Scene timings are taken from `words.json`, not guessed.
-5. **Animate.** `npx hyperframes init <slug> --skip-skills`, then build per `/hyperframes`: one sub-composition per beat, figures read from a single data module generated from `numbers.json`, captions from `words.json`. Root `data-duration` = VO duration + 0.6 s. Render silent or with the VO track; master.sh handles both. `npx hyperframes check --json`, then snapshot-review the hook frame, the biggest stack frame and the twist frame.
-6. **Sound + master.** Write `out/sfx.txt` (one line per cue: `seconds file.wav gain_db`), then `scripts/master.sh render.mp4 out/vo.mp3 out/sfx.txt final.mp4`.
-7. **Package.** Write `out/post.md`: title (<= 50 chars, contains the number, e.g. "$47 Billion Is Bigger Than You Think"), description with sources, 3-5 hashtags, a pinned-comment question that invites argument ("Would you take $10M or a penny doubled for 30 days?").
+1. **Pick a topic.** If the user gave only a vague area, propose 3 options (format + title + frame-0 line) from `references/topics.md` and let them choose (skip if they said "no questions"). Prefer topics with search demand and a natural endpoint.
+2. **Research and lock data.** Write `data.json`: every item/waypoint with value, unit, source URL. Use primary or reputable sources (NASA, NOAA, USGS, Guinness, peer-reviewed papers, encyclopedias). Mark disputed values "est." on screen. Do all unit maths in one place.
+3. **Script.** Use `references/scripts.md` for the format. 60-140 words, never more (keeps it under 55 s at ~160 wpm). Numbers written as spoken.
+4. **Voice.** `python3 scripts/voiceover.py script.txt out/` -> `out/vo.mp3`, `out/words.json` (word timings), `out/duration.txt`. If duration > 58 s, cut and redo. Scene timings come from `words.json`.
+5. **Animate.** Read `/hyperframes` and obey its contract (use `/hyperframes-registry` for counters, captions, camera moves first). `npx hyperframes init <slug> --skip-skills`; one sub-composition per beat; all figures from a data module generated from `data.json`; captions from `words.json`. Root `data-duration` = VO duration + 0.5 s (< 60). Then `npx hyperframes check --json` and snapshot-review frame 0, the open-loop moment and the payoff. For Remotion: same scene list driven by `useCurrentFrame()`.
+6. **Sound + master.** Write `out/sfx.txt` (`seconds file.wav gain_db` per cue, bed at 0), then `scripts/master.sh render.mp4 out/vo.mp3 out/sfx.txt final.mp4` (-14 LUFS, -1 dBTP).
+7. **Package.** `out/post.md`: title <= 50 chars naming the endpoint ("How Deep the Ocean Really Is"), description with sources, 3-5 hashtags, a pinned question that sparks replies.
 
-## Quality bar (check before delivering)
+## Quality check before delivering
 
-- Frame 0 works as a thumbnail with sound off.
-- Every number on screen matches `numbers.json` and has a source.
-- Exactly one green accent family; red only once.
-- No beat holds over 3 s; total 35-50 s.
-- Final frame -> first frame cut reads as a loop.
-- Loudness -14 LUFS integrated, true peak <= -1 dBTP (master.sh prints it).
+- Under 60 s (check `ffprobe` on final.mp4).
+- Frame 0 states the promise and works as a thumbnail with sound off.
+- Progress element visible the whole time; nothing static past 3 s.
+- Open loop at 60-70%; payoff in the last 3 s; no outro; last line loops into the first.
+- Every value matches `data.json`; sources in the description.
+- One gold accent; red used once; loudness -14 LUFS.
 
 ## Never
 
-- Invent or "estimate" a figure without saying so on screen.
-- Use photographic currency images or real banknote reproductions; keep bills stylised.
-- Mock private individuals; subjects are public figures, companies, governments, contracts.
-- Copy another channel's graphics, names or catchphrases.
+- Go over 60 seconds.
+- Invent numbers or present estimates as fact.
+- Copy another channel's name, graphics, characters or catchphrases.
+- Use clickbait the video doesn't pay off; the payoff must be the endpoint promised in frame 0.

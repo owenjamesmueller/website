@@ -5,6 +5,10 @@
 set -euo pipefail
 [ $# -eq 4 ] || { sed -n 2,4p "$0"; exit 1; }
 VIDEO=$1 VO=$2 SFX=$3 OUT=$4
+for f in "$VIDEO" "$VO"; do
+  d=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$f")
+  awk -v d="$d" 'BEGIN{exit !(d>=60)}' && { echo "ERROR: $f is ${d}s - every video must be under 60 s. Cut the script."; exit 2; }
+done
 inputs=(-i "$VO") filters="" labels="[vo]" n=1
 filters+="[0:a]aresample=48000,aformat=channel_layouts=stereo[vo];"
 while read -r t f g; do
