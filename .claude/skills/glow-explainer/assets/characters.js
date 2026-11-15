@@ -91,8 +91,12 @@
     d.innerHTML = `<div class="gx-sign-board">${text}</div><div class="gx-sign-stick" style="height:${stick}px"></div>`;
     return place(d, x, y, { parent, anchor: 'bottom', z: 7 });
   }
-  function titleCard(html, { parent, y = 760 } = {}) {
-    const d = document.createElement('div'); d.className = 'gx-title'; d.innerHTML = html;
+  // titleCard('The janitor<br>died *rich*.')  — *word* = gold highlight, _word_ = red; kicker = small line above
+  function titleCard(html, { parent, y = 760, kicker = '', size } = {}) {
+    const d = document.createElement('div'); d.className = 'gx-title';
+    html = html.replace(/\*([^*]+)\*/g, '<span class="hl">$1</span>').replace(/_([^_]+)_/g, '<span class="red">$1</span>');
+    d.innerHTML = (kicker ? `<div class="gx-kicker" style="justify-content:center;margin-bottom:18px;font-size:24px">${kicker}</div>` : '') + html;
+    if (size) d.style.fontSize = size + 'px';
     return place(d, 540, y, { parent, z: 30 });
   }
   function tree(x, floorY, { size = 1, parent } = {}) {

@@ -27,7 +27,8 @@ for i, e in enumerate(ev):
     k = n0 + used; used += 1
     inputs += ["-i", f]
     ms = max(0, int(e["t"] * 1000))
-    parts.append(f"[{k}:a]aresample=48000,aformat=channel_layouts=stereo,volume={e['vol'] * a.sfx_gain:.3f},adelay={ms}|{ms}[s{k}]")
+    cut = f"atrim=0:{e['dur']},afade=t=out:st={max(0, e['dur'] - 0.2):.2f}:d=0.2," if e.get('dur') else ''
+    parts.append(f"[{k}:a]{cut}aresample=48000,aformat=channel_layouts=stereo,volume={e['vol'] * a.sfx_gain:.3f},adelay={ms}|{ms}[s{k}]")
     labels.append(f"[s{k}]")
 # with a voice: normalise to Reels loudness (-14 LUFS). SFX-only (mode B, music added in-app): keep them
 # quiet so the in-app music sits on top, just limit peaks.

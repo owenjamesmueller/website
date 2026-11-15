@@ -113,7 +113,8 @@
   function on(fn) { hooks.push(fn); }
   // sound effect at time t (seconds). name = file in assets/sfx without .wav; vol 0..1
   window.SFX = window.SFX || [];
-  function sfx(name, t, vol = 0.5) { if (isFinite(t)) window.SFX.push({ name, t: +t.toFixed(3), vol }); }
+  // sfx(name, t, vol, dur?) — dur cuts a long recording with a short fade (e.g. 1.2 s of a heartbeat loop)
+  function sfx(name, t, vol = 0.5, dur = 0) { if (isFinite(t)) window.SFX.push({ name, t: +t.toFixed(3), vol, dur }); }
 
   // ---- voiceover cues -------------------------------------------------
   const norm = (w) => w.toLowerCase().replace(/[^a-z0-9$%]/g, '');

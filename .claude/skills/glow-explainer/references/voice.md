@@ -37,3 +37,11 @@ python3 -I scripts/check_voice.py reference.wav candidate1.mp3 candidate2.mp3 ..
 Cloning a voice from someone else's video needs that speaker's consent, so this skill doesn't do it.
 If the user owns the voice (it is their channel, or they have the voice owner's permission and recordings),
 use the clone-voice workflow and put the new voice_id in `voice.json`.
+
+## Free voices (no credits)
+- **Chatterbox** (`scripts/tts_chatterbox.py`, MIT, keeps Resemble's imperceptible AI watermark): expressive. Its pitch spread
+  measured 13 semitones, against 12 for the reference narrator. Use `--voice` with a LICENSED reference clip for timbre (a Kokoro
+  clip, or the user's own recorded voice with consent). Tag sentences `[hook] [turn] [payoff] [calm]`. CPU: ~6–10× real time.
+- **Kokoro** (`scripts/tts_kokoro.py`, Apache-2.0): timbre af_alloy scores 0.695 against the reference, but it's monotone (7.8 st).
+  Use it only as Chatterbox's timbre reference or for quick drafts.
+- Measure expressiveness: p10–p90 pitch spread in semitones (librosa pyin). Aim for ≥ 10.

@@ -4,7 +4,7 @@
  * muxes the voiceover.
  *
  * usage: node render.cjs <project_dir> [--audio voice.mp3] [--out out.mp4]
- *                         [--fps 30] [--mb 3] [--from 0] [--to <sec>] [--still 3.5,8,12]
+ *                         [--fps 60] [--mb 2] [--from 0] [--to <sec>] [--still 3.5,8,12]
  *   --workers N  render N time-segments in parallel browsers, then join (default: CPUs-1, max 4)
  *   --bloom  post bloom strength (default 1, 0 = off)
  *   --mb     motion blur: render N sub-frames per frame and blend them (default 3, 1 = off)
@@ -19,11 +19,11 @@ const fs = require('fs');
 const args = process.argv.slice(2);
 const dir = path.resolve(args[0] || '.');
 const opt = (k, d) => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : d; };
-const fps = +opt('fps', 30);
+const fps = +opt('fps', 60);
 const audio = opt('audio', fs.existsSync(path.join(dir, 'voice.mp3')) ? path.join(dir, 'voice.mp3') : null);
 const out = path.resolve(opt('out', path.join(dir, 'out.mp4')));
 const still = opt('still', null);
-const mb = Math.max(1, +opt('mb', 3));
+const mb = Math.max(1, +opt('mb', fps >= 50 ? 2 : 3));
 const workers = Math.max(1, +opt('workers', Math.min(4, Math.max(1, require('os').cpus().length - 1))));
 const isSegment = args.includes('--segment');
 // Full-frame bloom in post: a tight core glow + a wide soft halo, screen-blended over the frame.
@@ -49,7 +49,7 @@ const BLOOM = bloom > 0
       // Reels safe zone (conservative blend of published guides): text must stay inside this box;
       // the right 150 px below y=960 is covered by like/comment/share buttons.
       const SAFE = { top: 270, bottom: 1500, left: 65, right: 1015, rightColX: 930, rightColY: 960 };
-      const UI = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-icon:not(.gx-icon-coin):not(.gx-icon-sparkle),.gx-bar,.gx-chart,.gx-figure,.gx-caption,.gx-sign,.gx-title,.gx-tree,.gx-bucket,.gx-desk,.gx-sprout,.gx-mono-sign,.gx-mono-bubble,.gx-quote,.gx-mono-head,.gx-prop:not([data-scenery]),.gx-stick';
+      const UI = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-icon:not(.gx-icon-coin):not(.gx-icon-sparkle),.gx-bar,.gx-chart,.gx-figure,.gx-caption,.gx-sign,.gx-title,.gx-tree,.gx-bucket,.gx-desk,.gx-sprout,.gx-mono-sign,.gx-mono-bubble,.gx-quote,.gx-mono-head,.gx-prop,.gx-stick';
       const TEXT = '.gx-pill,.gx-stat,.gx-headline,.gx-card,.gx-bubble,.gx-notify,.gx-tag,.gx-bar,.gx-caption,.gx-sign,.gx-title,.gx-mono-sign,.gx-mono-bubble,.gx-quote,.gx-mono-head';
       const vis = (el) => { let o = 1; for (let e = el; e && e.nodeType === 1; e = e.parentElement) o *= +getComputedStyle(e).opacity; return o; };
       const name = (el) => (el.className.baseVal ?? el.className).split(' ').find((c) => c.startsWith('gx-') && c !== 'gx-svg') + ':' + (el.textContent || '').trim().slice(0, 22);
@@ -71,7 +71,8 @@ const BLOOM = bloom > 0
           for (let j = i + 1; j < els.length; j++) {
             const fig = (e) => e.matches('.gx-figure,.gx-stick');
             if (fig(els[i]) && fig(els[j])) continue;                       // crowds may touch
-            if (!fig(els[i]) && !fig(els[j]) && els[i].matches('.gx-prop') && els[j].matches('.gx-prop')) continue; // prop stacks (coins in a jar)
+            // strict: nothing overlaps unless one contains the other on purpose (data-contains) or it's marked data-overlap-ok
+            if (els[i].contains(els[j]) || els[j].contains(els[i])) continue;
             const b = B[j], pad = 6;
             const ix = Math.min(a.r, b.r) - Math.max(a.l, b.l), iy = Math.min(a.b, b.b) - Math.max(a.t, b.t);
             if (ix > pad && iy > pad) { const k = 'OVERLAP ' + name(els[i]) + '  ×  ' + name(els[j]); if (!out.has(k)) out.set(k, t.toFixed(2)); }

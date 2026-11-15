@@ -64,9 +64,9 @@
   }
 
   // ---- big number with tiny caption above ----------------------------
-  function stat(caption, value, x, y, { size = 120, parent } = {}) {
+  function stat(caption, value, x, y, { size = 120, parent, tone = '' } = {}) {
     const d = document.createElement('div');
-    d.className = 'gx-stat';
+    d.className = 'gx-stat' + (tone ? ' ' + tone : '');
     d.innerHTML = `<div class="gx-stat-cap">${caption}</div><div class="gx-stat-val" style="font-size:${size}px">${value}</div>`;
     return place(d, x, y, { parent, z: 8 });
   }

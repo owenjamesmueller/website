@@ -34,7 +34,8 @@ assets/   engine.js (timeline, tweens, cues, sfx)   components.js (icons, pills,
           characters.js (mode A posable people)  props.js (mode A SET SYSTEM + story props)  loops.js (mode B kits)
           base.css  index.html  sfx/ (SFX + foley-*.wav)  examples/ (one worked example per mode)
 scripts/  render.cjs (stills | --check | parallel render + motion blur + bloom + audio mix)
-          align.py (word timestamps)  tts_kokoro.py (free voice)  mix_audio.py  gen_foley.py (foley)  check_voice.py
+          align.py  tts_chatterbox.py (free EXPRESSIVE voice)  tts_kokoro.py (fallback)  fetch_sfx.py (REAL sound library)
+          mix_audio.py  gen_foley.py (procedural fallback only)  check_voice.py
 voice.json  narrator voice settings
 ```
 
@@ -56,7 +57,9 @@ Create `videos/<slug>/` (or use the scratchpad if the user only wants the file).
 ## Mode A steps
 3. **Voice.** One `creative_generate_speech` call for the whole script with the `voice_id`/`model_id` from `voice.json`
    (check the credit balance with `estimate_only` first; if it's short, `eleven_flash_v2_5` costs about half). **No credits?**
-   `python3 -I scripts/tts_kokoro.py script.txt take.wav` (free, local, af_alloy; about as close to the reference as Flash).
+   `python3 -I scripts/tts_chatterbox.py script_tagged.txt take.wav --voice <licensed ref clip>`. It's free, local and
+   expressive. Tag lines `[hook] [turn] [payoff] [calm]` to set intensity per sentence. Never ship a flat voice: compare its
+   pitch spread to the reference (~12 semitones p10–p90); Kokoro alone measures ~8 and sounds monotone.
    Prefer a TRUE story with real details (verify facts with a search; don't name private people in a negative light).
    Download the take, then use fast pacing by default:
    `ffmpeg -i take.mp3 -af "silenceremove=start_periods=1:start_threshold=-45dB:stop_periods=-1:stop_duration=0.12:stop_threshold=-45dB:stop_silence=0.1,atempo=1.06,<post_filter>" voice.mp3`
@@ -82,7 +85,9 @@ Create `videos/<slug>/` (or use the scratchpad if the user only wants the file).
    - Nothing uses `Date`, `Math.random` or CSS animations: use `rand(seed)` and engine tweens (the renderer seeks frames).
    - Need a prop the kit doesn't have? Draw it (an SVG in `ICONS` or a new builder in `characters.js`). Never settle for
      a generic icon when the metaphor needs a specific object.
-6. **Sound.** A sound-design block at the end of `scenes.js`: `sfx(name, t, vol)` on every beat. Use whooshes for time jumps,
+6. **Sound.** Run `python3 -I scripts/fetch_sfx.py` once (real recorded/produced sounds → `assets/sfx/real/`, git-ignored).
+   A sound-design block at the end of `scenes.js`: `sfx('real/<name>', t, vol, dur)` on every beat (see `real/index.json`).
+   Use a bed per set (wind, night, murmur, drone) plus hits. Never use synthesized UI blips or `foley-*` when a real sound exists. Use whooshes for time jumps,
    physical sounds for actions, a bass hit (`click-deep`, `foley-boom`) on turns, and a pad on the payoff.
    The renderer mixes it under the voice at −14 LUFS.
 
@@ -98,16 +103,20 @@ Create `videos/<slug>/` (or use the scratchpad if the user only wants the file).
    physical hit on every action. Add new procedural sounds to `gen_foley.py` when the topic needs them.
 
 ## Finish (both modes)
-- **Layout check:** `node scripts/render.cjs videos/<slug> --check` must print `0 issue(s)`. It scans every 0.25 s for
-  overlapping text, icons and characters, and for anything outside the Reels safe zone (text inside x 65–1015, y 270–1500,
+- **Layout check:** `node scripts/render.cjs videos/<slug> --check` must print `0 issue(s)`. It is STRICT: nothing may overlap
+  anything (characters, props, scenery, text), except a parent containing a child or elements marked `data-overlap-ok`
+  (a person standing on stairs, pins on a coat). It scans every 0.25 s for overlaps and for anything outside the Reels safe zone (text inside x 65–1015, y 270–1500,
   and clear of the right 150 px below y 960). Mark intentional overlaps with `el.dataset.overlapOk = ''`.
 - **Stills:** `--still t1,t2,...` (one per beat). Look at every frame: is the hook clear at frame 0? Is anything empty, static or
   cluttered? Is the action big enough to read on a phone?
-- **Render:** `node scripts/render.cjs videos/<slug>` (parallel, 3× motion blur, post bloom, audio mix). Look at a contact sheet,
+- **Render:** `node scripts/render.cjs videos/<slug>` (60 fps by default, 2× motion blur, parallel, post bloom, audio mix). Look at a contact sheet,
   then send the MP4.
 
 ## Quality bar
-- 1080×1920, 30 fps, H.264 + AAC. `--check` = 0 issues. Mode A at −14 LUFS.
+- 1080×1920, **60 fps**, H.264 + AAC. `--check` = 0 issues (strict). Mode A at −14 LUFS.
+- UI kit: `titleCard('Text with *gold* or _red_ words', {kicker, size})`, `stat(label, value, x, y, {tone:'gold'|'red'})` frosted
+  cards, Space Mono captions/pills. Respect the layout grid in `base.css` (kicker 330 · title 380–560 · info 600–900 ·
+  stage 900–1350 · caption 1360–1430). Never show placeholder-looking values ("$$$$"); use real words or numbers.
 - Frame 0 works as a thumbnail with a text hook. Motion within 0.3 s. No frame static for more than 1.5 s.
 - A dark stage with one accent colour that means something (gold = reward, red = danger, or whatever fits the topic).
 - At most ~4 text elements on screen at once. Labels are short, uppercase, and name what things *mean*.

@@ -30,10 +30,19 @@
   "post_filter": "firequalizer=gain_entry='entry(125,1.7);entry(180,-4.3);entry(250,-2.8);entry(350,1.5);entry(500,2.1);entry(700,-0.6);entry(1000,-1.0);entry(1400,0.5);entry(2000,-1.5);entry(2800,0.5);entry(4000,1.4);entry(5600,-5.9);entry(8000,-9.1);entry(11000,-8.4);entry(14000,-3.7)',acompressor=threshold=-20dB:ratio=3:attack=5:release=80",
   "notes": "Laura on eleven_v3 scored 0.72-0.73 vs 0.71-0.72 on eleven_v4 and 0.68 on multilingual_v2. 3 designed voices scored 0.64-0.67. post_filter = EQ matched to the reference's long-term spectrum (duller highs) + light compression.",
   "free_alternative": {
-    "engine": "kokoro-onnx (Apache-2.0, local, no credits)",
+    "engine": "chatterbox (MIT, local, expressive; keeps Resemble's AI watermark)",
+    "script": "scripts/tts_chatterbox.py",
+    "voice": "built-in default (no --voice)",
+    "pitch_spread_semitones": 16.3,
+    "similarity": 0.62,
+    "note": "A Kokoro clip as --voice made it monotone (6.6 st). Prefer expressiveness."
+  },
+  "draft_alternative": {
+    "engine": "kokoro-onnx",
+    "script": "scripts/tts_kokoro.py",
     "voice": "af_alloy",
-    "speed": 1.03,
     "similarity": 0.695,
-    "script": "scripts/tts_kokoro.py"
+    "pitch_spread_semitones": 7.8,
+    "note": "monotone: drafts only"
   }
 }

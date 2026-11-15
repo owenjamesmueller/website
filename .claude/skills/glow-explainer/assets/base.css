@@ -148,3 +148,22 @@ body { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: var(--i
 .gx-boat { position: absolute; }
 
 .gx-title.plate { background: rgba(5,5,5,.82); border-radius: 22px; padding: 18px 34px; box-shadow: 0 0 60px 30px rgba(5,5,5,.75); }
+
+/* =================== UI KIT v2 =================== */
+/* Layout grid (1080x1920, Reels-safe):  kicker 330 · title 380–560 · info 600–900 · stage 900–1350 · caption 1360–1430 */
+.gx-title { font-weight: 900; letter-spacing: -0.015em; line-height: 0.98; text-shadow: 0 0 26px rgba(255,255,255,.28); }
+.gx-title .hl { color: #f5c542; text-shadow: 0 0 30px rgba(245,197,66,.55); }
+.gx-title .red { color: #ff5a5f; text-shadow: 0 0 30px rgba(255,90,95,.5); }
+.gx-kicker { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 24px; letter-spacing: .32em; text-transform: uppercase;
+  color: rgba(255,255,255,.75); display: flex; align-items: center; gap: 14px; white-space: nowrap; }
+.gx-kicker::before, .gx-kicker::after { content: ''; width: 46px; height: 2px; background: rgba(255,255,255,.45); }
+.gx-stat { background: linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025)); border: 2px solid rgba(255,255,255,.16);
+  border-radius: 30px; padding: 18px 40px 22px; box-shadow: 0 20px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.12); backdrop-filter: blur(6px); }
+.gx-stat-cap { font-family: 'Space Mono', monospace; font-size: 20px; letter-spacing: .28em; opacity: .7; margin-bottom: 6px; }
+.gx-stat-val { letter-spacing: -0.02em; }
+.gx-stat.gold { border-color: rgba(245,197,66,.55); } .gx-stat.gold .gx-stat-val { color: #f5c542; text-shadow: 0 0 30px rgba(245,197,66,.5); }
+.gx-stat.red { border-color: rgba(255,90,95,.55); } .gx-stat.red .gx-stat-val { color: #ff5a5f; text-shadow: 0 0 30px rgba(255,90,95,.45); }
+.gx-pill { font-family: 'Space Mono', monospace; letter-spacing: .16em; border-width: 2px; box-shadow: 0 8px 30px rgba(0,0,0,.45); }
+.gx-pill-invert { background: #fff; color: #0a0a0a; }
+.gx-caption { font-family: 'Space Mono', monospace; font-size: 24px; letter-spacing: .3em; color: rgba(255,255,255,.85); }
+.gx-caption::before { content: '— '; opacity: .5; } .gx-caption::after { content: ' —'; opacity: .5; }

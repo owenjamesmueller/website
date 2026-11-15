@@ -33,7 +33,7 @@
     if (kind === 'whip') { tw(g, t, 0.06, { opacity: [0, 1] }); tw(g, t, 0.32, { x: [700 * dir, 0], blur: [14, 0] }, 'out'); }
     if (kind === 'zoom') { tw(g, t, 0.25, { opacity: [0, 1] }); tw(g, t, 0.45, { scale: [1.35, 1], blur: [10, 0] }, 'out'); }
     if (kind === 'push') { tw(g, t, 0.25, { opacity: [0, 1] }); tw(g, t, 0.45, { scale: [0.82, 1] }, 'out'); }
-    sfx(kind === 'zoom' ? 'foley-whoosh' : 'whoosh-short', t - 0.05, 0.35);
+    sfx(kind === 'zoom' ? 'real/whoosh-deep-hit' : kind === 'push' ? 'real/whoosh-air' : 'real/whoosh-fast', t - 0.08, kind === 'cut' ? 0 : 0.42, 1.2);
     return g;
   }
   function leave(g, t, kind = 'whip', dir = 1) {
@@ -85,7 +85,7 @@
     const el = place(d, x, y, { parent, z: 25, glow: false }); el.dataset.glowColor = '229,72,77';
     tw(el, t0, 0.01, { opacity: [0, 1] }); tw(el, t0, 0.22, { scale: [2.6, 1], rotate: [rot - 10, rot] }, 'in');
     tw(el, t0 + 0.22, 0.25, { scale: [1, 1.04] }, 'out');
-    sfx('foley-boom', t0 + 0.18, 0.55);
+    sfx('real/impact-trailer', t0 + 0.16, 0.6, 1.5);
     return el;
   }
   function balance(x, y, { parent, left = '', right = '' } = {}) {
@@ -119,7 +119,7 @@
     el.top = (i) => ({ x: x - w / 2 + i * stepW + stepW / 2, y: y - (i + 1) * stepH });   // feet position on step i
     return el;
   }
-  function mansion(x, y, { parent, floors = 4 } = {}) {
+  function mansion(x, y, { parent, floors = 4, scale = 1 } = {}) {
     const W = 720, FH = 120, H = floors * FH + 120;
     let s = `<path class="roof" d="M20 120 L${W / 2} 10 L${W - 20} 120 Z" fill="#15171d" stroke="#e6e6e6" stroke-width="6" stroke-linejoin="round"/>`;
     for (let f = 0; f < floors; f++) {
@@ -128,13 +128,19 @@
     }
     s += `<path class="crack" d="M${W * 0.46} 130 L${W * 0.52} 230 L${W * 0.44} 320 L${W * 0.55} 430 L${W * 0.48} ${H}" fill="none" stroke="#e5484d" stroke-width="7" stroke-linejoin="round" opacity="0"/>`;
     const d = svgDiv(W, H, s, 'gx-mansion'); d.firstChild.style.transformOrigin = '50% 100%';
+    d.firstChild.setAttribute('width', W * scale); d.firstChild.setAttribute('height', H * scale);
     const el = place(d, x, y, { parent, anchor: 'bottom', z: 3, glow: false }); scenery(el);
     el.style.transformOrigin = '50% 100%';
     const fl = el.querySelectorAll('.fl'), roof = el.querySelector('.roof'), crack = el.querySelector('.crack');
     let bt0 = 99, bdur = 1, ct0 = 99;
-    el.build = (t0, dur = 1.6) => { bt0 = t0; bdur = dur; tw(el, t0 - 0.05, 0.05, { opacity: [0, 1] }); for (let f = 0; f < floors; f++) sfx('foley-hammer', t0 + (f / floors) * dur, 0.3); return el; };
-    el.crack = (t0) => { ct0 = t0; sfx('foley-creak', t0, 0.5); return el; };
-    el.topple = (t0) => { tw(el, t0, 0.9, { rotate: [0, -82], y: [0, 40] }, 'in'); sfx('foley-boom', t0 + 0.8, 0.5); return el; };
+    el.build = (t0, dur = 1.6) => { bt0 = t0; bdur = dur; tw(el, t0 - 0.05, 0.05, { opacity: [0, 1] }); for (let f = 0; f < floors; f++) sfx('real/impact-wood', t0 + (f / floors) * dur, 0.22, 0.4); return el; };
+    el.crack = (t0) => { ct0 = t0; sfx('real/glass-crack', t0, 0.45, 1.2); sfx('real/rock-crumble', t0 + 0.1, 0.3, 1.5); return el; };
+    // falls flat backwards like a cardboard front (squashes toward the ground; never rotates through the floor)
+    el.topple = (t0, dur = 0.7) => {
+      const sv = el.querySelector('svg'); sfx('real/collapse', t0 + 0.1, 0.55, 1.5);
+      on((t) => { const k = Math.max(0, Math.min(1, (t - t0) / dur)); const e = EASE.in(k); sv.style.transform = `scaleY(${(1 - 0.97 * e).toFixed(3)}) skewX(${(-8 * Math.sin(Math.PI * k)).toFixed(2)}deg)`; });
+      return el;
+    };
     on((t) => {
       fl.forEach((g, f) => { const k = Math.max(0, Math.min(1, (t - bt0 - (f / floors) * bdur) / 0.25)); g.setAttribute('opacity', k); g.setAttribute('transform', `translate(0 ${((1 - k) * -60).toFixed(1)})`); });
       const kr = Math.max(0, Math.min(1, (t - bt0 - bdur) / 0.3)); roof.setAttribute('opacity', kr); roof.setAttribute('transform', `translate(0 ${(((1 - kr) * -60) + (H - floors * FH - 120)).toFixed(1)})`);
@@ -161,7 +167,7 @@
       const bx = x + (rand(i * 3.1) - 0.5) * spread, restY = floorY - 30 - Math.floor(i / 4) * 22;
       const el = place(d, bx, -80, { parent, z: 7, glow: false });
       tw(el, t, 0.05, { opacity: [0, 1] }); tw(el, t, 0.6, { y: [0, restY + 80], rotate: [rand(i) * 80 - 40, rand(i * 7) * 30 - 15] }, 'in');
-      if (i % 2 === 0) sfx('tap-light', t + 0.55, 0.12);
+      if (i % 2 === 0) sfx('real/paper-move', t + 0.5, 0.18, 0.5);
     }
   }
   function coat(x, y, { parent } = {}) {
@@ -170,14 +176,14 @@
     el.pin = (i, t0, px, py) => {
       const p = place(svgDiv(220, 70, `<path d="M18 35 Q18 10 45 10 H200 Q212 10 212 22 V48 Q212 60 200 60 H60" fill="none" stroke="#e8e8e8" stroke-width="8" stroke-linecap="round"/><circle cx="35" cy="35" r="20" fill="none" stroke="#e8e8e8" stroke-width="8"/><path d="M196 18 L196 52" stroke="#f5c542" stroke-width="12" stroke-linecap="round"/>`, 'gx-pin'), px, py, { parent, z: 8 });
       tw(p, t0, 0.01, { opacity: [0, 1] }); tw(p, t0, 0.25, { scale: [1.8, 1], rotate: [-30, -8 + i * 6] }, 'back');
-      sfx('foley-hammer', t0 + 0.2, 0.25); sfx('checkbox-check', t0 + 0.22, 0.25);
+      sfx('real/pop-click', t0 + 0.2, 0.4, 0.5);
       return p;
     };
     return el;
   }
   function jar(x, y, label, { parent, cols = 6, rows = 9 } = {}) {
     const Wd = 440, Hd = 560;
-    const el = place(svgDiv(Wd, Hd + 20, `<rect class="glass" x="20" y="60" width="${Wd - 40}" height="${Hd - 60}" rx="40" fill="rgba(160,200,230,.06)" stroke="#e6e6e6" stroke-width="7"/><rect x="60" y="20" width="${Wd - 120}" height="44" rx="10" fill="#15171d" stroke="#e6e6e6" stroke-width="6"/><rect x="120" y="${Hd - 210}" width="200" height="56" rx="8" fill="#e6e6e6"/><text x="220" y="${Hd - 172}" text-anchor="middle" font-family="Space Mono,monospace" font-weight="700" font-size="26" fill="#111">${label}</text><g class="pieces"></g>`, 'gx-jar'), x, y, { parent, anchor: 'bottom', z: 6, glow: false });
+    const el = place(svgDiv(Wd, Hd + 20, `<rect class="glass" x="20" y="60" width="${Wd - 40}" height="${Hd - 60}" rx="40" fill="rgba(160,200,230,.06)" stroke="#e6e6e6" stroke-width="7"/><rect x="60" y="14" width="${Wd - 120}" height="52" rx="10" fill="#e6e6e6" stroke="#e6e6e6" stroke-width="6"/><text x="${Wd / 2}" y="50" text-anchor="middle" font-family="Space Mono,monospace" font-weight="700" font-size="26" fill="#111">${label}</text><g class="pieces"></g>`, 'gx-jar'), x, y, { parent, anchor: 'bottom', z: 6, glow: false });
     prop(el);
     const G = el.querySelector('.pieces'), bw = (Wd - 80) / cols, bh = 46;
     el.slotPos = (i) => ({ x: 40 + (i % cols) * bw, y: Hd - 30 - (Math.floor(i / cols) + 1) * bh });
@@ -185,7 +191,7 @@
       const s = el.slotPos(i), NS = 'http://www.w3.org/2000/svg', r = document.createElementNS(NS, 'rect');
       r.setAttribute('width', (bw - 6).toFixed(1)); r.setAttribute('height', bh - 6); r.setAttribute('rx', 6); r.setAttribute('fill', '#f5c542'); r.setAttribute('stroke', '#fff3c9'); r.setAttribute('stroke-width', 3);
       G.appendChild(r);
-      on((t) => { const k = Math.max(0, Math.min(1, (t - t0) / 0.28)); r.setAttribute('opacity', k > 0 ? 1 : 0); r.setAttribute('x', (s.x + 3).toFixed(1)); r.setAttribute('y', (s.y + 3 - (1 - EASE.in(k)) * 420).toFixed(1)); });
+      on((t) => { const k = Math.max(0, Math.min(1, (t - t0) / 0.28)); r.setAttribute('opacity', k > 0 ? 1 : 0); r.setAttribute('x', (s.x + 3).toFixed(1)); r.setAttribute('y', (s.y + 3 - (1 - EASE.in(k)) * Math.min(160, s.y - 70)).toFixed(1)); });
     };
     el.glow = (t0) => { el.dataset.glowColor = '245,197,66'; el.dataset.glow = ''; tw(el, t0, 0.6, { glow: [0, 1.4] }); return el; };
     el.W = Wd; el.H = Hd;
