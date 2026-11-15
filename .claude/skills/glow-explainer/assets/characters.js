@@ -77,7 +77,10 @@
       const hx = ex + s * Math.sin(rad(a1 + a2)) * FORE, hy = ey + Math.cos(rad(a1 + a2)) * FORE;
       return `M${sx} ${sy} L${ex.toFixed(1)} ${ey.toFixed(1)} L${hx.toFixed(1)} ${hy.toFixed(1)}`;
     };
+    // idle breathing: a slow 0.8% rise of the body so nobody stands frozen between poses
+    const body = d.firstElementChild; body.style.transformOrigin = '50% 100%'; const ph = rand(x * 0.37 + y * 0.11) * 6;
     on((t) => {
+      body.style.transform = `scaleY(${(1 + 0.008 * Math.sin(t * 2.1 + ph)).toFixed(4)})`;
       let i = 0;
       for (let k = 0; k < keys.length; k++) if (t >= keys[k].t0) i = k;
       const cur = keys[i], from = i ? keys[i - 1].pose : cur.pose;

@@ -8,8 +8,10 @@
  *   --workers N  render N time-segments in parallel browsers, then join (default: CPUs-1, max 4)
  *   --bloom  post bloom strength (default 1, 0 = off)
  *   --mb     motion blur: render N sub-frames per frame and blend them (default 3, 1 = off)
- *   --check  scan the whole video every 0.25 s: report overlapping UI and anything outside the Reels safe zone
+ *   --check  scan the whole video every 0.25 s: report overlapping UI, text that doesn't fit its box, and anything outside the Reels safe zone
  *   --still  only writes PNG stills at the given times (fast preview) to <project>/stills/
+ *   --ss     supersampling: render at N x resolution and downscale with lanczos (default 1.5: crisp, shimmer-free lines)
+ *   --crf    x264 quality (default 14 = near-lossless glows and gradients, no banding)
  */
 const { chromium } = require('playwright');
 const { spawn } = require('child_process');
@@ -24,6 +26,7 @@ const audio = opt('audio', fs.existsSync(path.join(dir, 'voice.mp3')) ? path.joi
 const out = path.resolve(opt('out', path.join(dir, 'out.mp4')));
 const still = opt('still', null);
 const mb = Math.max(1, +opt('mb', fps >= 50 ? 2 : 3));
+const ss = +opt('ss', 1.5), crf = opt('crf', '14');
 const workers = Math.max(1, +opt('workers', Math.min(4, Math.max(1, require('os').cpus().length - 1))));
 const isSegment = args.includes('--segment');
 // Full-frame bloom in post: a tight core glow + a wide soft halo, screen-blended over the frame.
@@ -36,7 +39,7 @@ const BLOOM = bloom > 0
   let browser;
   try { browser = await chromium.launch(); }
   catch { browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' }); }
-  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
+  const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: (isSegment || (!still && !args.includes('--check') && workers <= 1)) ? ss : 1 });
   page.on('console', (m) => { if (['warning', 'error'].includes(m.type())) console.log('[page]', m.text()); });
   page.on('pageerror', (e) => console.log('[page error]', e.message));
   await page.goto('file://' + path.join(dir, 'index.html'));
@@ -62,6 +65,27 @@ const BLOOM = bloom > 0
           // only real transitions are skipped (blur, a slide, a big zoom); slow push-ins (scale 0.9-1.2) are still checked
           const m = tr.match(/translate\(([-0-9.e]+)px, ([-0-9.e]+)px\).*scale\(([-0-9.e]+)\)/);
           return /blur\((?!0px)/.test(f) || (m && (Math.abs(+m[1]) > 2 || Math.abs(+m[2]) > 2 || +m[3] < 0.9 || +m[3] > 1.2)); };
+        // TEXT FIT: every visible text must fit its box (HTML labels, and SVG text drawn inside a rect: phone cards, clocks, forms, signs)
+        for (const e of document.querySelectorAll(TEXT)) {
+          if (vis(e) < 0.6 || moving(e) || getComputedStyle(e).visibility === 'hidden') continue;
+          if (e.scrollWidth > e.clientWidth + 2 && getComputedStyle(e).overflow !== 'visible') { const k = 'TEXT DOESN\'T FIT ' + name(e); if (!out.has(k)) out.set(k, t.toFixed(2)); }
+          for (const c of e.querySelectorAll('*')) { const r = c.getBoundingClientRect(), r0 = e.getBoundingClientRect(); if (c.textContent.trim() && (r.right > r0.right + 2 || r.left < r0.left - 2)) { const k = 'TEXT DOESN\'T FIT ' + name(e); if (!out.has(k)) out.set(k, t.toFixed(2)); break; } }
+        }
+        for (const tx of document.querySelectorAll('svg text')) {
+          if (!tx.textContent.trim() || vis(tx) < 0.6 || moving(tx) || tx.closest('[style*="visibility: hidden"]')) continue;
+          const tb = tx.getBoundingClientRect(); if (tb.width < 1) continue;
+          const cx = (tb.left + tb.right) / 2, cy = (tb.top + tb.bottom) / 2;
+          let best = null;
+          for (const r of tx.ownerSVGElement.querySelectorAll('rect')) {
+            if (vis(r) < 0.3 || r.closest('[clip-path]')) continue;          // clipped content (scrolling code lines) isn't a box
+            const b = r.getBoundingClientRect();
+            if (cx > b.left && cx < b.right && cy > b.top && cy < b.bottom && (!best || b.width * b.height < best.width * best.height)) best = b;
+          }
+          if (best && (tb.left < best.left - 1 || tb.right > best.right + 1)) {
+            const k = 'TEXT DOESN\'T FIT box: "' + tx.textContent.trim().slice(0, 26) + '"';
+            if (!out.has(k)) out.set(k, t.toFixed(2));
+          }
+        }
         const els = [...document.querySelectorAll(UI)].filter((e) => !e.closest('[data-overlap-ok]') && vis(e) > 0.6 && !e.parentElement.closest(UI) && !moving(e));
         const B = els.map(box);
         for (let i = 0; i < els.length; i++) {
@@ -129,7 +153,7 @@ const BLOOM = bloom > 0
       if (f1 <= f0) break;
       const seg = path.join(tmp, `seg${k}.mp4`); segs.push(seg);
       jobs.push(new Promise((res, rej) => {
-        const c = spawn(process.execPath, [__filename, dir, '--segment', '--workers', '1', '--fps', String(fps), '--mb', String(mb), '--bloom', String(bloom),
+        const c = spawn(process.execPath, [__filename, dir, '--segment', '--workers', '1', '--fps', String(fps), '--mb', String(mb), '--bloom', String(bloom), '--ss', String(ss), '--crf', String(crf),
           '--from', String(f0), '--to', String(f1), '--out', seg, '--audio', 'none'], { stdio: ['ignore', 'ignore', 'inherit'] });
         c.on('close', (code) => (code === 0 ? res() : rej(new Error('segment ' + k + ' failed'))));
       }));
@@ -151,8 +175,8 @@ const BLOOM = bloom > 0
   const ff = ['-y', '-f', 'image2pipe', '-framerate', String(fps * mb), '-c:v', 'mjpeg', '-i', '-'];
   const useAudio = audioPath && audioPath !== 'none';
   if (useAudio) ff.push('-ss', String(from), '-i', audioPath);
-  ff.push('-vf', (mb > 1 ? `tmix=frames=${mb},framestep=${mb},` : '') + BLOOM);
-  ff.push('-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-preset', 'medium', '-r', String(fps));
+  ff.push('-vf', (ss !== 1 ? 'scale=1080:1920:flags=lanczos,' : '') + (mb > 1 ? `tmix=frames=${mb},framestep=${mb},` : '') + BLOOM);
+  ff.push('-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', String(crf), '-preset', 'slow', '-tune', 'animation', '-r', String(fps));
   if (useAudio) ff.push('-c:a', 'aac', '-b:a', '192k', '-shortest');
   ff.push('-movflags', '+faststart', out);
   const proc = spawn('ffmpeg', ff, { stdio: ['pipe', 'ignore', 'inherit'] });
@@ -164,7 +188,7 @@ const BLOOM = bloom > 0
   for (let i = 0; i < n; i++) {
     const t = from + i / (fps * mb);
     await page.evaluate((t) => window.__seek(t), t);
-    const buf = await page.screenshot({ type: 'jpeg', quality: 92 });
+    const buf = await page.screenshot({ type: 'jpeg', quality: 97 });   // high quality + supersampled: no blocky glows
     if (ffDead) throw new Error('ffmpeg stopped early');
     if (!proc.stdin.write(buf)) await new Promise((r) => { proc.stdin.once('drain', r); proc.once('close', r); });
     if (i % (fps * mb) === 0) process.stdout.write(`\rframe ${i}/${n}  (${((Date.now() - t0) / 1000).toFixed(0)}s)`);

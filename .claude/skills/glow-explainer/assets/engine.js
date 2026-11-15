@@ -81,7 +81,8 @@
       el.__bobs = [];
       hooks.push((t) => {
         let m = 0;
-        for (const b of el.__bobs) if (t >= b.t0 && t <= b.t1) m -= Math.abs(Math.sin((t - b.t0) * b.speed)) * b.amp;
+        // sin^2 instead of |sin|: same rhythm, no hard bounce at the bottom (|sin| has a corner = a jolt every cycle)
+        for (const b of el.__bobs) if (t >= b.t0 && t <= b.t1) { const fade = Math.min(1, (t - b.t0) / 0.15, (b.t1 - t) / 0.15); m -= Math.pow(Math.sin((t - b.t0) * b.speed), 2) * b.amp * fade; }
         el.style.marginTop = m + 'px';
       });
     }
@@ -141,6 +142,8 @@
   function cue(phrase, offset = 0, from = 0) { const m = findPhrase(phrase, from); return m ? m[0].start + offset : NaN; }
   function cueEnd(phrase, offset = 0, from = 0) { const m = findPhrase(phrase, from); return m ? m[1].end + offset : NaN; }
 
+  // how many keyframes an element has for a prop (lets props.js add an ambient camera push only where none exists)
+  function keyCount(el, prop) { return (tracks.get($(el)) || []).filter((k) => prop in k.props).length; }
   function rand(seed) { const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); }
 
   // ---- per-frame evaluation ------------------------------------------
@@ -189,5 +192,5 @@
     document.documentElement.style.setProperty('--t', t);
   };
 
-  Object.assign(window, { punches, sfx, tw, show, pop, out, fade, arc, drift, shake, bob, count, type, on, cue, cueEnd, rand, EASE, $ });
+  Object.assign(window, { keyCount, punches, sfx, tw, show, pop, out, fade, arc, drift, shake, bob, count, type, on, cue, cueEnd, rand, EASE, $ });
 })();

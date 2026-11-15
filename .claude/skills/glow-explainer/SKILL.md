@@ -59,12 +59,13 @@ Create `videos/<slug>/` (or use the scratchpad if the user only wants the file).
 3. **Voice.** One `creative_generate_speech` call for the whole script with the `voice_id`/`model_id` from `voice.json`
    (check the credit balance with `estimate_only` first; if it's short, `eleven_flash_v2_5` costs about half). **No credits?**
    `python3 -I scripts/tts_chatterbox.py script_tagged.txt take.wav --voice <licensed ref clip>`. It's free, local and
-   expressive. **Default narrator: the deep male voice** in `voice.json` → `male_free` (a Kokoro `am_onyx` clip as `--voice`,
+   expressive. **Default narrator: ElevenLabs male "Dime"** (`voice.json` → `voice_id`, eleven_v3; needs ~1,200 credits per 60 s video).
+   Free fallback: the deep male voice in `voice.json` → `male_free` (a Kokoro `am_onyx` clip as `--voice`,
    `--ex 0.8 --cfg 0.35`, its own `post_filter`); the user rejected the female voices. The script transcribes every sentence and
    re-generates any line whose words don't match (garbled, repeated or dropped words); `--redo N` re-does one line. Tag lines `[hook] [turn] [payoff] [calm]` to set intensity per sentence. Never ship a flat voice: compare its
    pitch spread to the reference (~12 semitones p10–p90); Kokoro alone measures ~8 and sounds monotone.
    Prefer a TRUE story with real details (verify facts with a search; don't name private people in a negative light).
-   Download the take, then use fast pacing by default:
+   Download the take, then use fast pacing by default (aim for ~215–225 wpm; the user found 196 wpm slow):
    `ffmpeg -i take.mp3 -af "silenceremove=start_periods=1:start_threshold=-45dB:stop_periods=-1:stop_duration=0.12:stop_threshold=-45dB:stop_silence=0.1,atempo=1.06,<post_filter>" voice.mp3`
    (aim for ~210 wpm). Write numbers as words, and cue scenes on non-number words.
 4. **Align.** `HF_HUB_DISABLE_XET=1 python3 -I scripts/align.py voice.mp3 videos/<slug>/ --script script_tagged.txt` → `words.js`

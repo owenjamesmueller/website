@@ -31,6 +31,7 @@
     ST().appendChild(g); return g;
   }
   function enter(g, t, kind = 'whip', dir = 1) {
+    g.__in = t + 0.45; g.__enterScale = kind === 'zoom' || kind === 'push';
     if (kind === 'cut') return tw(g, t, 0.15, { opacity: [0, 1] }, 'linear');   // 5-frame dissolve: a 1-frame cut reads as a stutter
     if (kind === 'whip') { tw(g, t, 0.14, { opacity: [0, 1] }, 'linear'); tw(g, t, 0.34, { x: [700 * dir, 0], blur: [14, 0] }, 'out'); }   // fades >= 8 frames: no pops
     if (kind === 'zoom') { tw(g, t, 0.25, { opacity: [0, 1] }); tw(g, t, 0.45, { scale: [1.35, 1], blur: [10, 0] }, 'out'); }
@@ -39,6 +40,8 @@
     return g;
   }
   function leave(g, t, kind = 'whip', dir = 1) {
+    // ambient camera: a slow push-in for the whole time the set is on screen, unless the scene animates the set itself
+    if (g.__in != null && t > g.__in && keyCount(g, 'scale') - (g.__enterScale ? 1 : 0) === 0) tw(g, g.__in, t - g.__in, { scale: [1, 1.035] }, 'linear');
     if (kind === 'cut') return tw(g, t, 0.15, { opacity: [1, 0] }, 'linear');
     if (kind === 'whip') { tw(g, t, 0.28, { x: [null, -700 * dir], blur: [0, 14] }, 'in'); tw(g, t + 0.08, 0.16, { opacity: [1, 0] }, 'linear'); }
     if (kind === 'zoom') { tw(g, t, 0.35, { scale: [null, 1.6], blur: [0, 12] }, 'in'); tw(g, t + 0.12, 0.2, { opacity: [1, 0] }, 'linear'); }

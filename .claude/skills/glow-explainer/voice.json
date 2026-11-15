@@ -1,10 +1,10 @@
 {
   "provider": "elevenlabs",
-  "voice_id": "GZ4PpFJV8ikEGUtBrjK7",
-  "voice_name": "Laura - a top narration voice",
+  "voice_id": "WkcegOqOPWAl2ZRFBEaw",
+  "voice_name": "Dime (ElevenLabs library: American male narrator, deep, dynamic pacing)",
   "model_id": "eleven_v3",
-  "tempo": 1.05,
-  "target_wpm": 180,
+  "tempo": 1.08,
+  "target_wpm": 215,
   "reference": {
     "clip": "IQ 160 video (smartest person is probably broke)",
     "median_f0_hz": 210,
@@ -17,18 +17,16 @@
   },
   "alternates": [
     {
-      "voice_id": "lxYfHSkYm1EzQzGhdbfc",
-      "voice_name": "Jessica Anne Bogart - Narration",
-      "similarity": 0.66
+      "voice_id": "k0oRjDwazplPRQKtXvUn",
+      "voice_name": "Keanu - deep, rich, smooth storyteller"
     },
     {
-      "voice_id": "tnSpp4vdxKPjI9w0GnoV",
-      "voice_name": "Hope - upbeat and clear",
-      "similarity": 0.64
+      "voice_id": "8IbUB2LiiCZ85IJAHNnZ",
+      "voice_name": "Don - young, casual social-media storyteller"
     }
   ],
-  "post_filter": "firequalizer=gain_entry='entry(125,1.7);entry(180,-4.3);entry(250,-2.8);entry(350,1.5);entry(500,2.1);entry(700,-0.6);entry(1000,-1.0);entry(1400,0.5);entry(2000,-1.5);entry(2800,0.5);entry(4000,1.4);entry(5600,-5.9);entry(8000,-9.1);entry(11000,-8.4);entry(14000,-3.7)',acompressor=threshold=-20dB:ratio=3:attack=5:release=80",
-  "notes": "Laura on eleven_v3 scored 0.72-0.73 vs 0.71-0.72 on eleven_v4 and 0.68 on multilingual_v2. 3 designed voices scored 0.64-0.67. post_filter = EQ matched to the reference's long-term spectrum (duller highs) + light compression.",
+  "post_filter": "highpass=f=70,firequalizer=gain_entry='entry(120,2);entry(250,-1.5);entry(3000,2);entry(7000,-2);entry(12000,-4)',acompressor=threshold=-20dB:ratio=3:attack=5:release=80",
+  "notes": "DEFAULT = male ElevenLabs narrator (the user rejected the female voices and the free local voice). Dime picked from the library: deepest (103 Hz) with the most pitch movement (10.2 st) of 6 American male storytellers. Needs ~1 credit per character on eleven_v3 (a 60 s script ~ 1,200). Free fallback: male_free.",
   "free_alternative": {
     "engine": "chatterbox (MIT, local, expressive; keeps Resemble's AI watermark)",
     "script": "scripts/tts_chatterbox.py",
@@ -58,5 +56,12 @@
       "bm_george": "British, 141 Hz, 12.6 st"
     },
     "note": "Deep male storyteller. With --ex 0.8 a male Kokoro reference stays expressive (11-12.6 st), unlike the old female test (6.6 st at --ex 0.55)."
+  },
+  "female_alternative": {
+    "voice_id": "GZ4PpFJV8ikEGUtBrjK7",
+    "voice_name": "Laura - a top narration voice",
+    "model_id": "eleven_v3",
+    "tempo": 1.05,
+    "post_filter": "firequalizer=gain_entry='entry(125,1.7);entry(180,-4.3);entry(250,-2.8);entry(350,1.5);entry(500,2.1);entry(700,-0.6);entry(1000,-1.0);entry(1400,0.5);entry(2000,-1.5);entry(2800,0.5);entry(4000,1.4);entry(5600,-5.9);entry(8000,-9.1);entry(11000,-8.4);entry(14000,-3.7)',acompressor=threshold=-20dB:ratio=3:attack=5:release=80"
   }
 }

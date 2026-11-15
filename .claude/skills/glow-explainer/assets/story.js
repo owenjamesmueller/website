@@ -160,7 +160,8 @@
       const g = node('g', {}, G), yy = 170 + i * 120;
       node('rect', { x: 50, y: yy, width: 320, height: 100, rx: 20, fill: '#1b2235', stroke: '#f5c542', 'stroke-width': 4 }, g);
       node('circle', { cx: 100, cy: yy + 50, r: 26, fill: '#f5c542' }, g);
-      const a = node('text', { x: 142, y: yy + 44, 'font-family': 'Space Mono,monospace', 'font-weight': 700, 'font-size': 24, fill: '#fff' }, g); a.textContent = text;
+      const fs = Math.min(24, Math.floor(212 / (text.length * 0.62)));   // shrink to fit the card (mono: 0.6 em per letter)
+      const a = node('text', { x: 142, y: yy + 44, 'font-family': 'Space Mono,monospace', 'font-weight': 700, 'font-size': fs, fill: '#fff' }, g); a.textContent = text;
       const b = node('text', { x: 142, y: yy + 76, 'font-family': 'Space Mono,monospace', 'font-size': 20, fill: '#9aa4b8' }, g); b.textContent = 'just now';
       on((t) => { const k = clamp01((t - t0) / 0.25); g.setAttribute('opacity', k); g.setAttribute('transform', `translate(${((1 - EASE.out(k)) * 60).toFixed(1)} 0)`); });
       sfx('real/notify-bubble', t0, 0.3, 0.6);
