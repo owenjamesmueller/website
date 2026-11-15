@@ -1,72 +1,71 @@
-# Mode B: wordless metaphor loops (12–16 s)
+# Mode B: wordless metaphor loops (12–16 s), any topic
 
-Studied from the user's references: the underwater chains loop ("YOU'VE CHANGED, BRO" → "WATCH ME" → surfaces,
-Seneca quote), the blindfolded crowd walking off a cliff ("DON'T FOLLOW BLINDLY."), the crowd splitting into
-private/government school → jobs, luxury-first vs assets-first, "5 minutes", "what a week feels like",
-and income vs expenses.
+A style, not a subject. One metaphor (from `metaphor-finder.md`) acted out by stick figures in a real
+environment, readable with the sound off, with music added in the app. Works for money, friends, discipline,
+fitness, social media, school, work, confidence or relationships. Studied from the user's references (the underwater chains loop,
+the blind crowd at a cliff, the crowd splitting into schools and jobs, luxury vs assets, 5 minutes, what a week feels like).
 
-## Lessons from a rejected draft (don't repeat these)
-A first demo ("the easy road": a crowd walking a forked road) was rejected as boring, with bad SFX and bland animation.
-- **No stakes.** Walking is not a problem. Something must be going WRONG from frame 0: water rising, a fall,
-  chains, drowning. The viewer stays to see if he survives.
-- **No physical action.** Sliding figures along paths reads as lazy. Every second someone must be *doing*
-  something: bailing, hammering, pulling, punching a hole, jumping, cheering, pointing.
-- **Too small and far away.** Put the characters close (stick size ≈ 1.2), filling the width, so the acting reads on a phone.
-- **UI blips are not sound design.** Use the foley set (`foley-*`): an ambience bed for the whole loop plus physical
-  sounds on every action. Never use UI dings and pops in mode B, except a soft pop for speech bubbles.
-- **A climax with a hit**: lightning + thunder + a punch-in, then the capsize/fall/snap, then silence and light.
-- **An emotional beat after the win**: the hero helps the people who mocked him (throws the rope). That's what gets shared.
+## The anatomy (true for every topic)
+- **No narration.** The picture IS the story.
+- **A crowd and one hero.** The crowd is grey; the hero is white with ONE accent colour (a headband, blindfold,
+  flame, gold light) so the eye finds him instantly.
+- **A real environment** that is the metaphor: water, a cliff, a road, stairs, a room, a field, a city, a hill,
+  a train platform, a desert, a gym, a classroom. Depth through perspective scale, a ground plane and reflections.
+- **Small monospace text only**: a headline at the top, boxed labels that name what things mean
+  ("CAR LOAN", "EXCUSES", "GROUP CHAT", "COMFORT ZONE"), and crowd taunts ("WHO DO YOU THINK YOU ARE?").
+  The hero speaks once, at the turn.
+- **Arc in ~14 s**: something is wrong at frame 0 → pressure escalates (2–3 steps) → the hero's turn → a physical
+  climax (snap, fall, flood, lightning) → payoff (light, gold, the top, the surface) → a quote card → loop.
+- **Sound**: a foley bed under everything, plus a physical sound on every action. The user adds a trending song in the app.
 
-## What makes them work
-- **No narration. The picture IS the story.** One metaphor, acted out by stick figures, readable with the sound off.
-- **A crowd and one hero.** The crowd is grey (sometimes blindfolded or chained). The hero is white with ONE accent
-  colour (a red headband or blindfold, gold light) so the eye tracks him through dozens of figures.
-- **A real environment**, not a blank stage: a forked road seen in perspective with buildings at the ends; underwater
-  with light rays, bubbles and seaweed; a cliff edge; a city at night; rooms. Depth comes from perspective scale, a ground
-  plane and reflections.
-- **Small monospace text only.** A typed headline at the top ("DON'T FOLLOW BLINDLY."), boxed signs on places
-  ("PRIVATE SCHOOL", "PAYCHECK TO PAYCHECK"), and taunt bubbles from the crowd ("WHO DO YOU THINK YOU ARE?",
-  "AIR IS OVERRATED.", "WRONG WAY."). The hero answers once ("WATCH ME.").
-- **Arc in 14 s**: the hook is already moving at frame 0 → pressure escalates (more chains, more taunts) → the turn
-  (the hero breaks free or takes the other road) → the payoff (light, gold, the surface, the house) → a quote card
-  (2–4 short lines, one in the accent colour, an optional author). Then the handle.
-- **Music is added in the app.** The song names visible in the references come from Instagram's music picker.
-  Export with only quiet SFX (typing for the headline, pops for taunts, a chime for the payoff).
-  Trending audio helps distribution.
+## Lessons from a rejected draft (apply to every topic)
+The first demo (a crowd walking a forked road) was rejected as boring and lazy, with bad sound. The reasons were general:
+- **No stakes.** Walking isn't a problem. Something must be going wrong from frame 0.
+- **No physical action.** Sliding figures along a path is lazy. Every second someone must be *doing* something.
+- **Too small and far away.** Keep characters close (stick size ≈ 1.2) so the acting reads on a phone.
+- **UI blips aren't sound design.** Use foley (beds + physical hits). UI sounds only for speech-bubble pops.
+- **No climax.** Build to one hit (lightning, a snap, a fall, a break), then release into light.
+- **No heart.** Add a beat after the win (grace: he helps the ones who mocked him) — that's what gets shared.
 
-## Toolkit (`assets/loops.js`)
+## Environment catalog: reuse a kit, or build a new one per topic
+Ready-made kits in `assets/loops.js`:
+| kit | functions | good for |
+|---|---|---|
+| storm at sea | `sky({storm, goldAt})`, `sea({y, storm})`, `rain`, `lightning`, `sunbeam`, `boat()` (labelled leaks, sinking, capsizing), `raft()` (build plank by plank) | slow drains, "same boat", preparing before a crisis |
+| underwater | `ocean()`, `bubbles()`, `chain(a(t), b(t))`, `seaweed()` | being held down, surfacing, breaking free |
+| perspective road | `road({forkZ, spread})` → `R.at(z, branch, lane)` | choices, crowds, paths (add stakes: a cliff at the end, a storm coming) |
+| cliff | `cliff(edgeX, y)` | following blindly, fear of jumping, consequences |
+| figures + text | `stick()` (walk, poses, `path`), `monoHead`, `monoSign`, `monoBubble`, `quoteCard` | every loop |
+
+**Building a new environment** when the metaphor needs one (stairs, an escalator, a train, a cage, a hill, rooms, a gym,
+a classroom, a phone screen, a battery, a dam), follow the same pattern as the kits in `loops.js`:
+- Layers with z-order: sky/background 0–3, world 5–25, the *front* layer that hides things (water, fog, a counter, a wall) 30,
+  weather/particles 40, text 40+.
+- Motion as a pure function of time (`on(t => ...)`), driven by one tension curve (like `storm(t)`) so the whole world
+  escalates together: the water rises, the wind picks up, the battery drains, the crowd speeds up.
+- Things that move together share a group element (like `boat`), with a `toScreen()` helper if a character must leave it.
+- Add the new kit to `loops.js` with a docs row here, so the next video can reuse it.
+
+## Concept bank (variations across niches; never recreate a reference)
+| topic | crowd does | hero does | climax → payoff |
+|---|---|---|---|
+| lifestyle creep (example: `assets/examples/modeb-same-boat-scenes.js`) | punch labelled leaks in their boat, mock him | hammers a raft | capsize → gold sunbeam, throws a rope |
+| toxic friends | swim near the bottom, chained to his ankles | swims up, "WATCH ME." | chains snap → surfaces into light |
+| following the crowd | blindfolded line walking to a cliff | removes the blindfold | others fall → he pulls the rest back |
+| social media | sit in a dark room lit only by phones, battery bars over their heads draining | puts the phone face down | his battery refills → he walks out into daylight |
+| discipline | ride an escalator going *down*, laughing | builds steps beside it, one brick a day | their escalator ends at the bottom → he's at the top |
+| procrastination | wait on the platform packing "perfect" bags | gets on with a half-packed bag | the train leaves without them |
+| fear of failure | queue behind a frozen diver on the board | jumps | splash → the whole line follows |
+| comfort zone | sit in a warm, lit room as the walls slowly close in | opens the door into the cold dark | the room shrinks → outside, dawn breaks |
+| people-pleasing | pile their backpacks onto him on a hill | drops them one by one | they topple → he walks up light |
+| fitness | lounge on couches chained to them | drags the couch to the gym | the chain snaps → before/after silhouettes |
+
+## Toolkit reference
 | function | use |
 |---|---|
-| `stick(x, y, {size, color, accent, blindfold})` | stick figure, anchor = feet. Grey `#8d8f99` crowd, white hero, `accent:'#e5484d'` |
-| `.walk(t0, t1, {dx, dy})` / `.path(t0, t1, p => ({x, y, s, z}))` | walk cycle; move along any path (perspective, falls, swimming up) |
-| `.pose(t, name)` | stand, cheer, pull, reach, swim, fall, point, sit, blind (arms forward) |
-| `road({forkZ, spread, horizon, width})` → `R.at(z, branch, lane)` | perspective road with a Y fork; z 0 = near, 1 = far; branch −1/0/+1 |
-| `ocean({surfaceY})`, `bubbles(x, y, t0, t1)`, `chain(a(t), b(t))`, `seaweed(x, y)` | underwater scenes; chains link moving points (hero ↔ friends) |
-| `cliff(edgeX, y)` | cliff edge for fall metaphors |
-| `sky({storm, goldAt})`, `sea({y, storm})`, `rain({storm})`, `lightning(t, x)`, `sunbeam(x, t0)` | storm kit, all driven by one `storm(t)` curve (0 calm, 1 full storm); the front sea layer hides whatever is under the water |
-| `boat({x, w, sea, draft, tilt})` → `.hole(px, label, t0)`, `.toScreen(px, py, t)` | a boat that bobs, rides lower as it fills, tilts and capsizes; figures go inside it (`parent: B`) |
-| `raft(x, sea)` → `.addPlank(i, t)`, `.mast(t)`, `.deck(t)` | build it plank by plank, then stand on it |
-
-## Sound: procedural foley (`scripts/gen_foley.py` → `assets/sfx/foley-*.wav`)
-storm-bed, sea-bed (16 s ambience beds), thunder, wave-crash, splash-big/small, leak, bail, hammer, creak,
-whoosh, whoosh-long, rope, boom, bubbles, heartbeat, keys, pad-dark, pad-hope. Always lay a bed under the whole
-loop and hit a physical sound on every action. Use pad-dark when tension starts and pad-hope on the payoff.
-| `monoHead(text, t0, {y, size})` | typed headline (top, y 300–400) |
-| `monoSign(text, x, y)`, `monoBubble(text, x, y)` | place labels; taunts and replies |
+| `stick(x, y, {size, color, accent, blindfold, parent})` | anchor = feet; grey crowd `#9a9ca6`, white hero, `accent` colour |
+| `.walk(t0, t1, {dx, dy})`, `.path(t0, t1, p => ({x, y, s, z}))`, `.pose(t, name or custom)` | stand, cheer, pull, reach, swim, fall, point, sit, blind, or a custom `{aL, aR, lL, lR, lean}` |
+| `monoHead(text, t0, {y, size})` | headline (y ≥ 330; start it at a negative t0 so frame 0 shows it complete) |
+| `monoSign(text, x, y)`, `monoBubble(text, x, y)` | labels; taunts and the hero's single line |
 | `quoteCard(lines, author, t0, {accentLine})` | closing card over a darkened frame |
-
-## Proven concepts (make your own variations, don't recreate the references)
-| concept | crowd does | hero does | payoff |
-|---|---|---|---|
-| **same boat** (example: `assets/examples/modeb-same-boat-scenes.js`) | in a leaking boat in a storm, keep punching holes (CAR LOAN, NEW PHONE, BNPL), mock him | hammers a raft together, "I'M NOT SINKING WITH YOU.", jumps | boat capsizes; he rides into a gold sunbeam and throws them a rope |
-| chained friends | swim near the seabed, chained to his ankles, taunting | swims up, "WATCH ME.", breaks the chains | surfaces into golden light |
-| blind crowd | blindfolded, walking off a cliff | removes the blindfold, pulls others back | the line behind him stops |
-| luxury vs assets | split screen: buys the car first, coins drain | buys the house first | the car arrives paid for by the house |
-| two clocks | snooze ×3 | 5 minutes of push-ups, shower, ready | both walk out: one tired, one sharp |
-
-## Mode B audit
-1. Frame 0 already shows something going wrong (stakes) + the hero. 2. The metaphor reads with the sound off.
-3. One accent colour that marks the hero. 4. Pressure escalates before the turn (taunts, chains, crowd).
-5. A visible payoff (light, colour, reward) after a physical climax. 6. A quote card that names the lesson in ≤ 12 words.
-7. Every second someone is doing something physical. 8. A foley bed throughout + a sound on every action.
-(Ship ≥ 7/8.)
+| foley: `sfx('foley-<name>', t, vol)` | beds: storm-bed, sea-bed · hits: thunder, wave-crash, splash-big/small, leak, bail, hammer, creak, whoosh(-long), rope, boom, bubbles, heartbeat, keys · music-like: pad-dark, pad-hope. Add new sounds to `scripts/gen_foley.py` when a topic needs them (footsteps, a door, a crowd murmur, an alarm) |

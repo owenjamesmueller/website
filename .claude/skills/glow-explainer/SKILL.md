@@ -1,145 +1,101 @@
 ---
 name: glow-explainer
-description: Make vertical 1080x1920 faceless animations for Reels/TikTok/Shorts in two modes. Mode A - narrated glow-style story explainers (black stage, big posed glowing characters, visual metaphors, captions under the floor, ElevenLabs voice timed word-by-word, sound effects). Mode B - wordless 12-16 s stick-figure metaphor loops (a crowd, one accent-coloured hero, a real environment like a forked road, an ocean or a cliff edge, typed monospace text, taunt bubbles, a quote card, music added in-app). Use when the user asks for an animation, explainer, reel, short or TikTok in this style, types /glow-explainer followed by a topic or a script, or asks for "a video like the IQ 160 one".
+description: Make scroll-stopping vertical 1080x1920 faceless animations for Reels, TikTok and Shorts, on any topic (money, relationships, discipline, fitness, psychology, school, career, social media, business, history...), in two animation styles. Mode A - a narrated story: dark glowing stage, big posed characters, a central visual metaphor, captions under the floor, an ElevenLabs voice timed word-by-word, and sound design. Mode B - a wordless 12-16 s metaphor loop: stick-figure crowd and one accent-coloured hero in a living environment, rising stakes, a physical climax, typed monospace text, a quote card, with music added in-app. Both are built on a shared viral engine (scroll-stop first frame, open loops, emotional beats, fast pacing, callback endings). Use when the user asks for an animation, explainer, reel, short or TikTok in these styles, types /glow-explainer with a topic or script, or asks for "a video like" one of their references.
 ---
 
 # Glow Explainer
 
-Turns a topic or script into a finished MP4: script → voiceover → word timings →
-HTML/JS scenes → deterministic frame render → MP4 with audio. Everything is
-code, so every frame is exact and re-timeable.
+Two animation **styles** that can tell any story, sharing one **viral engine** that makes people stay to
+the end. Everything is code (HTML/JS scenes → deterministic frame renderer → MP4), so every frame is
+exact, re-timeable and checkable.
 
-Two modes:
+| | **Mode A: narrated story** | **Mode B: wordless metaphor loop** |
+|---|---|---|
+| feels like | a cinematic explainer someone narrates to you | a 15-second short film you understand with the sound off |
+| length | 45–70 s | 12–16 s |
+| audio | voiceover + sound effects | foley bed + sound effects; the user adds a trending song in the app |
+| characters | big posed glowing people (`person()`), named | stick-figure crowd + one hero with an accent colour (`stick()`) |
+| text | captions under the floor, pills, counters, an end title card | a monospace headline, labels, taunt bubbles, a quote card |
+| use when | the idea needs explaining (a mechanism, a rule, a turn) | the idea fits one picture (a trap, a choice, peer pressure) |
 
-| Mode | Use for | Length | Audio |
-|---|---|---|---|
-| **A: Narrated glow explainer** (default) | money/psychology/self-improvement ideas explained in a story about one person | 45–75 s | voiceover only, no music |
-| **B: Metaphor loop** | one wordless visual metaphor ("don't follow the crowd", "friends who drag you down", "the easy road") | 12–16 s | no voice; quiet SFX + the user adds a trending song in the Instagram/TikTok app |
+If the user doesn't say which, pick the mode that fits the idea and say why in one line.
+Neither mode is tied to a subject or a setting. The examples in `assets/examples/` (two friends and money in A,
+a boat in a storm in B) are worked examples, not templates to reskin.
 
-Read `references/style-guide.md` before designing any scene. Read
-`references/scene-recipes.md` when planning visuals. Read `references/voice.md`
-before generating audio. For mode B also read `references/metaphor-loops.md`.
+## Always read first
+1. `references/viral-engine.md`: hooks, open loops, emotional beats, pacing, endings, and the audits. This applies to both modes.
+2. `references/metaphor-finder.md`: turn any topic into one physical metaphor with stakes (want → trap → mechanism → counter-move).
+3. Mode A: `references/style-guide.md`, `references/scene-recipes.md` (the story formula and visual storytelling), `references/voice.md`.
+   Mode B: `references/metaphor-loops.md` (anatomy, lessons, environment catalog, concept bank).
 
 ## Files
-
 ```
-assets/   engine.js  components.js  characters.js (mode A people)  loops.js (mode B)
-          base.css  index.html  sfx/  examples/ (two-friends-story = A, modeb-same-boat = B)
-scripts/  align.py (word timestamps -> words.js)   render.cjs (frames -> mp4)
-          check_voice.py (optional: score a voice against a reference clip)
-voice.json  the narrator voice settings (voice_id, model, tempo)
+assets/   engine.js (timeline, tweens, cues, sfx)   components.js (icons, pills, stats, cards, halos...)
+          characters.js (mode A posable people + props)   loops.js (mode B stick figures + environment kits)
+          base.css  index.html  sfx/ (SFX + foley-*.wav)  examples/ (one worked example per mode)
+scripts/  render.cjs (stills | --check | parallel render + motion blur + bloom + audio mix)
+          align.py (word timestamps)  mix_audio.py  gen_foley.py (procedural foley)  check_voice.py
+voice.json  narrator voice settings
 ```
 
-## Workflow (mode A)
+## Step 1 (both modes): concept
+- Write want / trap / mechanism / counter-move, then choose the central metaphor (`metaphor-finder.md`). Look for the
+  tension even in an informational topic.
+- Mode A: write the story script (9 beats in `scene-recipes.md`, 170–210 words, a story rather than a list of tips).
+  Mode B: write a beat sheet on a 14 s timeline (frame 0 already wrong → escalation ×2–3 → the turn → climax → payoff → quote).
+- Score it with the audit in `viral-engine.md` (A ≥ 8/10, B ≥ 7/8) and rewrite until it passes. Show the script or beat sheet
+  and its score to the user, and get a yes before spending voice credits or render time.
 
-1. **Script = a story.** If the user gave a topic, turn it into a story using the
-   9-beat formula in `references/scene-recipes.md`: paradox hook with an open loop,
-   remove the obvious explanation, a character the viewer knows, tiny specific moments,
-   "it looked like he was winning", "but here's what nobody saw", the hidden rule as a
-   contrast, a time skip, and a callback ending. 170–210 words. Never a list of tips.
-   **Score it with the audit in `references/retention.md` and rewrite until it scores ≥ 8/10**,
-   then show the script and score to the user and get a yes before spending credits on voice.
+## Step 2 (both): project
+Create `videos/<slug>/` (or use the scratchpad if the user only wants the file). Copy
+`assets/{index.html,engine.js,components.js,characters.js,loops.js,base.css}`. Set the user's handle in `index.html`
+(`#handle-text`), or delete `#handle`. Never use another creator's handle.
 
-2. **Project folder.** Create `videos/<slug>/` in the working directory (or the
-   scratchpad if the user only wants the file) and copy in
-   `assets/{index.html,engine.js,components.js,characters.js,base.css}`. Set the user's handle
-   in `index.html` (`#handle-text`), or delete `#handle` if they have none. Never
-   use another creator's handle.
+## Mode A steps
+3. **Voice.** One `creative_generate_speech` call for the whole script with the `voice_id`/`model_id` from `voice.json`
+   (check the credit balance with `estimate_only` first; if it's short, `eleven_flash_v2_5` costs about half).
+   Download the take, then use fast pacing by default:
+   `ffmpeg -i take.mp3 -af "silenceremove=start_periods=1:start_threshold=-45dB:stop_periods=-1:stop_duration=0.12:stop_threshold=-45dB:stop_silence=0.1,atempo=1.06,<post_filter>" voice.mp3`
+   (aim for ~210 wpm). Write numbers as words, and cue scenes on non-number words.
+4. **Align.** `HF_HUB_DISABLE_XET=1 python3 -I scripts/align.py voice.mp3 videos/<slug>/` → `words.js` + a timed transcript.
+5. **Scenes** (`scenes.js`; see `assets/examples/two-friends-story-scenes.js` for the patterns):
+   - One scene per sentence, keyed to spoken words with `cue('word')`; every drawable noun appears as it's said.
+   - Big posed characters (`person`, `pose`), captions under the floor (`caption`), the central metaphor object followed
+     from start to end, light on whoever the sentence is about, a title card at the end (`window.DURATION += 1.9`).
+   - Apply the viral engine to the edit: frame 0 = characters + a text hook (`titleCard` at a negative t0); don't let the
+     visuals answer the open loop early; an underdog moment (narrow spotlight + heartbeat); a first-win spike; a
+     vindication punch-in; a callback.
+   - `window.GX_PACE = 0.72` and `punches('#stage', 0.04, 0.22)` for fast pacing; the camera always drifts.
+   - Nothing uses `Date`, `Math.random` or CSS animations: use `rand(seed)` and engine tweens (the renderer seeks frames).
+   - Need a prop the kit doesn't have? Draw it (an SVG in `ICONS` or a new builder in `characters.js`). Never settle for
+     a generic icon when the metaphor needs a specific object.
+6. **Sound.** A sound-design block at the end of `scenes.js`: `sfx(name, t, vol)` on every beat. Use whooshes for time jumps,
+   physical sounds for actions, a bass hit (`click-deep`, `foley-boom`) on turns, and a pad on the payoff.
+   The renderer mixes it under the voice at −14 LUFS.
 
-3. **Voice.** Generate the whole script in one call with the ElevenLabs
-   `creative_generate_speech` tool, using `voice_id`, `model_id` from
-   `voice.json`. Pick the better of the two takes (listen for flubs: run
-   `align.py` on both and compare the transcript to the script). Download the
-   take's `content_url` with curl, then apply tempo and the reference-matched EQ:
-   `ffmpeg -i take.mp3 -af "atempo=<tempo>,<post_filter>" -b:a 192k videos/<slug>/voice.mp3`
-   (both from `voice.json`). Target pace is ~180 wpm. Write numbers as words in
-   the script, but cue scenes on nearby non-number words, because the aligner
-   may transcribe "two hundred dollars" as "$200".
+## Mode B steps
+3. **Environment.** Reuse a kit from the catalog in `metaphor-loops.md`, or **build the environment the metaphor needs**
+   (stairs, a train, a room, a cage, a hill...) following its pattern: layers, one tension curve driving the whole world,
+   group elements. Add new kits to `loops.js` so they can be reused.
+4. **Scenes** (`scenes.js`, with `window.WORDS=[];window.DURATION=14.5;` in `words.js`; see
+   `assets/examples/modeb-same-boat-scenes.js` for the patterns): the crowd and the hero close to camera (stick size ≈ 1.2),
+   someone doing something physical every second, labels that name what things mean, taunts, the hero's single line at
+   the turn, a climax hit (flash, snap, fall + punch-in), a payoff in the accent colour, a grace beat, and the quote card.
+5. **Sound.** `python3 -I scripts/gen_foley.py` if `assets/sfx/foley-*.wav` is missing. A bed for the whole loop and a
+   physical hit on every action. Add new procedural sounds to `gen_foley.py` when the topic needs them.
 
-4. **Align.** `HF_HUB_DISABLE_XET=1 python3 -I scripts/align.py videos/<slug>/voice.mp3 videos/<slug>/`
-   (needs `pip install faster-whisper soundfile librosa`). This writes
-   `words.js` and prints a timed transcript. Use the transcript to plan scenes.
-
-5. **Scenes.** Write `videos/<slug>/scenes.js`. Start from
-   `assets/example-scenes.js`. Rules:
-   - One scene per sentence (sometimes two short sentences). Build each scene in
-     its own `{ }` block, keyed to `cue('word')` so visuals land on the spoken word.
-   - Every noun the narrator says that can be drawn **is** drawn the moment it's
-     said: a pill label, an icon pop, a counter, a check/cross.
-   - Apply `references/retention.md` to the edit: frame 0 = characters + text hook; an open
-     loop the visuals don't give away; underdog moment (narrow spotlight, heartbeat);
-     first-win spike; vindication punch-in; twist callback; a short title card.
-   - Prefer the big-character style: `person()` with poses, captions under the floor,
-     a central metaphor object (see "Big-character style" in `references/style-guide.md`),
-     and a title card at the end. Add `window.DURATION += 2.6` for the card.
-   - Stage it like a film: named characters with reactions, a world that changes,
-     gold coins to follow, light on whoever the sentence is about. Follow "Visual
-     storytelling rules" in `references/scene-recipes.md`. The full component list
-     is at the top of `assets/components.js`, and
-     `assets/examples/two-friends-story-scenes.js` is the reference implementation.
-   - Keep the hero figure on the floor most of the video; it is the continuity.
-   - Clear a scene's props (`tw(..., {opacity:[1,0], y:[0,-30]})`) ~0.25 s before
-     the next sentence starts, or transform them into the next scene.
-   - Camera moves (`tw(cam, ...)` scale/y) on scene changes, 0.8–1.4 s, `inOut`.
-   - Nothing may use `Date`, `Math.random`, CSS animations or transitions: use
-     `rand(seed)` and engine tweens only. The renderer seeks to arbitrary times.
-   - Need a new icon? Add an SVG string to `ICONS` in your project's
-     `components.js` (stroke `#fff`, width 6, round caps, 200×200 viewBox).
-
-5b. **Sound effects.** Add a sound-design block at the end of `scenes.js`:
-   `sfx('coin-collect', cue('paid'), 0.35)`. The files are in `assets/sfx/` (MIT, from SoundWeaver).
-   Use whoosh-short or refresh for time jumps, coin-collect or coin-double for money moving,
-   invalid-thunk or error-soft-thud for losses, success-* for wins, type-key for typing,
-   mention-pop for speech bubbles, notification-ding for messages, and click-deep for dramatic beats.
-   Keep volumes 0.15–0.5 so the voice stays on top. The renderer mixes them into `mix.wav`
-   and normalizes to −14 LUFS (the Reels standard) automatically.
-
-6. **Layout check.** `node scripts/render.cjs videos/<slug> --check` scans every 0.25 s
-   and lists overlapping text/icons/characters and anything outside the Reels safe zone
-   (text inside x 65–1015, y 270–1500, and clear of the right 150 px below y 960 where the
-   like/comment/share buttons sit). Fix until it prints `0 issue(s)`. Mark intentional
-   overlaps (a character inside a car, a laptop in front of him) with `el.dataset.overlapOk = ''`.
-
-7. **Preview stills.** `node scripts/render.cjs videos/<slug> --still 1,4.5,9,...`
-   (one time per scene). Look at every still with Read. Check overlap,
-   off-canvas elements, things visible that should have cleared, and empty frames.
-   Fix and repeat. This is the cheap loop: do it until each still reads clearly.
-
-8. **Render.** `node scripts/render.cjs videos/<slug>` → `videos/<slug>/out.mp4`
-   (30 fps with 3× motion blur, about 1× realtime; `--mb 1` for a fast draft). Extract a contact sheet
-   (`ffmpeg -i out.mp4 -vf "fps=1/2,scale=240:-1,tile=6x3" sheet.jpg`), look at it,
-   then send the MP4 to the user.
-
-9. **End card** (optional, as in the references): the final 1.5 s fades to black
-   with the handle icon centred.
-
-## Mode B (wordless metaphor loop)
-
-Read `references/metaphor-loops.md` first. The workflow is shorter, with no voice:
-
-1. **Pick one metaphor** that the whole loop acts out, and its turn. For example, a crowd takes
-   the easy road and one figure takes the empty one. Write it as 4 beats on a 14 s timeline:
-   hook (0–1 s, already moving), escalation (taunts and pressure), turn (the hero breaks away), and
-   payoff (light or reward), then a quote card in the last 2.5 s. Score it with the Mode B audit in the
-   reference (≥ 7/8). Read its "Lessons from a rejected draft" first: stakes from frame 0, physical action
-   every second, close framing, and foley rather than UI sounds.
-2. **Project**: copy the same assets as mode A (they include `loops.js`). Write `words.js` as
-   `window.WORDS=[];window.DURATION=14.5;`. Start `scenes.js` from
-   `assets/examples/modeb-same-boat-scenes.js`.
-3. **Build** with `stick()` figures (grey crowd, white hero with an accent headband), an environment
-   (`road()` fork, `ocean()` + `bubbles()` + `chain()` + `seaweed()`, `cliff()`), `monoHead()` typed
-   headlines, `monoSign()` labels, `monoBubble()` taunts, and `quoteCard()`. Frame 0 must already be busy.
-4. Sound: run `python3 -I scripts/gen_foley.py` once if `assets/sfx/foley-*.wav` is missing. Put a bed under the
-   whole loop and a foley hit on every action.
-5. `--check`, stills, then render. SFX stay quiet (no loudness normalisation without a voice), because
-   the user adds music in the app. If they hand you a music file instead:
-   `ffmpeg -i out.mp4 -i music.mp3 -filter_complex "[1:a]volume=0.8[m];[0:a][m]amix=inputs=2:normalize=0" -map 0:v -c:v copy -shortest final.mp4`.
+## Finish (both modes)
+- **Layout check:** `node scripts/render.cjs videos/<slug> --check` must print `0 issue(s)`. It scans every 0.25 s for
+  overlapping text, icons and characters, and for anything outside the Reels safe zone (text inside x 65–1015, y 270–1500,
+  and clear of the right 150 px below y 960). Mark intentional overlaps with `el.dataset.overlapOk = ''`.
+- **Stills:** `--still t1,t2,...` (one per beat). Look at every frame: is the hook clear at frame 0? Is anything empty, static or
+  cluttered? Is the action big enough to read on a phone?
+- **Render:** `node scripts/render.cjs videos/<slug>` (parallel, 3× motion blur, post bloom, audio mix). Look at a contact sheet,
+  then send the MP4.
 
 ## Quality bar
-
-- 1080×1920, 30 fps, H.264 + AAC. `--check` must report 0 issues (no overlaps, Reels safe zone).
-- Leave breathing room: at most ~4 text elements on screen at once; clear a scene before the next.
-- Monochrome. One extra colour only when it carries meaning (gold coins, red alarm).
-- Something moves at least every 1.5 s. No static holds longer than that.
-- Numbers always tick (`count`), never just appear.
-- Pills are short: 1–5 words, uppercase.
+- 1080×1920, 30 fps, H.264 + AAC. `--check` = 0 issues. Mode A at −14 LUFS.
+- Frame 0 works as a thumbnail with a text hook. Motion within 0.3 s. No frame static for more than 1.5 s.
+- A dark stage with one accent colour that means something (gold = reward, red = danger, or whatever fits the topic).
+- At most ~4 text elements on screen at once. Labels are short, uppercase, and name what things *mean*.
+- The end card is ≤ 2 s with no slow fade.

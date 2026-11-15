@@ -1,4 +1,7 @@
-# Script formula & scene recipes
+# Mode A: story formula & scene recipes (any topic)
+
+The formula is topic-agnostic. The quoted lines come from the references (money and success niches); write the
+equivalent beat for your topic: a breakup, a gym habit, a business, a school choice, a phone addiction.
 
 ## Story formula (mode A) — write a STORY, not a list of facts
 Facts don't hold attention; a person with a problem does. The smart-kid reference keeps people
@@ -47,7 +50,9 @@ leaks is the same bucket twenty years later. The final title card names the meta
   `shake` on impacts (first payment). Render with motion blur (`--mb 3`, the default).
 - **Background depth**: dot grid + `bokeh` + stacked bloom (built in).
 
-## Phrase → visual recipes (from the references)
+## Phrase → visual recipes (worked examples from the money references)
+These show the *translation habit*: every spoken idea becomes a drawn object, a label and a reaction. Apply
+the same habit to any topic (a heart that cracks, a phone battery, a dumbbell, a diploma, a door, a mask).
 
 | narration | visual |
 |---|---|
