@@ -65,7 +65,7 @@ Create `videos/<slug>/` (or use the scratchpad if the user only wants the file).
    `ffmpeg -i take.mp3 -af "silenceremove=start_periods=1:start_threshold=-45dB:stop_periods=-1:stop_duration=0.12:stop_threshold=-45dB:stop_silence=0.1,atempo=1.06,<post_filter>" voice.mp3`
    (aim for ~210 wpm). Write numbers as words, and cue scenes on non-number words.
 4. **Align.** `HF_HUB_DISABLE_XET=1 python3 -I scripts/align.py voice.mp3 videos/<slug>/` → `words.js` + a timed transcript.
-5. **Scenes** (`scenes.js`; see `assets/examples/modea-janitor-banker-scenes.js` for the patterns):
+5. **Scenes** (`scenes.js`; see `assets/examples/modea-janitor-banker-scenes.js` and `modea-kodak-drawer-scenes.js` for the patterns):
    - **Variety: a new SET for every beat (every ~3–6 s)**, never one stage for the whole video. Use `stageSet()` +
      `sceneSwap(A, B, t, 'whip'|'zoom'|'push'|'cut')`, and vary the framing: wide establishing shots, close-ups (the coat
      with safety pins), split screens, charts, an object filling the frame (a jar, a scale, a mansion), a title moment.

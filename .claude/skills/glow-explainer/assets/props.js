@@ -13,6 +13,8 @@
  *   mansion(x, y) -> .build(t0, dur), .crack(t0), .topple(t0)   crashChart(x, y, w, h, t0, dur)
  *   billRain(x, floorY, t0, t1)   coat(x, y) -> .pin(i, t0)   jar(x, y, label) -> .add(i, t), .glow(t)
  *   oldCar(x, y)   luxury(name, x, y) (watch | yacht | car | ring)
+ *   protoCamera(x, y, {size})   flash(t0)   drawer(x, y) -> .open(t, amount), .close(t)   thing(name, x, y, {scale}) (film | bottle | paper | phone | app)
+ *   brandTower(x, y, label, {w, h}) -> .lightsOut(t0, dur)   brickWall(x, y, {cols, rows}) -> .rise(t0, dur)   link(x1, y1, x2, y2, t0, {cut})
  * Every prop is tagged .gx-prop so render.cjs --check flags props crossing characters.
  */
 (function () {
@@ -213,5 +215,64 @@
     return prop(el);
   }
 
-  Object.assign(window, { stageSet, enter, leave, sceneSwap, snow, townHouse, library, hospital, tower, stamp, balance, stairs, mansion, crashChart, billRain, coat, jar, oldCar, luxury });
+
+  // ---------------- tech & business props (Kodak story; reusable) ----------------
+  function protoCamera(x, y, { parent, size = 1 } = {}) {         // boxy 1970s prototype: body, lens, cassette deck
+    const el = place(svgDiv(300 * size, 200 * size, `<g transform="scale(${size})"><rect x="10" y="40" width="230" height="150" rx="14" fill="#1b1d24" stroke="#e6e6e6" stroke-width="6"/><circle cx="270" cy="115" r="34" fill="#0d0e12" stroke="#e6e6e6" stroke-width="6"/><circle cx="270" cy="115" r="16" fill="none" stroke="#9fd3ff" stroke-width="4"/><rect x="34" y="70" width="120" height="66" rx="6" fill="#0d0e12" stroke="#bdbdbd" stroke-width="4"/><circle cx="66" cy="103" r="14" fill="none" stroke="#bdbdbd" stroke-width="4"/><circle cx="122" cy="103" r="14" fill="none" stroke="#bdbdbd" stroke-width="4"/><rect x="176" y="62" width="44" height="20" rx="4" fill="#e5484d"/><rect x="40" y="18" width="70" height="26" rx="6" fill="#1b1d24" stroke="#e6e6e6" stroke-width="5"/></g>`, 'gx-protocam'), x, y, { parent, z: 7, glow: false });
+    return prop(el);
+  }
+  function flash(t0, { parent } = {}) {                                // camera flash: white screen pop
+    const f = document.createElement('div'); f.style.cssText = 'width:1080px;height:1920px;background:#fff';
+    const el = place(f, 540, 960, { parent: parent || document.getElementById('stage'), z: 39, glow: false });
+    tw(el, t0, 0.03, { opacity: [0, 0.85] }); tw(el, t0 + 0.04, 0.35, { opacity: [0.85, 0] });
+    sfx('real/pop-click', t0, 0.5, 0.4); return el;
+  }
+  function drawer(x, y, { parent } = {}) {                             // filing cabinet; .open(t, amount) / .close(t)
+    const el = place(svgDiv(420, 560, `<rect x="10" y="10" width="400" height="540" rx="14" fill="#15171d" stroke="#e6e6e6" stroke-width="6"/><rect x="40" y="40" width="340" height="140" rx="8" fill="#1b1d24" stroke="#9a9a9a" stroke-width="4"/><rect x="40" y="380" width="340" height="140" rx="8" fill="#1b1d24" stroke="#9a9a9a" stroke-width="4"/><rect x="180" y="100" width="60" height="14" rx="7" fill="#9a9a9a"/><rect x="180" y="440" width="60" height="14" rx="7" fill="#9a9a9a"/><g class="dr"><rect x="40" y="210" width="340" height="140" rx="8" fill="#1f2229" stroke="#e6e6e6" stroke-width="5"/><rect x="180" y="270" width="60" height="14" rx="7" fill="#e6e6e6"/><text x="210" y="252" text-anchor="middle" font-family="Space Mono,monospace" font-weight="700" font-size="20" fill="#e6e6e6">1975</text></g>`, 'gx-drawer'), x, y, { parent, anchor: 'bottom', z: 5, glow: false });
+    scenery(el);
+    const dr = el.querySelector('.dr'), keys = [[-99, 0]];
+    el.open = (t0, a = 1) => { keys.push([t0, a]); return el; }; el.close = (t0) => { keys.push([t0, 0]); return el; };
+    on((t) => { let v = 0, prev = 0; for (const [k0, a] of keys) if (t >= k0) { const p = EASE.inOut(Math.min(1, (t - k0) / 0.5)); v = prev + (a - prev) * p; prev = a; } dr.setAttribute('transform', `translate(0 ${(v * 90).toFixed(1)}) scale(1 ${(1 + v * 0.06).toFixed(3)})`); });
+    return el;
+  }
+  const OBJ = {
+    film: `<circle cx="70" cy="70" r="58" fill="#1b1d24" stroke="#e6e6e6" stroke-width="7"/><circle cx="70" cy="70" r="18" fill="#0d0e12" stroke="#e6e6e6" stroke-width="5"/>${[0, 60, 120, 180, 240, 300].map((a) => `<circle cx="${70 + 38 * Math.cos(a * Math.PI / 180)}" cy="${70 + 38 * Math.sin(a * Math.PI / 180)}" r="9" fill="#0d0e12"/>`).join('')}<path d="M126 70 H230 V128 H126" fill="#2a2416" stroke="#f5c542" stroke-width="5"/>`,
+    bottle: `<rect x="40" y="10" width="40" height="30" rx="4" fill="#e6e6e6"/><path d="M28 40 H92 L112 80 V200 Q112 214 98 214 H22 Q8 214 8 200 V80 Z" fill="#1b1d24" stroke="#e6e6e6" stroke-width="6"/><rect x="22" y="110" width="76" height="60" rx="6" fill="#e6e6e6"/><path d="M38 140 H82" stroke="#111" stroke-width="6"/>`,
+    paper: `<rect x="14" y="14" width="160" height="190" rx="8" fill="#f2f2f2" transform="rotate(-6 94 110)"/><rect x="34" y="34" width="120" height="110" rx="4" fill="#2a2d36" transform="rotate(-6 94 110)"/><circle cx="74" cy="78" r="16" fill="#f5c542" transform="rotate(-6 94 110)"/><path d="M40 140 L80 104 L104 124 L150 84 V144 Z" fill="#9a9a9a" transform="rotate(-6 94 110)"/>`,
+    phone: `<rect x="6" y="6" width="96" height="180" rx="16" fill="#0d0e12" stroke="#e6e6e6" stroke-width="6"/><rect x="16" y="22" width="76" height="140" rx="6" fill="#9fd3ff" opacity=".85"/><circle cx="54" cy="174" r="5" fill="#e6e6e6"/>`,
+    app: `<rect x="10" y="10" width="160" height="160" rx="40" fill="#1b1d24" stroke="#f5c542" stroke-width="8"/><rect x="44" y="52" width="92" height="76" rx="16" fill="none" stroke="#fff" stroke-width="8"/><circle cx="90" cy="90" r="20" fill="none" stroke="#fff" stroke-width="8"/><circle cx="120" cy="64" r="5" fill="#fff"/>`,
+  };
+  const OBJ_SIZE = { film: [240, 140], bottle: [120, 220], paper: [190, 220], phone: [108, 192], app: [180, 180] };
+  function thing(name, x, y, { parent, scale = 1, z = 7 } = {}) {      // film | bottle | paper | phone | app
+    const [w, h] = OBJ_SIZE[name]; const d = svgDiv(w, h, OBJ[name], 'gx-thing gx-' + name);
+    d.firstChild.setAttribute('width', w * scale); d.firstChild.setAttribute('height', h * scale);
+    return prop(place(d, x, y, { parent, z, glow: false }));
+  }
+  function brandTower(x, y, label, { parent, w = 300, h = 640 } = {}) { // building with a name sign; .lightsOut(t0, dur)
+    const el = place(svgDiv(w, h + 70, `<rect x="${w * 0.1}" y="70" width="${w * 0.8}" height="${h}" fill="#13151b" stroke="#d0d0d0" stroke-width="5"/>${windowsGrid(w * 0.18, 110, 4, Math.floor((h - 60) / 52), w * 0.17, 52, 1.0, 11)}<rect x="${w * 0.12}" y="8" width="${w * 0.76}" height="54" rx="8" fill="#e6e6e6"/><text x="${w / 2}" y="46" text-anchor="middle" font-family="Space Mono,monospace" font-weight="700" font-size="30" fill="#111">${label}</text>`, 'gx-brandtower'), x, y, { parent, anchor: 'bottom', z: 3, glow: false });
+    scenery(el);
+    const wins = [...el.querySelectorAll('.win')];
+    el.lightsOut = (t0, dur = 1.5) => { wins.forEach((wn, i) => { const tt = t0 + rand(i * 2.7) * dur; on((t) => wn.setAttribute('fill', t >= tt ? '#20232c' : '#f5d37a')); }); return el; };
+    return el;
+  }
+  function brickWall(x, y, { parent, cols = 6, rows = 5, bw = 92, bh = 46 } = {}) { // .rise(t0, dur): rows build up
+    const NS = 'http://www.w3.org/2000/svg'; const W = cols * bw + bw / 2, H = rows * bh;
+    const el = place(svgDiv(W, H, '', 'gx-wall'), x, y, { parent, anchor: 'bottom', z: 6, glow: false }); prop(el);
+    const sv = el.querySelector('svg'), bricks = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const b = document.createElementNS(NS, 'rect'); const off = r % 2 ? bw / 2 : 0;
+      b.setAttribute('x', c * bw + off + 3); b.setAttribute('y', H - (r + 1) * bh + 3); b.setAttribute('width', bw - 6); b.setAttribute('height', bh - 6); b.setAttribute('rx', 4);
+      b.setAttribute('fill', '#2a2d36'); b.setAttribute('stroke', '#d6d6d6'); b.setAttribute('stroke-width', 3); sv.appendChild(b); bricks.push([b, r, c]);
+    }
+    el.rise = (t0, dur = 1.6) => { bricks.forEach(([b, r, c]) => { const tt = t0 + (r / rows) * dur + c * 0.02; on((t) => { const k = Math.max(0, Math.min(1, (t - tt) / 0.15)); b.setAttribute('opacity', k); b.setAttribute('transform', `translate(0 ${((1 - k) * -30).toFixed(1)})`); }); }); for (let r = 0; r < rows; r++) sfx('real/impact-wood', t0 + (r / rows) * dur, 0.2, 0.3); return el; };
+    return el;
+  }
+  function link(x1, y1, x2, y2, t0, { parent, cut = 0 } = {}) {        // arrow that draws; optional red cut ✗ at time `cut`
+    const el = place(svgDiv(1080, 1920, `<path class="ln" d="M${x1} ${y1} L${x2} ${y2}" stroke="#e6e6e6" stroke-width="6" stroke-dasharray="16 12" fill="none"/><path d="M${x2} ${y2} l${-18 * Math.sign(x2 - x1 || 1)} -12 M${x2} ${y2} l${-18 * Math.sign(x2 - x1 || 1)} 12" stroke="#e6e6e6" stroke-width="6" fill="none"/>${cut ? `<path class="x" d="M${(x1 + x2) / 2 - 30} ${(y1 + y2) / 2 - 30} l60 60 M${(x1 + x2) / 2 + 30} ${(y1 + y2) / 2 - 30} l-60 60" stroke="#ff5a5f" stroke-width="12" stroke-linecap="round" fill="none"/>` : ''}`, 'gx-link'), 540, 960, { parent, z: 4, glow: false });
+    el.dataset.overlapOk = ''; tw(el, t0, 0.3, { opacity: [0, 1] });
+    if (cut) { const xx = el.querySelector('.x'); on((t) => xx.setAttribute('opacity', t >= cut ? 1 : 0)); tw(el.querySelector('.ln'), cut, 0.3, { opacity: [1, 0.25] }); sfx('real/impact-blow', cut, 0.45, 0.8); }
+    return el;
+  }
+
+  Object.assign(window, { protoCamera, flash, drawer, thing, brandTower, brickWall, link, stageSet, enter, leave, sceneSwap, snow, townHouse, library, hospital, tower, stamp, balance, stairs, mansion, crashChart, billRain, coat, jar, oldCar, luxury });
 })();
