@@ -1,6 +1,6 @@
 ---
 name: glow-explainer
-description: Make scroll-stopping vertical 1080x1920 faceless animations for Reels, TikTok and Shorts, on any topic (money, relationships, discipline, fitness, psychology, school, career, social media, business, history...), in two animation styles. Mode A - a narrated story: dark glowing stage, big posed characters, a central visual metaphor, captions under the floor, an ElevenLabs voice timed word-by-word, and sound design. Mode B - a wordless 12-16 s metaphor loop: stick-figure crowd and one accent-coloured hero in a living environment, rising stakes, a physical climax, typed monospace text, a quote card, with music added in-app. Both are built on a shared viral engine (scroll-stop first frame, open loops, emotional beats, fast pacing, callback endings). Use when the user asks for an animation, explainer, reel, short or TikTok in these styles, types /glow-explainer with a topic or script, or asks for "a video like" one of their references.
+description: Make scroll-stopping vertical 1080x1920 faceless animations for Reels, TikTok and Shorts, on any topic (money, relationships, discipline, fitness, psychology, school, career, social media, business, history...), in two animation styles. Mode A - a narrated story: dark glowing stage, big posed characters, a central visual metaphor, captions under the floor, an ElevenLabs voice timed word-by-word, and sound design. Mode B - a short wordless metaphor loop: stick-figure crowd and one accent-coloured hero in a living environment, rising stakes, a physical climax, typed monospace text, a quote card, with music added in-app. Both are built on a shared viral engine (scroll-stop first frame, open loops, emotional beats, fast pacing, callback endings). Use when the user asks for an animation, explainer, reel, short or TikTok in these styles, types /glow-explainer with a topic or script, or asks for "a video like" one of their references.
 ---
 
 # Glow Explainer
@@ -12,7 +12,7 @@ exact, re-timeable and checkable.
 | | **Mode A: narrated story** | **Mode B: wordless metaphor loop** |
 |---|---|---|
 | feels like | a cinematic explainer someone narrates to you | a 15-second short film you understand with the sound off |
-| length | 45–70 s | 12–16 s |
+| length | whatever the story needs, usually ~30–75 s (keep it under ~90 s) | short: usually ~10–25 s (keep it under ~30 s) |
 | audio | voiceover + sound effects | foley bed + sound effects; the user adds a trending song in the app |
 | characters | big posed glowing people (`person()`), named | stick-figure crowd + one hero with an accent colour (`stick()`) |
 | text | captions under the floor, pills, counters, an end title card | a monospace headline, labels, taunt bubbles, a quote card |
@@ -41,8 +41,10 @@ voice.json  narrator voice settings
 ## Step 1 (both modes): concept
 - Write want / trap / mechanism / counter-move, then choose the central metaphor (`metaphor-finder.md`). Look for the
   tension even in an informational topic.
-- Mode A: write the story script (9 beats in `scene-recipes.md`, 170–210 words, a story rather than a list of tips).
-  Mode B: write a beat sheet on a 14 s timeline (frame 0 already wrong → escalation ×2–3 → the turn → climax → payoff → quote).
+- Mode A: write the story script (the beats in `scene-recipes.md`; a story rather than a list of tips). Let the story set the length,
+  then cut: see "Length" in `viral-engine.md`.
+  Mode B: write a beat sheet (frame 0 already wrong → escalation → the turn → climax → payoff → quote) and give each beat
+  only the seconds it needs.
 - Score it with the audit in `viral-engine.md` (A ≥ 8/10, B ≥ 7/8) and rewrite until it passes. Show the script or beat sheet
   and its score to the user, and get a yes before spending voice credits or render time.
 
@@ -77,7 +79,7 @@ Create `videos/<slug>/` (or use the scratchpad if the user only wants the file).
 3. **Environment.** Reuse a kit from the catalog in `metaphor-loops.md`, or **build the environment the metaphor needs**
    (stairs, a train, a room, a cage, a hill...) following its pattern: layers, one tension curve driving the whole world,
    group elements. Add new kits to `loops.js` so they can be reused.
-4. **Scenes** (`scenes.js`, with `window.WORDS=[];window.DURATION=14.5;` in `words.js`; see
+4. **Scenes** (`scenes.js`, with `window.WORDS=[];window.DURATION=<length the beats need>;` in `words.js`; see
    `assets/examples/modeb-same-boat-scenes.js` for the patterns): the crowd and the hero close to camera (stick size ≈ 1.2),
    someone doing something physical every second, labels that name what things mean, taunts, the hero's single line at
    the turn, a climax hit (flash, snap, fall + punch-in), a payoff in the accent colour, a grace beat, and the quote card.
@@ -98,4 +100,5 @@ Create `videos/<slug>/` (or use the scratchpad if the user only wants the file).
 - Frame 0 works as a thumbnail with a text hook. Motion within 0.3 s. No frame static for more than 1.5 s.
 - A dark stage with one accent colour that means something (gold = reward, red = danger, or whatever fits the topic).
 - At most ~4 text elements on screen at once. Labels are short, uppercase, and name what things *mean*.
-- The end card is ≤ 2 s with no slow fade.
+- The end card is short (about 1.5–2.5 s) with no slow fade.
+- Length is earned: every beat opens or closes a loop, or lands an emotion. Anything else gets cut.

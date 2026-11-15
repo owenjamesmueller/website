@@ -1,4 +1,4 @@
-# Mode B: wordless metaphor loops (12–16 s), any topic
+# Mode B: short wordless metaphor loops, any topic
 
 A style, not a subject. One metaphor (from `metaphor-finder.md`) acted out by stick figures in a real
 environment, readable with the sound off, with music added in the app. Works for money, friends, discipline,
@@ -14,7 +14,7 @@ the blind crowd at a cliff, the crowd splitting into schools and jobs, luxury vs
 - **Small monospace text only**: a headline at the top, boxed labels that name what things mean
   ("CAR LOAN", "EXCUSES", "GROUP CHAT", "COMFORT ZONE"), and crowd taunts ("WHO DO YOU THINK YOU ARE?").
   The hero speaks once, at the turn.
-- **Arc in ~14 s**: something is wrong at frame 0 → pressure escalates (2–3 steps) → the hero's turn → a physical
+- **Arc** (usually ~10–25 s, as long as the beats need, rarely over ~30 s): something is wrong at frame 0 → pressure escalates (2–3 steps) → the hero's turn → a physical
   climax (snap, fall, flood, lightning) → payoff (light, gold, the top, the surface) → a quote card → loop.
 - **Sound**: a foley bed under everything, plus a physical sound on every action. The user adds a trending song in the app.
 

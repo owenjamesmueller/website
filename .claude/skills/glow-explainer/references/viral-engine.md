@@ -16,7 +16,7 @@ by finding the trap ("you're not tired, you're under-stimulated" / "the snooze b
   Never start on an empty stage, a logo or a slow fade-in.
 - **Layered hook**: picture + text overlay (+ voice in mode A) say the same paradox at once. Many viewers start muted,
   so the text alone must work: "SAME JOB. SAME PAY.", "WE'RE ALL IN THE SAME BOAT.", "DON'T FOLLOW BLINDLY."
-- Motion within 0.3 s. Spoken hook ≤ 3 s. No intro, no greeting, no "in this video".
+- Motion within a fraction of a second. Get the spoken hook out fast (roughly the first 2–4 s). No intro, no greeting, no "in this video".
 - **Hook patterns that work on any topic** (fill in for your niche):
   - Paradox: "The smartest person you know is probably broke." / "The more you rest, the more tired you get."
   - Same start, different end: "Two friends started the same gym on the same day. Only one still goes."
@@ -27,7 +27,7 @@ by finding the trap ("you're not tired, you're under-stimulated" / "the snooze b
 ## 2. Open loops: why they keep watching
 - Open a question in the first 3 s and don't fully answer it until the last 15 %. Show *that* something happens and hide
   *who/how/why* ("only one of them is rich. Guess which one?"; mode B: will the boat sink before he finishes the raft?).
-- Stack 3–4 loops in 60 s (2 in a 15 s loop) and close the newest first. Each answer should open the next question.
+- Stack loops in proportion to length (a short loop needs 1–2, a long story 3–5) and close the newest first. Each answer should open the next question.
 - **Mid-video re-hook (~40–50 %)**: a turn ("But here's what nobody saw.") plus a visual pattern interrupt (everything dims
   except one character, the camera pushes in, a bass hit; in mode B, lightning or a snap).
 
@@ -51,20 +51,28 @@ Use at least 5 in mode A and at least 3 in a mode B loop. The examples span nich
 ## 4. Pacing and pattern interrupts
 - A new visual event at least every 1.5 s; a scene or beat change every 4–5 s; never a static frame (the camera always drifts).
 - Mode A fast pace: ~210 wpm, gaps ≤ 0.1 s, `GX_PACE 0.72`, `punches()` on every sentence.
-- Mode B: someone is doing something physical every second; one big hit (lightning, snap, fall) at 55–70 %.
+- Mode B: someone is doing something physical every second; one big hit (lightning, snap, fall) roughly two-thirds of the way in.
 - Sound marks every beat: whooshes on time jumps and scene changes, physical foley on actions, a bass hit on turns, a pad on
   the payoff.
 
 ## 5. The ending: completion → rewatch → comment → share
 - The last beat pays off the first loop and re-colours it (callback). Mode B: the final image echoes frame 0, transformed.
 - End card: 2–4 huge words that turn the moral into an instruction ("PLANT IT EARLY.", "CHOOSE YOUR ROOM.",
-  "BUILD YOUR RAFT BEFORE THE STORM."). Hold ≤ 2 s, then cut. No slow fades: people swipe during outros.
+  "BUILD YOUR RAFT BEFORE THE STORM."). Hold it briefly (about 1.5–2.5 s), then cut. No slow fades: people swipe during outros.
 - Build comment bait into the story instead of asking for it: a "guess which one", a rule people will argue with,
   a crowd line the viewer has heard from their own friends.
 - A short loop (mode B) should end on a frame that flows back into frame 0, so it gets watched twice.
 
-## 6. Audits (score before spending credits or render time)
-**Mode A script (ship ≥ 8/10):** 1. Hook is a paradox ≤ 3 s spoken and works as muted text. 2. An open loop stays unanswered
+## 6. Length: as long as the story earns, no longer
+There is no fixed length. Choose it from the idea, then cut.
+- **Typical ranges, not rules:** Mode A ~30–75 s; Mode B ~10–25 s. A simple paradox can land in 25 s; a story with a real turn
+  and payoff may need 70+. Avoid going past ~90 s (A) or ~30 s (B): long videos lose completion rate.
+- **The cut test:** for each beat, ask "if I delete this, do we lose a loop, a payoff or an emotion?" If not, delete it.
+- **Shorter beats ≠ a shorter video:** keep pacing fast (a new visual every ~1.5 s) at any length.
+- When the user asks for a specific length, hit it by adding or removing beats, not by stretching or squashing the pacing.
+
+## 7. Audits (score before spending credits or render time)
+**Mode A script (ship ≥ 8/10):** 1. Hook is a fast paradox (out in the first few seconds) and works as muted text. 2. An open loop stays unanswered
 until the last 15 %. 3. A specific, relatable character. 4. A concrete micro-moment within 10 s. 5. An underdog or injustice
 beat. 6. A spoken turn mid-video ("But…"). 7. A first-win spike around 50–60 %. 8. A quotable rule.
 9. A consequence for the other path. 10. A twist callback + an instruction end card.
@@ -74,4 +82,4 @@ beat. 6. A spoken turn mid-video ("But…"). 7. A first-win spike around 50–60
 6. Someone does something physical every second. 7. A foley bed + a sound on every action. 8. A quote card ≤ 12 words.
 
 **Both, edit (before the final render):** frame 0 = thumbnail with a text hook; the open loop isn't given away by the visuals;
-`--check` = 0 issues; no frame holds still for more than 1.5 s; the end card is ≤ 2 s.
+`--check` = 0 issues; no frame holds still for more than 1.5 s; the end card is short; nothing is in the video that doesn't open or close a loop or land an emotion.

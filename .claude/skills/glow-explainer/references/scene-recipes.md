@@ -6,7 +6,7 @@ equivalent beat for your topic: a breakup, a gym habit, a business, a school cho
 ## Story formula (mode A) — write a STORY, not a list of facts
 Facts don't hold attention; a person with a problem does. The smart-kid reference keeps people
 watching because every ~5 seconds it either opens a question or pays one off. Use these beats
-(~180 wpm, 55–70 s, 170–210 words):
+(no fixed length: a tight story might be 80 words, a rich one 250. At ~210 wpm that's ~25–75 s; stay under ~90 s):
 
 1. **Paradox hook + open loop** (≤ 5 s). A result that sounds wrong, plus a promise that the reason is coming.
    "The smartest person you know is probably broke, and the reason why explains almost everything about money."

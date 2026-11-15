@@ -66,6 +66,6 @@ The hero is usually centred. With two-sided comparisons, objects sit at x=360 an
 - **Rooms and lamps** (`room`, ceiling lamps throw a soft light pool) for "where you are"; protest-style `sign`s
   on sticks for what a crowd says ("LIFE IS SHORT", "WE'RE YOUNG").
 - **Ends on a title card**: two or three huge words that turn the moral into an instruction
-  (`titleCard('Choose<br>your room.')`, `titleCard('Plant it<br>early.')`), held ≤ 2 s, then the handle.
+  (`titleCard('Choose<br>your room.')`, `titleCard('Plant it<br>early.')`), held briefly (about 1.5–2.5 s), then the handle.
 - Accent colour: one, chosen for the topic's meaning (gold = reward/money, red = danger, green = growth/health,
   blue = calm/trust). Everything else stays monochrome.
