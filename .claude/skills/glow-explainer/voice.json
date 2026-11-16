@@ -1,0 +1,70 @@
+{
+  "provider": "elevenlabs",
+  "voice_id": "6FiCmD8eY5VyjOdG5Zjk",
+  "voice_name": "Adam - Deep English Story Voice (ElevenLabs library: deep American storyteller, ~89 Hz)",
+  "model_id": "eleven_v3",
+  "tempo": 1.25,
+  "target_wpm": 215,
+  "reference": {
+    "clip": "IQ 160 video (smartest person is probably broke)",
+    "median_f0_hz": 210,
+    "f0_range_hz": [
+      150,
+      290
+    ],
+    "wpm": 180,
+    "best_library_similarity": 0.729
+  },
+  "alternates": [
+    {
+      "voice_id": "WkcegOqOPWAl2ZRFBEaw",
+      "voice_name": "Dime - deep, dynamic"
+    },
+    {
+      "voice_id": "k0oRjDwazplPRQKtXvUn",
+      "voice_name": "Keanu - deep, smooth"
+    }
+  ],
+  "post_filter": "highpass=f=60,firequalizer=gain_entry='entry(100,2.5);entry(250,-1.5);entry(3000,2);entry(7000,-2);entry(12000,-4)',acompressor=threshold=-20dB:ratio=3:attack=5:release=80",
+  "notes": "DEFAULT = Adam Deep Story on eleven_v3 (the user asked for a more masculine, deeper narrator). v3 audio tags work: [whispers], [dramatic pause]. Generate the whole script in one call (~1 credit per character; 2 takes by default), pick the take whose transcript matches best. If the free tier says 'busy', just retry a minute later. Free fallback: male_free (pitch-shifted).",
+  "free_alternative": {
+    "engine": "chatterbox (MIT, local, expressive; keeps Resemble's AI watermark)",
+    "script": "scripts/tts_chatterbox.py",
+    "voice": "built-in default (no --voice)",
+    "pitch_spread_semitones": 16.3,
+    "similarity": 0.62,
+    "note": "A Kokoro clip as --voice made it monotone (6.6 st). Prefer expressiveness."
+  },
+  "draft_alternative": {
+    "engine": "kokoro-onnx",
+    "script": "scripts/tts_kokoro.py",
+    "voice": "af_alloy",
+    "similarity": 0.695,
+    "pitch_spread_semitones": 7.8,
+    "note": "monotone: drafts only"
+  },
+  "male_free": {
+    "engine": "chatterbox",
+    "script": "scripts/tts_chatterbox.py",
+    "voice_ref": "Kokoro am_onyx clip (Apache-2.0), made with tts_kokoro.py --voice am_onyx --speed 1.0 on any neutral ~9 s paragraph",
+    "args": "--ex 0.8 --cfg 0.35",
+    "median_f0_hz": 94,
+    "pitch_spread_semitones": 11.0,
+    "post_filter": "highpass=f=60,firequalizer=gain_entry='entry(100,2.5);entry(250,-1.5);entry(3000,2);entry(7000,-2);entry(12000,-4)',acompressor=threshold=-20dB:ratio=3:attack=5:release=80",
+    "alternatives": {
+      "am_michael": "lighter American, 126 Hz, 10.9 st",
+      "bm_george": "British, 141 Hz, 12.6 st"
+    },
+    "note": "Deep male storyteller. With --ex 0.8 a male Kokoro reference stays expressive (11-12.6 st), unlike the old female test (6.6 st at --ex 0.55).",
+    "pitch_shift": "rubberband=pitch=0.866:formant=preserved",
+    "process": "silenceremove(-38dB, keep 0.06 s) -> pitch_shift -> atempo 1.15 -> post_filter  (the user wanted it deeper and faster: ~94 Hz, ~215 wpm)"
+  },
+  "female_alternative": {
+    "voice_id": "GZ4PpFJV8ikEGUtBrjK7",
+    "voice_name": "Laura - a top narration voice",
+    "model_id": "eleven_v3",
+    "tempo": 1.05,
+    "post_filter": "firequalizer=gain_entry='entry(125,1.7);entry(180,-4.3);entry(250,-2.8);entry(350,1.5);entry(500,2.1);entry(700,-0.6);entry(1000,-1.0);entry(1400,0.5);entry(2000,-1.5);entry(2800,0.5);entry(4000,1.4);entry(5600,-5.9);entry(8000,-9.1);entry(11000,-8.4);entry(14000,-3.7)',acompressor=threshold=-20dB:ratio=3:attack=5:release=80"
+  },
+  "process": "silenceremove(-40dB, stop_duration 0.12, keep 0.08) -> atempo 1.25 -> post_filter  (the raw take is slow: ~160 wpm)"
+}

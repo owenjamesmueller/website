@@ -1,0 +1,24 @@
+[hook] His teacher told the whole class he would never amount to anything.
+[hook] Twelve years later, she was the one asking him for a job.
+[turn] Here's how it happened.
+[turn] Leo failed math three times.
+He sat in the back, and every time he got called on, the whole room laughed.
+[calm] So he stopped raising his hand.
+[turn] But nobody knew what he did when he got home.
+Every night, while his friends were gaming, Leo sat at a cracked laptop, teaching himself to code.
+One video at a time. One error at a time.
+[calm] His first app crashed so badly, he cried.
+[turn] He didn't quit.
+[hook] Then one tiny thing changed everything.
+At nineteen, he built a tiny app for his mom's bakery.
+It took the orders, and saved her four hours a day.
+Then the shop next door wanted one. Then twenty more.
+[payoff] By twenty-five, his company had fifty employees.
+[hook] But the craziest part was still coming.
+[turn] Then one morning, a job application landed on his desk.
+He knew the name.
+[payoff] It was his old math teacher.
+[calm] He could have laughed, like they all did.
+[payoff] He hired her instead, to teach the kids who sit in the back.
+[payoff] Because the kid in the back isn't slow.
+[payoff] He's just playing a different game.

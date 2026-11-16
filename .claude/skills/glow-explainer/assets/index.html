@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Glow Explainer</title>
+<link rel="stylesheet" href="base.css">
+</head>
+<body>
+<div id="stage">
+  <div id="dots"></div>
+  <div id="cam"></div>
+  <div id="grain"></div>
+  <div id="handle" data-glow>
+    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff"/></svg>
+    <span id="handle-text">@YOURHANDLE</span>
+  </div>
+</div>
+<script src="words.js"></script>      <!-- window.WORDS + window.DURATION, written by align.py -->
+<script src="engine.js"></script>
+<script src="components.js"></script>
+<script src="characters.js"></script>
+<script src="props.js"></script>
+<script src="story.js"></script>      <!-- mode A story sets (classroom, bedroom, screens, shops, office...) -->
+<script src="loops.js"></script>
+<script src="scenes.js"></script>     <!-- the video itself -->
+<script>window.__seek(0); window.__ready = true;</script>
+</body>
+</html>
