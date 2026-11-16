@@ -32,6 +32,7 @@ def n2w(n):          # 99 -> "ninety nine", 100 -> "one hundred" (the recognizer
     if n < 20: return ONES[n]
     if n < 100: return TENS[n // 10] + ("" if n % 10 == 0 else " " + ONES[n % 10])
     if n < 1000: return ONES[n // 100] + " hundred" + ("" if n % 100 == 0 else " " + n2w(n % 100))
+    if (1100 <= n <= 1999 or 2010 <= n <= 2099) and n % 100 >= 10: return n2w(n // 100) + " " + n2w(n % 100)   # years: 1925 -> nineteen twenty five
     return n2w(n // 1000) + " thousand" + ("" if n % 1000 == 0 else " " + n2w(n % 1000))
 def words(t):
     t = re.sub(r"(\d),(\d)", r"\1\2", t.lower()).replace("-", " ").replace("'", "")

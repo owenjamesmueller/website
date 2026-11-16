@@ -21,6 +21,8 @@
  *   storefront(x, floorY, sign)     a named shop (sign text shrinks to fit) -> .lights(t0)      siteCard(x, y, label)  a small website
  *   network(x, y, {levels})         referral tree that grows 1 -> 3 -> 9  -> .grow(t0, every), .count
  *   diningTable(x, floorY)          family table with plates (people sit behind it)
+ *   eiffelTower(x, floorY, {h}) -> .rust .glow .sold   newspaper(x, y, 'LINE 1|LINE 2', {name, date, sub}) -> .spin(t0)
+ *   hotelSuite()  suitcase(x, y) -> .fill .close   train(x, floorY) -> .depart(t0, dur)   alcatraz()   bars() -> .slam(t0)
  *   All SVG text here auto-shrinks to fit its box (fit()); render.cjs --check verifies it.
  */
 (function () {
@@ -296,5 +298,82 @@
     return el;
   }
 
-  Object.assign(window, { rejectWall, inbox, storefront, siteCard, network, diningTable, classroom, schoolDesk, nightSky, bedroom, deskFront, codeScreen, nightHouse, tvGlow, bakery, shopRow, officeWindow, testPaper, bigPhone, appForm, tears });
+  // ---------------- era kit (history / true-crime stories) ----------------
+  function eiffelTower(x, floorY, { parent, h = 900 } = {}) {      // lattice tower; .rust(t0) .glow(t0) .sold(t0) (a SOLD tag swings on it)
+    const W = h * 0.5, c = W / 2;
+    const P = (fy, half) => [c - half, h * fy, c + half, h * fy];
+    const lv = [[1.0, 0.5], [0.72, 0.3], [0.62, 0.22], [0.36, 0.11], [0.08, 0.035]];   // [height fraction from top, half-width fraction]
+    let d = '', lat = '';
+    lv.forEach(([fy, hw], i) => { if (!i) return; const [ax, ay] = [c - lv[i - 1][1] * W, h * lv[i - 1][0]], [bx, by] = [c - hw * W, h * fy];
+      d += `M${ax} ${ay} L${bx} ${by} M${W - ax} ${ay} L${W - bx} ${by} `;
+      for (let k = 0; k < 6; k++) { const u = k / 6, v = (k + 1) / 6; const lx = ax + (bx - ax) * u, ly = ay + (by - ay) * u, lx2 = ax + (bx - ax) * v, ly2 = ay + (by - ay) * v;
+        lat += `M${lx} ${ly} L${W - lx2} ${ly2} M${W - lx} ${ly} L${lx2} ${ly2} `; } });
+    const plat = [0.72, 0.36].map((fy) => { const hw = (fy === 0.72 ? 0.32 : 0.13) * W; return `<rect x="${c - hw}" y="${h * fy - 10}" width="${hw * 2}" height="20" rx="4" fill="#1b1d24" stroke="#e6e6e6" stroke-width="5"/>`; }).join('');
+    const el = back(place(sv(W, h + 60, `<path class="lat" d="${lat}" stroke="#7a7f8c" stroke-width="3" fill="none"/><path class="legs" d="${d}" stroke="#e6e6e6" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <path d="M${c - 0.2 * W} ${h} Q${c} ${h * 0.82} ${c + 0.2 * W} ${h}" stroke="#e6e6e6" stroke-width="8" fill="none"/>${plat}
+      <path d="M${c} ${h * 0.08} V${-30}" stroke="#e6e6e6" stroke-width="8"/><circle class="tip" cx="${c}" cy="-34" r="9" fill="#f5c542"/>
+      <g class="rustg" opacity="0">${[0.85, 0.55, 0.47, 0.25].map((fy, i) => `<circle cx="${c + (i % 2 ? 1 : -1) * W * (0.42 - fy * 0.38)}" cy="${h * fy}" r="${16 - i * 2}" fill="#c2622d" opacity=".9"/><circle cx="${c - (i % 2 ? 1 : -1) * W * (0.36 - fy * 0.3)}" cy="${h * (fy + 0.05)}" r="${10}" fill="#a14d22"/>`).join('')}</g>
+      <g class="tag" opacity="0"><path d="M${c + 40} ${h * 0.4} L${c + 110} ${h * 0.47}" stroke="#e6e6e6" stroke-width="4"/><rect x="${c + 90}" y="${h * 0.46}" width="170" height="74" rx="10" fill="#f5c542"/><text x="${c + 175}" y="${h * 0.46 + 50}" text-anchor="middle" ${MONO} font-size="38" fill="#111">SOLD</text></g>`, 'gx-eiffel'), x, floorY, { parent, anchor: 'bottom', z: 2, glow: false }));
+    el.rust = (t0) => { const r = el.querySelector('.rustg'); on((t) => r.setAttribute('opacity', clamp01((t - t0) / 0.6).toFixed(3))); return el; };
+    el.glow = (t0, color = '245,197,66') => { el.dataset.glowColor = color; el.dataset.glow = ''; tw(el, t0, 0.6, { glow: [0, 1.1] }); return el; };
+    el.sold = (t0) => { const g = el.querySelector('.tag'); on((t) => { const k = clamp01((t - t0) / 0.25); g.setAttribute('opacity', k.toFixed(3)); g.setAttribute('transform', `rotate(${(Math.sin((t - t0) * 6) * 10 * Math.exp(-(Math.max(0, t - t0)) * 1.5)).toFixed(2)} ${c + 40} ${h * 0.4})`); }); sfx('real/paper-slide', t0, 0.3, 0.6); return el; };
+    return el;
+  }
+  function newspaper(x, y, headline, { parent, name = 'PARIS DAILY', date = 'MAY 1925', sub = '', art = 'tower' } = {}) {   // .spin(t0): classic spinning-headline entrance
+    const W = 760, H = 960;
+    const lines = headline.split('|');
+    const el = place(sv(W, H, `<rect x="0" y="0" width="${W}" height="${H}" rx="6" fill="#ece6d6"/><text x="${W / 2}" y="92" text-anchor="middle" font-family="Georgia,serif" font-weight="700" font-size="72" fill="#1a1a1a">${name}</text>
+      <path d="M40 116 H${W - 40} M40 124 H${W - 40}" stroke="#1a1a1a" stroke-width="3"/><text x="40" y="152" font-family="Georgia,serif" font-size="22" fill="#444">${date}</text><text x="${W - 40}" y="152" text-anchor="end" font-family="Georgia,serif" font-size="22" fill="#444">PRICE 10 CENTIMES</text>
+      ${lines.map((l, i) => `<text x="${W / 2}" y="${236 + i * 78}" text-anchor="middle" font-family="Georgia,serif" font-weight="900" font-size="${fit(l, W - 80, 72, 0.56)}" fill="#111">${l}</text>`).join('')}
+      <rect x="40" y="${250 + lines.length * 78}" width="${W * 0.5}" height="${H - 330 - lines.length * 78}" fill="#cfc8b6"/>
+      ${art === 'tower' ? `<path d="M${40 + W * 0.25} ${270 + lines.length * 78} L${40 + W * 0.13} ${H - 90} M${40 + W * 0.25} ${270 + lines.length * 78} L${40 + W * 0.37} ${H - 90} M${40 + W * 0.17} ${H - 200} H${40 + W * 0.33}" stroke="#555" stroke-width="8" fill="none"/>` : ''}
+      ${Array.from({ length: 14 }, (_, i) => `<path d="M${W * 0.58} ${270 + lines.length * 78 + i * 30} H${W - 40 - rand(i) * 60}" stroke="#9b958a" stroke-width="7" stroke-linecap="round"/>`).join('')}
+      ${sub ? `<text x="${W * 0.58}" y="${H - 50}" font-family="Georgia,serif" font-style="italic" font-size="${fit(sub, W * 0.38, 26, 0.5)}" fill="#7a2e1a">${sub}</text>` : ''}`, 'gx-news'), x, y, { parent, z: 6, glow: false });
+    el.spin = (t0) => { tw(el, t0, 0.12, { opacity: [0, 1] }, 'linear'); tw(el, t0, 0.7, { rotate: [-540, -4], scale: [0.15, 1] }, 'out'); sfx('real/paper-slide', t0 + 0.55, 0.35, 0.6); return el; };
+    return el;
+  }
+  function hotelSuite({ parent } = {}) {                           // tall curtained windows, chandelier, wallpaper (backdrop)
+    let wp = ''; for (let i = 0; i < 12; i++) wp += `<path d="M${40 + i * 90} 40 V640" stroke="#1a1c22" stroke-width="10"/>`;
+    const win = (wx) => `<rect x="${wx}" y="90" width="200" height="430" rx="100" fill="#0a1020" stroke="#c9a54a" stroke-width="6"/><path d="M${wx + 100} 90 V520 M${wx} 300 H${wx + 200}" stroke="#c9a54a" stroke-width="4"/><path d="M${wx - 30} 70 Q${wx + 10} 300 ${wx - 20} 540 L${wx - 50} 540 L${wx - 50} 70 Z M${wx + 230} 70 Q${wx + 190} 300 ${wx + 220} 540 L${wx + 250} 540 L${wx + 250} 70 Z" fill="#5a1f24"/>`;
+    const el = back(place(sv(1080, 760, `${wp}${win(150)}${win(730)}
+      <g class="chand"><path d="M540 0 V80" stroke="#c9a54a" stroke-width="4"/><path d="M450 120 Q540 170 630 120" stroke="#c9a54a" stroke-width="6" fill="none"/><path d="M470 120 V150 M540 135 V165 M610 120 V150" stroke="#c9a54a" stroke-width="5"/>
+      ${[470, 505, 540, 575, 610].map((cx, i) => `<circle cx="${cx}" cy="${i % 2 ? 98 : 110}" r="9" fill="#f5d37a"/>`).join('')}<circle cx="540" cy="86" r="16" fill="#c9a54a"/></g>
+      <path d="M0 640 H1080" stroke="#2a2d36" stroke-width="4"/>`, 'gx-hotel'), 540, 1300, { parent, anchor: 'bottom', z: 1, glow: false }));
+    const ch = el.querySelector('.chand'); on((t) => ch.setAttribute('transform', `rotate(${(Math.sin(t * 0.9) * 1.2).toFixed(2)} 540 0)`));
+    return el;
+  }
+  function suitcase(x, y, { parent, size = 1 } = {}) {              // open case filling with banknotes: .fill(t0, t1) .close(t0)
+    const el = place(sv(420 * size, 300 * size, `<g transform="scale(${size})"><g class="lid"><rect x="10" y="10" width="400" height="120" rx="14" fill="#5a3a22" stroke="#e6e6e6" stroke-width="6"/></g><rect x="10" y="130" width="400" height="160" rx="14" fill="#4a2f1b" stroke="#e6e6e6" stroke-width="6"/><g class="bills"></g><rect x="170" y="118" width="80" height="24" rx="6" fill="#c9a54a"/></g>`, 'gx-suitcase'), x, y, { parent, z: 7, glow: false });
+    const B = el.querySelector('.bills'), lid = el.querySelector('.lid');
+    el.fill = (t0, t1, n = 14) => { for (let i = 0; i < n; i++) { const tt = t0 + (t1 - t0) * i / n, col = i % 4, row = Math.floor(i / 4);
+      const r = node('rect', { x: 30 + col * 92, y: 240 - row * 26, width: 84, height: 40, rx: 4, fill: '#8fbf7a', stroke: '#2f5a28', 'stroke-width': 3 }, B);
+      on((t) => { const k = clamp01((t - tt) / 0.18); r.setAttribute('opacity', k.toFixed(3)); r.setAttribute('transform', `translate(0 ${((1 - EASE.out(k)) * -60).toFixed(1)})`); }); if (i % 3 === 0) sfx('real/paper-shuffle', tt, 0.15, 0.3); } return el; };
+    el.close = (t0) => { on((t) => { const k = EASE.inOut(clamp01((t - t0) / 0.3)); lid.setAttribute('transform', `translate(0 ${(k * 120).toFixed(1)}) scale(1 ${(1 - k * 0.15).toFixed(3)})`); }); sfx('real/door-close', t0 + 0.25, 0.3, 0.5); return el; };
+    return el;
+  }
+  function train(x, floorY, { parent, size = 1 } = {}) {            // steam train facing right: .depart(t0, dur, dx) with smoke puffs
+    const el = place(sv(980 * size, 330 * size, `<g transform="scale(${size})"><rect x="20" y="90" width="430" height="170" rx="12" fill="#1b1d24" stroke="#e6e6e6" stroke-width="6"/>${[60, 160, 260, 360].map((wx) => `<rect x="${wx}" y="120" width="70" height="60" rx="6" fill="#f5d37a"/>`).join('')}
+      <rect x="480" y="120" width="360" height="140" rx="12" fill="#22252e" stroke="#e6e6e6" stroke-width="6"/><rect x="760" y="60" width="90" height="200" rx="10" fill="#22252e" stroke="#e6e6e6" stroke-width="6"/><rect x="560" y="70" width="44" height="60" fill="#22252e" stroke="#e6e6e6" stroke-width="6"/><path d="M840 250 L930 290 H840 Z" fill="#e6e6e6"/>
+      ${[80, 200, 330, 540, 660, 780].map((cx) => `<circle cx="${cx}" cy="280" r="40" fill="#0d0e12" stroke="#e6e6e6" stroke-width="6"/>`).join('')}<path d="M450 200 H480" stroke="#e6e6e6" stroke-width="8"/></g>`, 'gx-train'), x, floorY, { parent, anchor: 'bottom', z: 4, glow: false });
+    el.depart = (t0, dur = 1.6, dx = 1500) => { tw(el, t0, dur, { x: [0, dx] }, 'in'); for (let i = 0; i < 6; i++) { const pf = place(sv(90, 90, '<circle cx="45" cy="45" r="40" fill="#cfd3dc" opacity=".6"/>', 'gx-smoke'), x + (582 - 490) * size, floorY - 270 * size, { parent, z: 3, glow: false }); pf.classList.remove('gx-prop'); pf.dataset.overlapOk = ''; const tt = t0 - 0.6 + i * 0.25; tw(pf, tt, 0.15, { opacity: [0, 0.8] }); tw(pf, tt, 1.4, { y: [0, -260], x: [0, -120 + i * 40], scale: [0.5, 2.2] }, 'out'); tw(pf, tt + 0.9, 0.5, { opacity: [0.8, 0] }); } return el; };
+    return el;
+  }
+  function alcatraz({ parent } = {}) {                              // island prison at night (backdrop) with a sweeping lighthouse beam
+    let w = ''; for (let i = 0; i < 12; i++) w += `<rect x="${330 + i * 34}" y="370" width="16" height="22" fill="${rand(i * 3.1) < 0.4 ? '#f5d37a' : '#20232c'}"/>`;
+    const el = back(place(sv(1080, 760, `<path d="M0 560 Q160 520 280 470 L320 420 H820 L880 470 Q960 520 1080 560 V640 H0 Z" fill="#14161c" stroke="#6b7280" stroke-width="4"/>
+      <rect x="310" y="340" width="440" height="90" fill="#1b1d24" stroke="#e6e6e6" stroke-width="5"/>${w}<rect x="780" y="230" width="40" height="190" fill="#1b1d24" stroke="#e6e6e6" stroke-width="5"/><rect x="772" y="210" width="56" height="30" rx="6" fill="#f5d37a"/>
+      <path class="beam" d="M800 225 L1080 150 L1080 300 Z" fill="#f5d37a" opacity=".18"/><text x="530" y="320" text-anchor="middle" ${MONO} font-size="34" fill="#e6e6e6">ALCATRAZ</text>
+      ${Array.from({ length: 8 }, (_, i) => `<path d="M${60 + i * 130} 600 q30 -10 60 0" stroke="#3a4a66" stroke-width="4" fill="none"/>`).join('')}`, 'gx-alcatraz'), 540, 1300, { parent, anchor: 'bottom', z: 1, glow: false }));
+    const b = el.querySelector('.beam'); on((t) => b.setAttribute('transform', `rotate(${(Math.sin(t * 0.8) * 35).toFixed(1)} 800 225)`));
+    return el;
+  }
+  function bars({ parent, n = 9 } = {}) {                           // prison bars in front of the camera: .slam(t0)
+    let s = ''; for (let i = 0; i < n; i++) s += `<rect x="${40 + i * 125}" y="0" width="22" height="1920" rx="8" fill="#9aa0ab"/>`;
+    const el = place(sv(1080, 1920, s + '<rect x="0" y="560" width="1080" height="22" fill="#9aa0ab"/><rect x="0" y="1380" width="1080" height="22" fill="#9aa0ab"/>', 'gx-bars'), 540, 960, { parent, z: 40, glow: false });
+    el.dataset.overlapOk = '';
+    el.slam = (t0) => { tw(el, t0, 0.05, { opacity: [0, 1] }, 'linear'); tw(el, t0, 0.3, { y: [-1920, 0] }, 'in'); sfx('real/door-slam', t0 + 0.28, 0.5, 1); return el; };
+    return el;
+  }
+
+  Object.assign(window, { eiffelTower, newspaper, hotelSuite, suitcase, train, alcatraz, bars, rejectWall, inbox, storefront, siteCard, network, diningTable, classroom, schoolDesk, nightSky, bedroom, deskFront, codeScreen, nightHouse, tvGlow, bakery, shopRow, officeWindow, testPaper, bigPhone, appForm, tears });
 })();
