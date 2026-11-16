@@ -3,7 +3,7 @@
  *
  *   const p = person(x, floorY, { size, dim, cap, flip })   // anchor = feet
  *   p.pose(t0, 'up', dur)        // idle | up | both | point | hold | type | shrug | wave | carry | mop | hips | cover | laugh | cross | raise | give
- *   p.head(t0, 'down'|'up'|'tilt'|'shake'|0)   options: bun, glasses, hood, tie, cap, beanie, accent:'#f5c542' (a colour stripe = the hero)
+ *   p.head(t0, 'down'|'up'|'tilt'|'shake'|0)   options: bun, pony (ponytail), glasses, hood, tie, cap, beanie, accent:'#f5c542' (a colour stripe = the hero)
  *   caption('YOU: WORK', x, floorY)                         // small tracked label UNDER the floor
  *   room(x, y, w, h)  lamp(x, y)  desk(x, floorY)  sign(text, x, y)  titleCard(html)
  *   tree(x, floorY, { size }) -> el.grow(t0, dur); el.rain(t0, t1, every)   // coins fall from it
@@ -35,7 +35,7 @@
   };
   const rad = (d) => (d * Math.PI) / 180;
 
-  function person(x, y, { size = 1, dim = false, cap = false, tie = false, beanie = false, mop = false, bun = false, glasses = false, hood = false, accent = '', parent } = {}) {
+  function person(x, y, { size = 1, dim = false, cap = false, tie = false, beanie = false, mop = false, bun = false, glasses = false, hood = false, pony = false, accent = '', parent } = {}) {
     const fill = dim ? '#9a9a9a' : '#ffffff';
     const d = document.createElement('div');
     d.className = 'gx-svg gx-figure gx-person';
@@ -45,7 +45,7 @@
       <path fill="${fill}" d="M58 440 V300 Q58 214 150 210 Q242 214 242 300 V440 Z"/>
       ${hood ? `<path d="M70 300 Q60 200 150 196 Q240 200 230 300" fill="none" stroke="#0a0a0a" stroke-width="8"/><path d="M128 250 V300 M172 250 V300" stroke="#0a0a0a" stroke-width="6" stroke-linecap="round"/>` : ''}
       ${accent ? `<rect x="62" y="330" width="176" height="14" rx="7" fill="${accent}"/>` : ''}
-      <g class="head">${bun ? `<circle cx="150" cy="58" r="34" fill="${fill}"/><circle cx="150" cy="58" r="34" fill="none" stroke="#0a0a0a" stroke-width="5"/>` : ''}
+      <g class="head">${pony ? `<path d="M196 100 Q258 124 236 222" fill="none" stroke="${fill}" stroke-width="30" stroke-linecap="round"/><circle cx="200" cy="98" r="14" fill="#0a0a0a"/>` : ''}${bun ? `<circle cx="150" cy="58" r="34" fill="${fill}"/><circle cx="150" cy="58" r="34" fill="none" stroke="#0a0a0a" stroke-width="5"/>` : ''}
       <circle cx="150" cy="128" r="58" fill="${fill}"/>
       ${glasses ? `<g fill="none" stroke="#0a0a0a" stroke-width="7"><circle cx="126" cy="130" r="17"/><circle cx="174" cy="130" r="17"/><path d="M143 130 H157"/></g>` : ''}
       ${hood ? `<path d="M86 150 Q78 66 150 62 Q222 66 214 150" fill="none" stroke="#0a0a0a" stroke-width="9" stroke-linecap="round"/>` : ''}

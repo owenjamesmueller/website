@@ -16,6 +16,12 @@
  *   bigPhone(x, y)                  phone close-up                                         -> .order(i, text, t0)
  *   appForm(x, y)                   job application (photo, fields)                        -> .fill(i, text, t0, dur), .photo(t0)
  *   tears(x, y, t0, t1)             falling tear drops
+ *   rejectWall(x, y, {cols, rows})  wall filling with rejection letters  -> .add(i, t), .fill(t0, t1, n), .highlight(i, t)
+ *   inbox(x, y, {w, h})             email app                              -> .mail(i, from, subject, t, tone), .open(t0, t1, from, lines, hlWord)
+ *   storefront(x, floorY, sign)     a named shop (sign text shrinks to fit) -> .lights(t0)      siteCard(x, y, label)  a small website
+ *   network(x, y, {levels})         referral tree that grows 1 -> 3 -> 9  -> .grow(t0, every), .count
+ *   diningTable(x, floorY)          family table with plates (people sit behind it)
+ *   All SVG text here auto-shrinks to fit its box (fit()); render.cjs --check verifies it.
  */
 (function () {
   const NS = 'http://www.w3.org/2000/svg';
@@ -187,5 +193,108 @@
     }
   }
 
-  Object.assign(window, { classroom, schoolDesk, nightSky, bedroom, deskFront, codeScreen, nightHouse, tvGlow, bakery, shopRow, officeWindow, testPaper, bigPhone, appForm, tears });
+
+  // ---------------- more places (job-hunt / small-business stories) ----------------
+  const fit = (text, maxW, size, em = 0.6) => Math.max(12, Math.min(size, Math.floor(maxW / (Math.max(1, text.length) * em))));   // shrink-to-fit font size
+  function rejectWall(x, y, { parent, cols = 9, rows = 6, pw = 84, ph = 104, gap = 10 } = {}) {   // .add(i, t) .fill(t0, t1, n) .highlight(i, t)
+    const W = cols * (pw + gap), H = rows * (ph + gap);
+    const el = back(place(sv(W, H, '<g class="ps"></g>', 'gx-rwall'), x, y, { parent, z: 2, glow: false }));
+    const G = el.querySelector('.ps'), cards = [];
+    el.add = (i, t0) => {
+      const c = i % cols, r = Math.floor(i / cols) % rows, px = c * (pw + gap) + gap / 2, py = r * (ph + gap) + gap / 2, rot = (rand(i * 3.3) - 0.5) * 8;
+      const g = node('g', {}, G);
+      node('rect', { x: px, y: py, width: pw, height: ph, rx: 4, fill: '#ececec' }, g);
+      for (let k = 0; k < 4; k++) node('path', { d: `M${px + 10} ${py + 20 + k * 14} H${px + pw - 14 - rand(i + k) * 20}`, stroke: '#a0a0a0', 'stroke-width': 4, 'stroke-linecap': 'round' }, g);
+      node('path', { d: `M${px + 22} ${py + 64} l${pw - 44} 30 M${px + pw - 22} ${py + 64} l${-(pw - 44)} 30`, stroke: '#e5484d', 'stroke-width': 7, 'stroke-linecap': 'round' }, g);
+      const hl = node('rect', { x: px - 3, y: py - 3, width: pw + 6, height: ph + 6, rx: 6, fill: 'none', stroke: '#f5c542', 'stroke-width': 6, opacity: 0 }, g);
+      cards[i] = { g, hl };
+      on((t) => { const k = clamp01((t - t0) / 0.18), e = EASE.out(k); g.setAttribute('opacity', k.toFixed(3)); g.setAttribute('transform', `rotate(${rot.toFixed(1)} ${px + pw / 2} ${py + ph / 2}) translate(${px + pw / 2} ${py + ph / 2}) scale(${(1.35 - 0.35 * e).toFixed(3)}) translate(${-px - pw / 2} ${-py - ph / 2})`); });
+      return el;
+    };
+    el.fill = (t0, t1, n = cols * rows, from = 0) => { for (let i = from; i < n; i++) { const u = (i - from) / Math.max(1, n - from - 1); el.add(i, t0 + (t1 - t0) * Math.pow(u, 0.7)); } return el; };
+    el.highlight = (i, t0) => { const h = cards[i] && cards[i].hl; if (h) on((t) => h.setAttribute('opacity', clamp01((t - t0) / 0.2).toFixed(3))); return el; };
+    return el;
+  }
+  function inbox(x, y, { parent, w = 860, h = 780, title = 'Inbox' } = {}) {      // .mail(i, from, subject, t, tone) .open(t0, t1, from, lines, hlWord)
+    const el = place(sv(w, h, `<rect x="0" y="0" width="${w}" height="${h}" rx="28" fill="#0e1118" stroke="#e6e6e6" stroke-width="8"/><rect x="0" y="0" width="${w}" height="90" rx="28" fill="#161b27"/><rect x="0" y="60" width="${w}" height="30" fill="#161b27"/>
+      <text x="40" y="60" ${MONO} font-size="34" fill="#fff">${title}</text><circle cx="${w - 60}" cy="45" r="20" fill="#2a3245"/><g class="rows"></g><g class="openm" opacity="0"></g>`, 'gx-inbox'), x, y, { parent, z: 6, glow: false });
+    const R = el.querySelector('.rows'), O = el.querySelector('.openm'), rh = 104, maxR = Math.floor((h - 110) / rh);
+    const rows = [];
+    el.mail = (i, from, subject, t0, tone = 'red') => {
+      const g = node('g', {}, R), col = tone === 'gold' ? '#f5c542' : tone === 'green' ? '#4ade80' : '#ff5a5f';
+      node('rect', { x: 24, y: 0, width: w - 48, height: rh - 14, rx: 16, fill: '#171c28', stroke: '#2a3245', 'stroke-width': 3 }, g);
+      node('circle', { cx: 66, cy: (rh - 14) / 2, r: 22, fill: col }, g);
+      const a = node('text', { x: 106, y: 40, 'font-family': 'Inter,Arial', 'font-weight': 800, 'font-size': fit(from, w - 170, 28, 0.58), fill: '#fff' }, g); a.textContent = from;
+      const b = node('text', { x: 106, y: 74, 'font-family': 'Inter,Arial', 'font-weight': 500, 'font-size': fit(subject, w - 170, 24, 0.52), fill: '#9aa4b8' }, g); b.textContent = subject;
+      rows.push([g, t0]); rows.sort((p, q) => p[1] - q[1]);
+      sfx('real/notify-bubble', t0, 0.25, 0.6);
+      return el;
+    };
+    on((t) => {   // newest on top, rows slide down as mail arrives
+      const vis = rows.filter(([, t0]) => t >= t0 - 0.0001);
+      rows.forEach(([g, t0]) => { if (t < t0) { g.setAttribute('opacity', 0); return; }
+        const k = vis.length - 1 - vis.findIndex((r) => r[0] === g); const newer = vis.filter((r) => r[1] > t0);
+        let yy = 110; newer.forEach((r) => { yy += rh * EASE.out(clamp01((t - r[1]) / 0.25)); });
+        const p = clamp01((t - t0) / 0.25); g.setAttribute('opacity', (p * (yy < 110 + rh * maxR ? 1 : 0)).toFixed(3)); g.setAttribute('transform', `translate(${((1 - EASE.out(p)) * -40).toFixed(1)} ${yy.toFixed(1)})`); });
+    });
+    el.open = (t0, t1, from, lines, hl = '') => {
+      node('rect', { x: 24, y: 110, width: w - 48, height: h - 134, rx: 18, fill: '#f2f2f2' }, O);
+      const f = node('text', { x: 60, y: 170, 'font-family': 'Inter,Arial', 'font-weight': 800, 'font-size': fit(from, w - 130, 30, 0.58), fill: '#111' }, O); f.textContent = from;
+      node('path', { d: `M60 196 H${w - 60}`, stroke: '#ccc', 'stroke-width': 3 }, O);
+      lines.forEach((ln, i) => {
+        const tx = node('text', { x: 60, y: 260 + i * 62, 'font-family': 'Inter,Arial', 'font-weight': 700, 'font-size': fit(ln, w - 130, 40, 0.55), fill: '#222' }, O);
+        if (hl && ln.includes(hl)) { const [a, b] = ln.split(hl); const t1s = document.createElementNS(NS, 'tspan'); t1s.textContent = a; const t2 = document.createElementNS(NS, 'tspan'); t2.textContent = hl; t2.setAttribute('fill', '#c98a00'); t2.setAttribute('class', 'hlw'); const t3 = document.createElementNS(NS, 'tspan'); t3.textContent = b; tx.append(t1s, t2, t3); }
+        else tx.textContent = ln;
+      });
+      on((t) => { const k = clamp01((t - t0) / 0.2) * clamp01((t1 - t) / 0.2); O.setAttribute('opacity', k.toFixed(3)); O.setAttribute('transform', `translate(0 ${((1 - EASE.out(clamp01((t - t0) / 0.25))) * 40).toFixed(1)})`); });
+      sfx('real/mouse-click', t0 - 0.05, 0.3, 0.3);
+      return el;
+    };
+    return el;
+  }
+  function storefront(x, floorY, sign, { parent, color = '#f5c542', size = 1 } = {}) {   // .lights(t0)
+    const W = 300, H = 380;
+    let aw = ''; for (let i = 0; i < 6; i++) aw += `<path d="M${20 + i * 43.3} 120 h43.3 v40 q-21.6 18 -43.3 0 z" fill="${i % 2 ? '#f2f2f2' : color}"/>`;
+    const el = back(place(sv(W * size, H * size, `<g transform="scale(${size})"><rect x="12" y="30" width="${W - 24}" height="${H - 30}" fill="#13151b" stroke="#e6e6e6" stroke-width="6"/><rect x="28" y="46" width="${W - 56}" height="60" rx="8" fill="#e6e6e6"/>
+      <text x="${W / 2}" y="${46 + 30 + fit(sign, W - 80, 30) * 0.35}" text-anchor="middle" ${MONO} font-size="${fit(sign, W - 80, 30)}" fill="#111">${sign}</text>${aw}
+      <rect class="sw" x="34" y="200" width="140" height="120" rx="6" fill="#1a1d25" stroke="#e6e6e6" stroke-width="5"/><rect x="194" y="210" width="72" height="170" rx="6" fill="#0d0e12" stroke="#bdbdbd" stroke-width="5"/></g>`, 'gx-store'), x, floorY, { parent, anchor: 'bottom', z: 2, glow: false }));
+    el.lights = (t0) => { const w = el.querySelector('.sw'); on((t) => w.setAttribute('fill', mixc('#1a1d25', '#3a2f14', (t - t0) / 0.3))); return el; };
+    return el;
+  }
+  function siteCard(x, y, label, { parent, color = '#f5c542', scale = 1 } = {}) {        // a little website in a browser window
+    const W = 260, H = 190;
+    const el = place(sv(W * scale, H * scale, `<g transform="scale(${scale})"><rect x="0" y="0" width="${W}" height="${H}" rx="16" fill="#0e1320" stroke="#e6e6e6" stroke-width="5"/><rect x="0" y="0" width="${W}" height="34" rx="16" fill="#1b2235"/><rect x="0" y="20" width="${W}" height="14" fill="#1b2235"/><circle cx="20" cy="17" r="6" fill="#ff5a5f"/><circle cx="40" cy="17" r="6" fill="#f5c542"/><circle cx="60" cy="17" r="6" fill="#4ade80"/>
+      <text x="${W / 2}" y="78" text-anchor="middle" font-family="Inter,Arial" font-weight="900" font-size="${fit(label, W - 40, 30, 0.62)}" fill="#fff">${label}</text><rect x="70" y="98" width="120" height="34" rx="17" fill="${color}"/><rect x="40" y="148" width="80" height="22" rx="6" fill="#2a3450"/><rect x="140" y="148" width="80" height="22" rx="6" fill="#2a3450"/></g>`, 'gx-site'), x, y, { parent, z: 7, glow: false });
+    return el;
+  }
+  function network(x, y, { parent, levels = 3, r0 = 120, step = 120, color = '#f5c542' } = {}) {   // .grow(t0, every): 1 -> 3 -> 9 ... ("every client told two more")
+    const S = (r0 + step * levels) * 2 + 80;
+    const el = place(sv(S, S, '<g class="ln"></g><g class="nd"></g>', 'gx-net'), x, y, { parent, z: 5, glow: false });
+    const L = el.querySelector('.ln'), N = el.querySelector('.nd'), c = S / 2, nodes = [{ x: c, y: c, lv: 0, a: 0 }];
+    for (let lv = 1; lv <= levels; lv++) {
+      const parents = nodes.filter((n) => n.lv === lv - 1), k = parents.length * 2 + (lv === 1 ? 1 : 0);
+      const R = r0 + step * (lv - 1); let j = 0;
+      parents.forEach((p) => { const kids = lv === 1 ? 3 : 2; for (let q = 0; q < kids; q++, j++) { const a = (j / k) * Math.PI * 2 + lv * 0.35; nodes.push({ x: c + Math.cos(a) * R, y: c + Math.sin(a) * R, lv, p }); } });
+    }
+    el.count = nodes.length;
+    el.grow = (t0, every = 0.5) => {
+      nodes.forEach((n, i) => {
+        const tt = t0 + n.lv * every + (rand(i * 1.7) * every * 0.5);
+        if (n.p) { const l = node('path', { d: `M${n.p.x} ${n.p.y} L${n.x} ${n.y}`, stroke: '#6b7280', 'stroke-width': 4, fill: 'none' }, L); const len = Math.hypot(n.x - n.p.x, n.y - n.p.y); l.setAttribute('stroke-dasharray', len); on((t) => l.setAttribute('stroke-dashoffset', (len * (1 - EASE.out(clamp01((t - tt + 0.15) / 0.25)))).toFixed(1))); }
+        const g = node('circle', { cx: n.x, cy: n.y, r: n.lv ? 22 - n.lv * 3 : 34, fill: n.lv ? '#e6e6e6' : color, stroke: '#0b0d12', 'stroke-width': 4 }, N);
+        on((t) => { const k = clamp01((t - tt) / 0.22); g.setAttribute('opacity', k.toFixed(3)); g.setAttribute('r', ((n.lv ? 22 - n.lv * 3 : 34) * EASE.back(k)).toFixed(2)); });
+        if (n.lv && i % 3 === 0) sfx('real/pop', tt, 0.12, 0.3);
+      });
+      return el;
+    };
+    return el;
+  }
+  function diningTable(x, floorY, { parent, w = 620 } = {}) {
+    const el = place(sv(w, 230, `<path d="M20 60 H${w - 20}" stroke="#e6e6e6" stroke-width="10" stroke-linecap="round"/><path d="M40 66 H${w - 40} V150 Q${w / 2} 180 40 150 Z" fill="#1b1d24" stroke="#bdbdbd" stroke-width="5"/><path d="M80 150 V230 M${w - 80} 150 V230" stroke="#bdbdbd" stroke-width="10" stroke-linecap="round"/>
+      <ellipse cx="${w * 0.3}" cy="52" rx="58" ry="12" fill="#e6e6e6"/><ellipse cx="${w * 0.7}" cy="52" rx="58" ry="12" fill="#e6e6e6"/><ellipse cx="${w * 0.5}" cy="48" rx="40" ry="10" fill="#9a9a9a"/>`, 'gx-table'), x, floorY, { parent, anchor: 'bottom', z: 6, glow: false });
+    el.dataset.overlapOk = '';
+    return el;
+  }
+
+  Object.assign(window, { rejectWall, inbox, storefront, siteCard, network, diningTable, classroom, schoolDesk, nightSky, bedroom, deskFront, codeScreen, nightHouse, tvGlow, bakery, shopRow, officeWindow, testPaper, bigPhone, appForm, tears });
 })();
