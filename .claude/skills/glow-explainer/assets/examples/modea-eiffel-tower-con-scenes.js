@@ -159,7 +159,9 @@ const S15 = stageSet(); sceneSwap(S14, S15, C('paid') - 0.4, 'whip');
   S0(hotelSuite({ parent: S15 })); S0(floor(FL, { parent: S15 }));
   const p = person(250, FL, { size: 0.85, parent: S15, ...POISSON }); S0(p); p.pose(C('paid'), 'give', 0.3);
   const sc = suitcase(700, 1150, { parent: S15, size: 1.05 }); S0(sc); sc.fill(C('paid'), C('vienna') - 0.6, 16);
-  const st = stat('Paid', 'Bribe + price', 700, 760, { size: 64, parent: S15, tone: 'gold' }); pop(st, C('price') - 0.2);
+  // reported: ~70,000 francs; modern-dollar estimates vary (50k-.25M) -> the conservative figure, labelled as an estimate
+  const st = stat('Paid · today’s money (est.)', '$0', 700, 760, { size: 84, parent: S15, tone: 'gold' }); pop(st, C('paid') - 0.1);
+  count(st.querySelector('.gx-stat-val'), C('paid'), C('vienna') - C('paid') - 0.4, 0, 250000, (v) => '$' + (Math.round(v / 1000) * 1000).toLocaleString('en-US'));
 }
 
 /* ============ S16 — "Lustig left for Vienna with a suitcase full of cash." ============ */
