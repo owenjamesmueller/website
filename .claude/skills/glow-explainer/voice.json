@@ -1,9 +1,9 @@
 {
   "provider": "elevenlabs",
-  "voice_id": "WkcegOqOPWAl2ZRFBEaw",
-  "voice_name": "Dime (ElevenLabs library: American male narrator, deep, dynamic pacing)",
+  "voice_id": "6FiCmD8eY5VyjOdG5Zjk",
+  "voice_name": "Adam - Deep English Story Voice (ElevenLabs library: deep American storyteller, ~89 Hz)",
   "model_id": "eleven_v3",
-  "tempo": 1.08,
+  "tempo": 1.25,
   "target_wpm": 215,
   "reference": {
     "clip": "IQ 160 video (smartest person is probably broke)",
@@ -17,16 +17,16 @@
   },
   "alternates": [
     {
-      "voice_id": "k0oRjDwazplPRQKtXvUn",
-      "voice_name": "Keanu - deep, rich, smooth storyteller"
+      "voice_id": "WkcegOqOPWAl2ZRFBEaw",
+      "voice_name": "Dime - deep, dynamic"
     },
     {
-      "voice_id": "8IbUB2LiiCZ85IJAHNnZ",
-      "voice_name": "Don - young, casual social-media storyteller"
+      "voice_id": "k0oRjDwazplPRQKtXvUn",
+      "voice_name": "Keanu - deep, smooth"
     }
   ],
-  "post_filter": "highpass=f=70,firequalizer=gain_entry='entry(120,2);entry(250,-1.5);entry(3000,2);entry(7000,-2);entry(12000,-4)',acompressor=threshold=-20dB:ratio=3:attack=5:release=80",
-  "notes": "DEFAULT = male ElevenLabs narrator (the user rejected the female voices and the free local voice). Dime picked from the library: deepest (103 Hz) with the most pitch movement (10.2 st) of 6 American male storytellers. Needs ~1 credit per character on eleven_v3 (a 60 s script ~ 1,200). Free fallback: male_free.",
+  "post_filter": "highpass=f=60,firequalizer=gain_entry='entry(100,2.5);entry(250,-1.5);entry(3000,2);entry(7000,-2);entry(12000,-4)',acompressor=threshold=-20dB:ratio=3:attack=5:release=80",
+  "notes": "DEFAULT = Adam Deep Story on eleven_v3 (the user asked for a more masculine, deeper narrator). v3 audio tags work: [whispers], [dramatic pause]. Generate the whole script in one call (~1 credit per character; 2 takes by default), pick the take whose transcript matches best. If the free tier says 'busy', just retry a minute later. Free fallback: male_free (pitch-shifted).",
   "free_alternative": {
     "engine": "chatterbox (MIT, local, expressive; keeps Resemble's AI watermark)",
     "script": "scripts/tts_chatterbox.py",
@@ -65,5 +65,6 @@
     "model_id": "eleven_v3",
     "tempo": 1.05,
     "post_filter": "firequalizer=gain_entry='entry(125,1.7);entry(180,-4.3);entry(250,-2.8);entry(350,1.5);entry(500,2.1);entry(700,-0.6);entry(1000,-1.0);entry(1400,0.5);entry(2000,-1.5);entry(2800,0.5);entry(4000,1.4);entry(5600,-5.9);entry(8000,-9.1);entry(11000,-8.4);entry(14000,-3.7)',acompressor=threshold=-20dB:ratio=3:attack=5:release=80"
-  }
+  },
+  "process": "silenceremove(-40dB, stop_duration 0.12, keep 0.08) -> atempo 1.25 -> post_filter  (the raw take is slow: ~160 wpm)"
 }
