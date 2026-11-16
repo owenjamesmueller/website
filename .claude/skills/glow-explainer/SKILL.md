@@ -64,7 +64,8 @@ Create `videos/<slug>/` (or use the scratchpad if the user only wants the file).
    `--ex 0.8 --cfg 0.35`, its own `post_filter`); the user rejected the female voices. The script transcribes every sentence and
    re-generates any line whose words don't match (garbled, repeated or dropped words); `--redo N` re-does one line. Tag lines `[hook] [turn] [payoff] [calm]` to set intensity per sentence. Never ship a flat voice: compare its
    pitch spread to the reference (~12 semitones p10–p90); Kokoro alone measures ~8 and sounds monotone.
-   Prefer a TRUE story with real details (verify facts with a search; don't name private people in a negative light).
+   **Prefer a TRUE story with real details** (the user rejected two made-up parables as weak; `modea-eiffel-tower-con` is the model:
+   a real con, a twist, a sharp lesson). Free voice: apply `male_free.pitch_shift` for a deep ~94 Hz narrator. (verify facts with a search; don't name private people in a negative light).
    Download the take, then use fast pacing by default (aim for ~215–225 wpm; the user found 196 wpm slow):
    `ffmpeg -i take.mp3 -af "silenceremove=start_periods=1:start_threshold=-45dB:stop_periods=-1:stop_duration=0.12:stop_threshold=-45dB:stop_silence=0.1,atempo=1.06,<post_filter>" voice.mp3`
    (aim for ~210 wpm). Write numbers as words, and cue scenes on non-number words.

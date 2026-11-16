@@ -1,0 +1,22 @@
+[hook] In nineteen twenty-five, a man sold the Eiffel Tower.
+[hook] Then he came back, and sold it again.
+[turn] His name was Victor Lustig, and it started with a newspaper.
+The tower was rusting, and costing Paris a fortune to repair.
+[hook] Lustig saw what nobody else did.
+He forged government papers, booked a suite in a luxury hotel, and invited scrap metal dealers to a secret meeting.
+[calm] The city, he whispered, was selling the tower for scrap.
+It had to stay quiet, or Paris would riot.
+[turn] One dealer, Andre Poisson, wanted it badly.
+But his wife was suspicious. Why all the secrecy?
+[hook] So Lustig did something genius.
+[calm] He confessed.
+He admitted he was a corrupt official, and needed a bribe.
+[payoff] Poisson relaxed. Corrupt officials were normal. Fake ones weren't.
+He paid the bribe, and the price.
+Lustig left for Vienna with a suitcase full of cash.
+[turn] And the victim? He was too embarrassed to tell the police.
+[hook] So six months later, Lustig came back, and did it again.
+[calm] This time, the buyer went to the police. Lustig escaped.
+Years later, he ended up in Alcatraz.
+[payoff] He didn't win by hiding a secret.
+[payoff] He won by confessing a smaller one.
