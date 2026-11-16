@@ -84,11 +84,11 @@
   }
 
   // ---------------- story props ----------------
-  function stamp(text, x, y, t0, { parent, color = '#e5484d', rot = -12 } = {}) {
+  function stamp(text, x, y, t0, { parent, color = '#e5484d', rot = -12, size = 86 } = {}) {
     const d = document.createElement('div'); d.className = 'gx-stamp'; d.textContent = text;
-    d.style.cssText = `font-family:'Space Mono',monospace;font-weight:700;font-size:86px;letter-spacing:.08em;color:${color};border:10px solid ${color};border-radius:16px;padding:6px 30px;white-space:nowrap;background:rgba(5,5,5,.7)`;
+    d.style.cssText = `font-family:'Space Mono',monospace;font-weight:700;font-size:${size}px;letter-spacing:.08em;color:${color};border:${Math.round(size / 8.6)}px solid ${color};border-radius:16px;padding:6px 30px;white-space:nowrap;background:rgba(5,5,5,.7)`;
     const el = place(d, x, y, { parent, z: 25, glow: false }); el.dataset.glowColor = '229,72,77';
-    tw(el, t0, 0.01, { opacity: [0, 1] }); tw(el, t0, 0.22, { scale: [2.6, 1], rotate: [rot - 10, rot] }, 'in');
+    tw(el, t0, 0.09, { opacity: [0, 1] }, 'linear'); tw(el, t0, 0.24, { scale: [1.9, 1], rotate: [rot - 8, rot] }, 'in');   // 5-frame fade: no 1-frame pop
     tw(el, t0 + 0.22, 0.25, { scale: [1, 1.04] }, 'out');
     sfx(window.GX_WHOOSH !== undefined && window.GX_WHOOSH < 0.3 ? 'real/impact-wood' : 'real/impact-trailer', t0 + 0.16, window.GX_WHOOSH !== undefined && window.GX_WHOOSH < 0.3 ? 0.35 : 0.6, 1.5);
     return el;

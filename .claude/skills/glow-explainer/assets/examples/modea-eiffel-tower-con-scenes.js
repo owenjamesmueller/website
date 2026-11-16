@@ -68,7 +68,7 @@ const S6 = stageSet(); sceneSwap(S5, S6, C('forged') - 0.4, 'whip');
 {
   const f = appForm(540, 905, { parent: S6, title: 'MINISTRY OF POSTS', labels: ['OFFICIAL', 'TITLE', 'MATTER'] }); S0(f);
   f.fill(0, 'V. Lustig', C('forged'), 0.4); f.fill(1, 'Deputy Director', C('government'), 0.4); f.fill(2, 'Sale of the tower', C('papers'), 0.4);
-  stamp('OFFICIAL', 540, 1150, C('papers') + 0.35, { parent: S6, color: GOLD, rot: -8 });
+  stamp('OFFICIAL', 540, 1150, C('papers') + 0.35, { parent: S6, color: GOLD, rot: -8, size: 60 });
 }
 
 /* ============ S7 — "booked a suite in a luxury hotel, and invited scrap metal dealers to a secret meeting." ============ */
