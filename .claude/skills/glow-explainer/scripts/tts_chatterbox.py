@@ -26,9 +26,17 @@ a = ap.parse_args()
 import os, difflib, hashlib
 from faster_whisper import WhisperModel
 asr = WhisperModel("small", compute_type="int8")
-NUM = {"0": "zero", "1": "one", "2": "two", "3": "three", "4": "four", "5": "five", "6": "six", "7": "seven", "8": "eight", "9": "nine", "10": "ten",
-       "11": "eleven", "12": "twelve", "13": "thirteen", "19": "nineteen", "20": "twenty", "25": "twentyfive", "50": "fifty"}
-def words(t): return [NUM.get(w, w) for w in re.sub(r"[^a-z0-9 ]", " ", t.lower().replace("-", " ").replace("'", "")).split()]
+ONES = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen".split()
+TENS = "_ _ twenty thirty forty fifty sixty seventy eighty ninety".split()
+def n2w(n):          # 99 -> "ninety nine", 100 -> "one hundred" (the recognizer writes digits; scripts spell numbers out)
+    if n < 20: return ONES[n]
+    if n < 100: return TENS[n // 10] + ("" if n % 10 == 0 else " " + ONES[n % 10])
+    if n < 1000: return ONES[n // 100] + " hundred" + ("" if n % 100 == 0 else " " + n2w(n % 100))
+    return n2w(n // 1000) + " thousand" + ("" if n % 1000 == 0 else " " + n2w(n % 1000))
+def words(t):
+    t = re.sub(r"(\d),(\d)", r"\1\2", t.lower()).replace("-", " ").replace("'", "")
+    t = re.sub(r"\d+", lambda m: " " + n2w(int(m.group())) + " ", t)
+    return re.sub(r"[^a-z ]", " ", t).split()
 def match(wav, sr, sent):
     import librosa
     y = librosa.resample(wav.astype(np.float32), orig_sr=sr, target_sr=16000)
